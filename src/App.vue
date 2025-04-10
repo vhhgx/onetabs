@@ -7,7 +7,7 @@
       </div>
     </header>
     
-    <div class="tab-groups" v-if="tabGroups.length > 0">
+    <div class="tab-groups" v-if="tabGroups?.length > 0">
       <div class="tab-group" v-for="(group, groupIndex) in tabGroups" :key="groupIndex">
         <div class="group-header">
           <h2>{{ formatDate(group.date) }}</h2>
@@ -31,56 +31,35 @@
 </template>
 
 <script>
-export default {
+import { useTabsStore } from './stores/tabsStore'
+import { defineComponent, onMounted, watch } from 'vue'
+
+export default defineComponent({
   name: 'App',
-  data() {
+  
+  setup() {
+    const tabsStore = useTabsStore()
+    
+    // 在应用加载时初始化数据
+    onMounted(async () => {
+      await tabsStore.loadTabs()
+    })
+    
+    // 如果需要监听某些状态变化，可以使用 watch
+    watch(
+      () => [tabsStore.tabs, tabsStore.tabGroups],
+      () => {
+        console.log('Tabs or tab groups changed')
+        // 可以在这里执行一些操作
+      },
+      { deep: true }
+    )
+    
     return {
-      tabGroups: []
-    }
-  },
-  mounted() {
-    this.loadTabGroups();
-  },
-  methods: {
-    loadTabGroups() {
-      chrome.storage.local.get(['tabGroups'], (result) => {
-        this.tabGroups = result.tabGroups || [];
-      });
-    },
-    saveCurrentTabs() {
-      chrome.runtime.sendMessage({ action: 'saveTabs' });
-      // 延迟加载保存的标签组
-      setTimeout(() => {
-        this.loadTabGroups();
-      }, 500);
-    },
-    formatDate(timestamp) {
-      const date = new Date(timestamp);
-      return date.toLocaleString('zh-CN');
-    },
-    restoreGroup(groupIndex) {
-      const group = this.tabGroups[groupIndex];
-      group.tabs.forEach(tab => {
-        chrome.tabs.create({ url: tab.url });
-      });
-    },
-    deleteGroup(groupIndex) {
-      this.tabGroups.splice(groupIndex, 1);
-      this.saveTabGroups();
-    },
-    deleteTab(groupIndex, tabIndex) {
-      this.tabGroups[groupIndex].tabs.splice(tabIndex, 1);
-      // 如果组中没有标签了，删除整个组
-      if (this.tabGroups[groupIndex].tabs.length === 0) {
-        this.tabGroups.splice(groupIndex, 1);
-      }
-      this.saveTabGroups();
-    },
-    saveTabGroups() {
-      chrome.storage.local.set({ tabGroups: this.tabGroups });
+      // 返回需要在模板中使用的内容
     }
   }
-}
+})
 </script>
 
 <style>

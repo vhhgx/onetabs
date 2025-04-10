@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "vue": "^3.3.4",
-    "vuex": "^4.1.0"
+    "pinia": "^2.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
