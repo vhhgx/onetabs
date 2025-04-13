@@ -15,11 +15,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function saveTabs() {
   // 获取当前窗口
   const currentWindow = await chrome.windows.getCurrent();
+
+  console.log('保存标签页:', currentWindow);
+  
+
   // 获取当前窗口中的所有标签页
   const tabs = await chrome.tabs.query({ windowId: currentWindow.id });
   
   // 检查是否已经有OneTab页面打开
-  const onetabsUrl = chrome.runtime.getURL('onetabs.html');
+  const onetabsUrl = chrome.runtime.getURL('index.html');
   let onetabTabId = null;
   
   for (const tab of tabs) {

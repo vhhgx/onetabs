@@ -1,65 +1,16 @@
 <template>
-  <div class="onetabs-app">
-    <header>
-      <h1>OneTabs</h1>
-      <div class="actions">
-        <button @click="saveCurrentTabs" class="save-btn">保存当前标签</button>
-      </div>
-    </header>
-    
-    <div class="tab-groups" v-if="tabGroups?.length > 0">
-      <div class="tab-group" v-for="(group, groupIndex) in tabGroups" :key="groupIndex">
-        <div class="group-header">
-          <h2>{{ formatDate(group.date) }}</h2>
-          <button @click="restoreGroup(groupIndex)" class="restore-btn">恢复所有</button>
-          <button @click="deleteGroup(groupIndex)" class="delete-btn">删除组</button>
-        </div>
-        <ul class="tab-list">
-          <li v-for="(tab, tabIndex) in group.tabs" :key="tabIndex" class="tab-item">
-            <img :src="tab.favIconUrl || 'icons/default-favicon.png'" alt="icon" class="tab-icon">
-            <a :href="tab.url" target="_blank">{{ tab.title }}</a>
-            <button @click="deleteTab(groupIndex, tabIndex)" class="delete-tab-btn">×</button>
-          </li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="empty-state" v-else>
-      <p>没有保存的标签页组。点击"保存当前标签"按钮保存打开的标签页。</p>
-    </div>
-  </div>
+  <TabGroupsManager />
 </template>
 
 <script>
-import { useTabsStore } from './stores/tabsStore'
-import { defineComponent, onMounted, watch } from 'vue'
+import TabGroupsManager from './components/TabGroupsManager.vue'
 
-export default defineComponent({
+export default {
   name: 'App',
-  
-  setup() {
-    const tabsStore = useTabsStore()
-    
-    // 在应用加载时初始化数据
-    onMounted(async () => {
-      await tabsStore.loadTabs()
-    })
-    
-    // 如果需要监听某些状态变化，可以使用 watch
-    watch(
-      () => [tabsStore.tabs, tabsStore.tabGroups],
-      () => {
-        console.log('Tabs or tab groups changed')
-        // 可以在这里执行一些操作
-      },
-      { deep: true }
-    )
-    
-    return {
-      // 返回需要在模板中使用的内容
-    }
+  components: {
+    TabGroupsManager
   }
-})
+}
 </script>
 
 <style>
