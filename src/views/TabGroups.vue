@@ -33,7 +33,7 @@
               class="tab-item"
               :data-tab-index="tabIndex">
               <img
-                :src="tab.favIconUrl || 'icons/default-favicon.png'"
+                :src="tab.favIconUrl || '/icons/icon16.png'"
                 alt="icon"
                 class="tab-icon" />
               <a :href="tab.url" target="_blank">{{ tab.title }}</a>

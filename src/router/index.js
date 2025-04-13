@@ -1,26 +1,37 @@
-import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import { createRouter, createWebHashHistory } from 'vue-router'
+import TabGroups from '../views/TabGroups.vue'
 
 const routes = [
-  // {
-  //   path: "/",
-  //   name: "home",
-  //   component: HomeView,
-  // },
-  // {
-  //   path: "/about",
-  //   name: "about",
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () =>
-  //     import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  // },
-];
+  {
+    path: '/',
+    name: 'Group',
+    component: TabGroups,
+    // 添加元数据帮助页面识别
+    meta: {
+      title: '标签管理',
+      keepAlive: true, // 启用组件缓存
+    },
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/Settings.vue'),
+    meta: {
+      title: '设置',
+      keepAlive: false,
+    },
+  },
+  // 重定向所有未知路径
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/',
+  },
+]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes,
-});
+})
 
-export default router;
+export default router

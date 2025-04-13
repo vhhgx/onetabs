@@ -21,6 +21,7 @@ function chromeExtensionPlugins() {
       const BGDIST = resolve(DIST, 'background.js') // 背景脚本输出路径
       const MANIFEST = resolve(__dirname, 'src/assets/manifest.json') // manifest源路径
       const MFDIST = resolve(DIST, 'manifest.json') // manifest输出路径
+      const DEFAULT_ICON = resolve(ICONDIST, 'default-favicon.png') // 默认图标
 
       console.log('🚀 正在复制manifest')
 
@@ -52,6 +53,13 @@ function chromeExtensionPlugins() {
           } catch (err) {
             console.error(`❌ 创建图标尺寸 ${size} 失败:`, err)
           }
+        }
+
+        try {
+          await sharp(LOGOIMG).resize(16, 16).toFile(DEFAULT_ICON)
+          console.log('✅ 已创建默认图标')
+        } catch (err) {
+          console.error('❌ 创建默认图标失败:', err)
         }
       } else {
         console.error(
@@ -86,5 +94,18 @@ export default defineConfig({
         assetFileNames: '[name].[ext]',
       },
     },
+  },
+
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
+
+  // 开发服务器配置
+  server: {
+    port: 5173,
+    open: true,
+    cors: true,
   },
 })
