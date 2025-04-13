@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "OneTabs",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "保存并管理Chrome标签页",
   "action": {
     "default_icon": {
