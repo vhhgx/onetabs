@@ -1,142 +1,78 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
+
+import { writeFileSync, copyFileSync, existsSync, mkdirSync } from 'fs'
+import sharp from 'sharp' // 添加sharp依赖，用于处理图像调整大小
 
 // 自定义插件，用于处理 Chrome 扩展程序的所需文件
-function chromeExtensionPlugin() {
+function chromeExtensionPlugins() {
   return {
     name: 'chrome-extension',
 
     // 构建结束后的钩子
-    //
-    closeBundle: async () => {},
+    closeBundle: async () => {
+      console.log('📦 正在处理Chrome插件文件')
+
+      const DIST = resolve(__dirname, 'dist') // 构建输出目录
+      const LOGOIMG = resolve(__dirname, 'src/assets/logo.png') // 图标
+      const ICONDIST = resolve(DIST, 'icons') // 图标输出目录
+      const BACKGROUND = resolve(__dirname, 'src/assets/background.js') // 背景脚本源路径
+      const BGDIST = resolve(DIST, 'background.js') // 背景脚本输出路径
+      const MANIFEST = resolve(__dirname, 'src/assets/manifest.json') // manifest源路径
+      const MFDIST = resolve(DIST, 'manifest.json') // manifest输出路径
+
+      console.log('🚀 正在复制manifest')
+
+      if (existsSync(MANIFEST)) {
+        copyFileSync(MANIFEST, MFDIST)
+        console.log('✅ manifest.json已复制')
+      } else {
+        console.error('❌ 源 manifest.json不存在')
+      }
+
+      console.log('🚀 正在生成图标文件')
+
+      // 不存在时创建图标目录
+      if (!existsSync(ICONDIST)) {
+        mkdirSync(ICONDIST, { recursive: true })
+      }
+
+      if (existsSync(LOGOIMG)) {
+        // 使用 sharp 库处理图标
+        const iconSizes = [16, 48, 128]
+
+        for (const size of iconSizes) {
+          try {
+            // 使用sharp调整图标大小
+            const ICON = resolve(ICONDIST, `icon${size}.png`)
+            await sharp(LOGOIMG).resize(size, size).toFile(ICON)
+
+            console.log(`✅ 已生成 ${size} x ${size} 尺寸图标`)
+          } catch (err) {
+            console.error(`❌ 创建图标尺寸 ${size} 失败:`, err)
+          }
+        }
+      } else {
+        console.error(
+          '❌ 源logo.png不存在！请确保 src/assets/logo.png 文件存在'
+        )
+      }
+
+      console.log('🚀 正在复制背景脚本')
+
+      if (!existsSync(BGDIST) && existsSync(BACKGROUND)) {
+        copyFileSync(BACKGROUND, BGDIST)
+        console.log('✅ 背景脚本已复制')
+      }
+
+      console.log('✨ Chrome扩展处理完成!')
+    },
   }
 }
 
-// // 自定义插件示例（完整版）
-// function myVitePlugin() {
-//   return {
-//     name: 'my-vite-plugin',
-
-//     // 修改Vite配置
-//     config(config) {
-//       return {
-//         // 合并配置
-//         ...config,
-//         // 添加自定义配置
-//         customOption: true
-//       }
-//     },
-
-//     // Vite配置解析后
-//     configResolved(resolvedConfig) {
-//       // 存储最终解析的配置
-//       console.log(resolvedConfig)
-//     },
-
-//     // 配置开发服务器
-//     configureServer(server) {
-//       // 添加自定义中间件
-//       server.middlewares.use((req, res, next) => {
-//         // 自定义处理逻辑
-//         next()
-//       })
-
-//       // 或在服务器启动后执行
-//       return () => {
-//         // 服务器启动后执行的代码
-//       }
-//     },
-
-//     // 转换HTML内容
-//     transformIndexHtml(html) {
-//       return html.replace(
-//         /<title>(.*?)<\/title>/,
-//         `<title>Modified Title</title>`
-//       )
-//     },
-
-//     // 解析模块ID (Rollup钩子)
-//     resolveId(source, importer) {
-//       if (source === 'virtual-module') {
-//         // 返回一个虚拟模块的ID
-//         return source
-//       }
-//       return null // 让其他插件处理
-//     },
-
-//     // 加载模块内容 (Rollup钩子)
-//     load(id) {
-//       if (id === 'virtual-module') {
-//         // 返回虚拟模块的内容
-//         return 'export default "This is a virtual module"'
-//       }
-//       return null // 让其他插件处理
-//     },
-
-//     // 转换模块内容 (Rollup钩子)
-//     transform(code, id) {
-//       if (id.endsWith('.js')) {
-//         // 转换JS文件内容
-//         return {
-//           code: `/* 添加注释 */\n${code}`,
-//           map: null // 可选的source map
-//         }
-//       }
-//     },
-
-//     // 热更新处理
-//     handleHotUpdate(ctx) {
-//       // 自定义HMR逻辑
-//       console.log('file changed:', ctx.file)
-//       // 可以返回自定义的更新模块列表
-//       return ctx.modules
-//     }
-//   }
-// }
-
 export default defineConfig({
-  plugins: [
-    vue(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'src/manifest.json',
-          dest: '',
-        },
-        {
-          src: 'src/background.js',
-          dest: '',
-        },
-        {
-          src: 'src/assets/logo.png',
-          dest: 'icons',
-          rename: 'icon128.png',
-        },
-        {
-          src: 'src/assets/logo.png',
-          dest: 'icons',
-          rename: 'icon48.png',
-        },
-        {
-          src: 'src/assets/logo.png',
-          dest: 'icons',
-          rename: 'icon16.png',
-        },
-        {
-          src: 'src/assets/logo.png',
-          dest: 'icons',
-          rename: 'default-favicon.png',
-        },
-        {
-          src: 'src/assets/logo.png',
-          dest: 'icons',
-          rename: 'logo.png',
-        },
-      ],
-    }),
-  ],
+  plugins: [vue(), chromeExtensionPlugins()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
