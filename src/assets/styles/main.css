@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+
+.scrollbar {
+  overflow: auto;
+}
+
+/* 自定义滚动条样式 */
+.scrollbar::-webkit-scrollbar {
+  width: 8px; /* 滚动条宽度 */
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  /*background: #f1f1f1; !* 滚动条轨道背景 *!*/
+  border-radius: 4px; /* 轨道圆角 */
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #c0c4cc; /* 滚动条滑块颜色 */
+  border-radius: 4px; /* 滑块圆角 */
+  transition: background 0.3s;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a0a4ac; /* 鼠标悬停时滑块颜色 */
+}

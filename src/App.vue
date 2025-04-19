@@ -1,61 +1,44 @@
 <template>
-  <div class="app-container">
-    <nav class="app-navbar">
-      <router-link to="/" :class="{ active: $route.path === '/' }"
-        >标签管理</router-link
-      >
-      <router-link
-        to="/settings"
-        :class="{ active: $route.path === '/settings' }"
-        >设置</router-link
-      >
-    </nav>
 
-    <!-- 使用条件渲染代替复杂的渲染函数 -->
-    <transition name="fade" mode="out-in">
-      <div :key="$route.path">
-        <!-- 需要缓存的组件 -->
-        <keep-alive v-if="$route.meta.keepAlive">
-          <router-view />
-        </keep-alive>
+  <transition name="fade" mode="out-in">
+    <div :key="$route.path" style="height: 100vh">
+      <!-- 需要缓存的组件 -->
+      <keep-alive v-if="$route.meta.keepAlive">
+        <router-view />
+      </keep-alive>
 
-        <!-- 不需要缓存的组件 -->
-        <router-view v-if="!$route.meta.keepAlive" />
-      </div>
-    </transition>
-  </div>
+      <!-- 不需要缓存的组件 -->
+      <router-view v-if="!$route.meta.keepAlive" />
+    </div>
+  </transition>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'App',
+  name: 'App'
 })
 </script>
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f5f5f5;
-}
+<style lang="scss" scoped>
 
+//
 .onetabs-app {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #e0e0e0;
-}
+//header {
+//  display: flex;
+//  justify-content: space-between;
+//  align-items: center;
+//  margin-bottom: 20px;
+//  padding-bottom: 10px;
+//  border-bottom: 1px solid #e0e0e0;
+//  height: 80px;
+//}
 
 h1 {
   margin: 0;
@@ -179,16 +162,16 @@ button:hover {
   font-size: 16px;
 }
 
-.app-container {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.app-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
+//.app-container {
+//  width: 100%;
+//  min-height: 100vh;
+//}
+//
+//.app-container {
+//  max-width: 1200px;
+//  margin: 0 auto;
+//  padding: 20px;
+//}
 
 .app-navbar {
   display: flex;
