@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "OneTabs",
-  "version": "0.0.3",
-  "description": "保存并管理Chrome标签页",
+  "version": "0.0.4",
+  "description": "保存并管理Chrome标签页及分组",
   "action": {
     "default_icon": {
       "16": "icons/icon16.png",
@@ -13,7 +13,8 @@
   },
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "tabGroups"
   ],
   "background": {
     "service_worker": "background.js"
