@@ -9,29 +9,29 @@ const routes = [
     // 添加元数据帮助页面识别
     meta: {
       title: '标签管理',
-      keepAlive: true, // 启用组件缓存
-    },
+      keepAlive: true // 启用组件缓存
+    }
   },
-  {
-    path: '/settings',
-    name: 'settings',
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/Settings.vue'),
-    meta: {
-      title: '设置',
-      keepAlive: false,
-    },
-  },
+  // {
+  //   path: '/settings',
+  //   name: 'settings',
+  //   component: () =>
+  //     import(/* webpackChunkName: "about" */ '../views/Settings.vue'),
+  //   meta: {
+  //     title: '设置',
+  //     keepAlive: false,
+  //   },
+  // },
   // 重定向所有未知路径
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/',
-  },
+    redirect: '/'
+  }
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes,
+  routes
 })
 
 export default router
