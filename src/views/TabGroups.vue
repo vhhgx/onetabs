@@ -1,47 +1,69 @@
 <template>
   <div class="page-container">
     <div class="main-container">
-      <div id="左侧滚动条部分" class="tab-groups">
-        2
-      </div>
+      <div id="左侧滚动条部分" class="tab-groups">2</div>
 
       <div id="右（中）侧收藏夹" class="collection-groups">
-        <div style=" display: flex; justify-content: space-between; padding-bottom: 20px; ">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 20px;
+          ">
           <div style="font-size: 64px; font-weight: bold">21:23</div>
 
-          <div>搜索框</div>
+          <div class="">
+            <InputText type="text" v-model="value" />
+          </div>
         </div>
 
-        <div style="  flex: 1;">
-          <div style="display: flex; padding-bottom: 12px;">
-            <div style="font-size: 18px; padding: 10px 32px; border-bottom: 2px solid #2d9249;">标签</div>
-            <div style="font-size: 18px; padding: 10px 32px; border-bottom: 2px solid transparent;">标签</div>
+        <div style="flex: 1">
+          <div style="height: 160px; background-color: white">固定的滑动区</div>
+
+          <div style="display: flex; padding-bottom: 12px">
+            <div
+              style="
+                font-size: 18px;
+                padding: 10px 32px;
+                border-bottom: 2px solid #2d9249;
+              ">
+              标签
+            </div>
+            <div
+              style="
+                font-size: 18px;
+                padding: 10px 32px;
+                border-bottom: 2px solid transparent;
+              ">
+              标签
+            </div>
           </div>
 
-          <div style="height: 160px; background-color: white">
-            固定的滑动区
-          </div>
-
-          <div style="display: flex; flex-direction: column;">
-
-            <div style="display: flex;">
+          <div style="display: flex; flex-direction: column">
+            <div style="display: flex">
               <div v-for="item in 8">
-                <div style="padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px">
-                  <img src="https://nuxt.com/icon.png" alt="" style="width: 40px; height: 40px;" />
-                  <div style="font-size: 14px;">文字内容</div>
+                <div
+                  style="
+                    padding: 16px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 4px;
+                  ">
+                  <img
+                    src="https://nuxt.com/icon.png"
+                    alt=""
+                    style="width: 40px; height: 40px" />
+                  <div style="font-size: 14px">文字内容</div>
                 </div>
               </div>
             </div>
-
-
 
             <div>收藏夹</div>
           </div>
         </div>
       </div>
-      <div id="组件区域" style="width: 380px; background-color: #8d9249">
-
-      </div>
+      <div id="组件区域" style="width: 380px; background-color: #8d9249"></div>
     </div>
     <!-- 左侧 OneTabs 部分 -->
     <!--    <div class="onetabs-container">-->
@@ -117,6 +139,13 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { getTabGroups, saveTabGroups } from '@/utils/chrome-storage'
+import InputText from 'primevue/inputtext'
+
+import Tabs from 'primevue/tabs'
+import TabList from 'primevue/tablist'
+import Tab from 'primevue/tab'
+import TabPanels from 'primevue/tabpanels'
+import TabPanel from 'primevue/tabpanel'
 
 const tabGroups = ref([])
 
@@ -171,7 +200,7 @@ const restoreWithGroups = async (groupIndex) => {
       const newTab = await chrome.tabs.create({
         windowId: newWindow.id,
         url: tab.url,
-        active: false
+        active: false,
       })
       tabIds.push(newTab.id)
     }
@@ -182,13 +211,13 @@ const restoreWithGroups = async (groupIndex) => {
       // 添加到一个新分组
       const newGroupId = await chrome.tabs.group({
         tabIds: tabIds,
-        createProperties: { windowId: newWindow.id }
+        createProperties: { windowId: newWindow.id },
       })
 
       // 设置分组属性
       await chrome.tabGroups.update(newGroupId, {
         title: group.title || '未命名分组',
-        color: group.groupInfo ? group.groupInfo.color : 'blue'
+        color: group.groupInfo ? group.groupInfo.color : 'blue',
       })
 
       console.log('分组创建成功，ID:', newGroupId)
@@ -201,15 +230,15 @@ const restoreWithGroups = async (groupIndex) => {
 // 获取分组颜色样式
 const getGroupColorStyle = (color) => {
   const colorMap = {
-    'grey': '#5f6368',
-    'blue': '#1a73e8',
-    'red': '#d93025',
-    'yellow': '#f9ab00',
-    'green': '#1e8e3e',
-    'pink': '#d01884',
-    'purple': '#a142f4',
-    'cyan': '#007b83',
-    'orange': '#fa903e'
+    grey: '#5f6368',
+    blue: '#1a73e8',
+    red: '#d93025',
+    yellow: '#f9ab00',
+    green: '#1e8e3e',
+    pink: '#d01884',
+    purple: '#a142f4',
+    cyan: '#007b83',
+    orange: '#fa903e',
   }
 
   return colorMap[color] || '#5f6368' // 默认灰色
@@ -262,7 +291,6 @@ const resetStorage = async () => {
 </script>
 
 <style scoped lang="scss">
-
 // 响应式布局
 
 //// 小尺寸
@@ -281,15 +309,14 @@ const resetStorage = async () => {
 //  }
 //}
 
-
 .page-container {
   display: flex;
   //width: 1800px;
   //width: 100%;
   //margin: 0 auto;
 
-
-  height: calc(100% - 48px);
+  // height: calc(100% - 48px);
+  height: 100%;
   padding: 24px;
 
   .main-container {
@@ -301,7 +328,6 @@ const resetStorage = async () => {
     .tab-groups {
       background-color: #1a73e8;
       width: 340px;
-
     }
 
     .collection-groups {

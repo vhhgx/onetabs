@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import Components from 'unplugin-vue-components/vite'
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 import { writeFileSync, copyFileSync, existsSync, mkdirSync } from 'fs'
 import sharp from 'sharp' // 添加sharp依赖，用于处理图像调整大小
@@ -80,7 +83,14 @@ function chromeExtensionPlugins() {
 }
 
 export default defineConfig({
-  plugins: [vue(), chromeExtensionPlugins()],
+  plugins: [
+    vue(),
+    chromeExtensionPlugins(),
+    tailwindcss(),
+    Components({
+      resolvers: [PrimeVueResolver()],
+    }),
+  ],
   build: {
     outDir: 'dist',
     emptyOutDir: true,
