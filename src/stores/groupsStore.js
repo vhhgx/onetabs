@@ -3,13 +3,13 @@ import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
 
 export const useGroupsStore = defineStore('groups', {
   state: () => ({
-    groups: []
+    groups: [],
   }),
-  
+
   getters: {
     getGroups: (state) => state.groups,
   },
-  
+
   actions: {
     async loadGroups() {
       try {
@@ -21,7 +21,7 @@ export const useGroupsStore = defineStore('groups', {
         console.error('加载组数据失败:', error)
       }
     },
-    
+
     async saveGroups() {
       try {
         await chromeStorageSet('onetabs_groups', this.groups)
@@ -29,7 +29,7 @@ export const useGroupsStore = defineStore('groups', {
         console.error('保存组数据失败:', error)
       }
     },
-    
+
     // 其他原有模块中的方法...
-  }
+  },
 })

@@ -2,8 +2,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import tailwindcss from '@tailwindcss/vite'
-import Components from 'unplugin-vue-components/vite'
-import { PrimeVueResolver } from '@primevue/auto-import-resolver'
+// import Components from 'unplugin-vue-components/vite'
+// import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 import { writeFileSync, copyFileSync, existsSync, mkdirSync } from 'fs'
 import sharp from 'sharp' // 添加sharp依赖，用于处理图像调整大小
@@ -65,9 +65,7 @@ function chromeExtensionPlugins() {
           console.error('❌ 创建默认图标失败:', err)
         }
       } else {
-        console.error(
-          '❌ 源logo.png不存在！请确保 src/assets/logo.png 文件存在'
-        )
+        console.error('❌ 源logo.png不存在！请确保 src/assets/logo.png 文件存在')
       }
 
       console.log('🚀 正在复制背景脚本')
@@ -87,9 +85,9 @@ export default defineConfig({
     vue(),
     chromeExtensionPlugins(),
     tailwindcss(),
-    Components({
-      resolvers: [PrimeVueResolver()],
-    }),
+    // Components({
+    //   resolvers: [PrimeVueResolver()],
+    // }),
   ],
   build: {
     outDir: 'dist',

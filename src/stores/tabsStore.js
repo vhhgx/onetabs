@@ -6,16 +6,16 @@ export const useTabsStore = defineStore('tabs', {
     tabs: [],
     tabGroups: [],
     isLoading: false,
-    lastSaved: null
+    lastSaved: null,
   }),
-  
+
   getters: {
     getTabs: (state) => state.tabs,
     getTabGroups: (state) => state.tabGroups,
     hasTabs: (state) => state.tabs.length > 0,
     sortedTabs: (state) => [...state.tabs].sort((a, b) => a.title.localeCompare(b.title)),
   },
-  
+
   actions: {
     async loadTabs() {
       try {
@@ -29,32 +29,32 @@ export const useTabsStore = defineStore('tabs', {
         console.error('加载标签数据失败:', error)
       }
     },
-    
+
     async saveTabs() {
       try {
         // 保存数据到 Chrome 存储
         await chromeStorageSet('onetabs_data', {
           tabs: this.tabs,
-          tabGroups: this.tabGroups
+          tabGroups: this.tabGroups,
         })
         this.lastSaved = new Date().toISOString()
       } catch (error) {
         console.error('保存标签数据失败:', error)
       }
     },
-    
+
     async getCurrentTabs() {
       if (chrome.tabs) {
         try {
           const tabs = await chrome.tabs.query({ currentWindow: true })
           // 处理获取到的标签
-          const simplifiedTabs = tabs.map(tab => ({
+          const simplifiedTabs = tabs.map((tab) => ({
             id: tab.id,
             url: tab.url,
             title: tab.title,
-            favIconUrl: tab.favIconUrl
+            favIconUrl: tab.favIconUrl,
           }))
-          
+
           this.tabs = [...this.tabs, ...simplifiedTabs]
           // 保存新增的标签
           await this.saveTabs()
@@ -66,28 +66,28 @@ export const useTabsStore = defineStore('tabs', {
       }
       return []
     },
-    
+
     async createTabGroup(name, tabIds = []) {
       const newGroup = {
         id: Date.now(),
         name,
         createdAt: new Date().toISOString(),
-        tabs: tabIds.length ? tabIds : this.tabs.map(tab => tab.id)
+        tabs: tabIds.length ? tabIds : this.tabs.map((tab) => tab.id),
       }
-      
+
       this.tabGroups.push(newGroup)
       await this.saveTabs()
       return newGroup
     },
-    
+
     removeTab(tabId) {
-      this.tabs = this.tabs.filter(tab => tab.id !== tabId)
+      this.tabs = this.tabs.filter((tab) => tab.id !== tabId)
       this.saveTabs()
     },
-    
+
     clearAllTabs() {
       this.tabs = []
       this.saveTabs()
-    }
-  }
+    },
+  },
 })

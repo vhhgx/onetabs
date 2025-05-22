@@ -2,9 +2,11 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
 import App from './App.vue'
-import '../src/style/index.css'
+import './assets/style/index.css'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
+
+import Tooltip from 'primevue/tooltip'
 
 const app = createApp(App)
 
@@ -29,10 +31,12 @@ app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
-      prefix: 'p',
+      // prefix: 'p',
       darkModeSelector: false,
-      cssLayer: false,
     },
   },
 })
+
+app.directive('tooltip', Tooltip)
+
 app.mount('#app')
