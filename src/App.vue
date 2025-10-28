@@ -1,16 +1,25 @@
 <template>
   <div class="app-container">
+    <!-- 顶部导航 -->
+    <nav class="app-navbar">
+      <div class="nav-brand">
+        <i class="pi pi-bookmark"></i>
+        <span>OneTabs</span>
+      </div>
+      <div class="nav-links">
+        <router-link to="/" :class="{ active: $route.path === '/' }">
+          <i class="pi pi-list"></i>
+          <span>标签列表</span>
+        </router-link>
+        <router-link to="/groups" :class="{ active: $route.path === '/groups' }">
+          <i class="pi pi-objects-column"></i>
+          <span>标签组</span>
+        </router-link>
+      </div>
+    </nav>
+
+    <!-- 路由视图 -->
     <router-view />
-    <!--    <nav class="app-navbar">-->
-    <!--      <router-link to="/" :class="{ active: $route.path === '/' }"-->
-    <!--        >标签管理</router-link-->
-    <!--      >-->
-    <!--      <router-link-->
-    <!--        to="/settings"-->
-    <!--        :class="{ active: $route.path === '/settings' }"-->
-    <!--        >设置</router-link-->
-    <!--      >-->
-    <!--    </nav>-->
 
     <!-- 使用条件渲染代替复杂的渲染函数 -->
     <!--    <transition name="fade" mode="out-in">-->
@@ -36,10 +45,66 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-
 .app-container {
   width: 100vw;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+}
+
+.app-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+
+    i {
+      color: #3b82f6;
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 8px;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: #6b7280;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+
+      i {
+        font-size: 16px;
+      }
+
+      &:hover {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      &.active {
+        background: #eff6ff;
+        color: #3b82f6;
+      }
+    }
+  }
 }
 
 //body {

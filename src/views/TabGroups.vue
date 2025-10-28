@@ -1,7 +1,123 @@
 <template>
   <div class="page-container">
     <div class="main-container">
-      <div id="左侧滚动条部分" class="tab-groups">2</div>
+      <!-- 左侧 List 区域 -->
+      <div id="左侧滚动条部分" class="tab-groups">
+        <div class="list-header">
+          <h3>标签列表</h3>
+          <Button
+            icon="pi pi-refresh"
+            text
+            rounded
+            size="small"
+            @click="loadTabGroups"
+          />
+        </div>
+
+        <div class="list-content">
+          <div v-if="tabGroups.length === 0" class="empty-list">
+            <i class="pi pi-inbox"></i>
+            <p>暂无保存的标签</p>
+          </div>
+
+          <div v-else class="groups-list">
+            <div
+              v-for="(group, index) in tabGroups"
+              :key="index"
+              class="list-group-item"
+              @contextmenu.prevent="showContextMenu($event, group, index)"
+            >
+              <!-- 标签组卡片 -->
+              <div v-if="group.type === 'grouped'" class="grouped-card">
+                <div
+                  class="card-header"
+                  :style="{ backgroundColor: getGroupColorStyle(group.groupInfo?.color) }"
+                >
+                  <h4>{{ group.title }}</h4>
+                  <div class="card-actions">
+                    <Button
+                      icon="pi pi-external-link"
+                      text
+                      rounded
+                      size="small"
+                      @click="restoreWithGroups(index)"
+                      severity="secondary"
+                    />
+                    <Button
+                      icon="pi pi-trash"
+                      text
+                      rounded
+                      size="small"
+                      @click="deleteGroup(index)"
+                      severity="danger"
+                    />
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div
+                    v-for="(tab, tabIndex) in group.tabs"
+                    :key="tabIndex"
+                    class="tab-item"
+                    @click="openTab(tab.url)"
+                  >
+                    <img
+                      :src="tab.favIconUrl || '/icons/icon16.png'"
+                      alt=""
+                      class="tab-icon"
+                      @error="handleIconError"
+                    />
+                    <span class="tab-title">{{ tab.title }}</span>
+                  </div>
+                  <div class="card-meta">
+                    {{ formatDate(group.date) }} · {{ group.tabs.length }} 个标签
+                  </div>
+                </div>
+              </div>
+
+              <!-- 未分组标签 -->
+              <div v-else class="ungrouped-item">
+                <div class="ungrouped-header">
+                  <span class="ungrouped-title">{{ formatDate(group.date) }}</span>
+                  <div class="ungrouped-actions">
+                    <Button
+                      icon="pi pi-external-link"
+                      text
+                      rounded
+                      size="small"
+                      @click="restoreGroup(index)"
+                      severity="secondary"
+                    />
+                    <Button
+                      icon="pi pi-trash"
+                      text
+                      rounded
+                      size="small"
+                      @click="deleteGroup(index)"
+                      severity="danger"
+                    />
+                  </div>
+                </div>
+                <div class="ungrouped-tabs">
+                  <div
+                    v-for="(tab, tabIndex) in group.tabs"
+                    :key="tabIndex"
+                    class="tab-item"
+                    @click="openTab(tab.url)"
+                  >
+                    <img
+                      :src="tab.favIconUrl || '/icons/icon16.png'"
+                      alt=""
+                      class="tab-icon"
+                      @error="handleIconError"
+                    />
+                    <span class="tab-title">{{ tab.title }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div id="右（中）侧收藏夹" class="collection-groups">
         <div
@@ -133,13 +249,32 @@
     <!--    <div class="right-panel">-->
     <!--      <h2>title</h2>-->
     <!--    </div>-->
+
+    <!-- 右键菜单 -->
+    <ContextMenu
+      v-model:visible="contextMenuVisible"
+      :position="contextMenuPosition"
+      :items="contextMenuItems"
+      @select="handleContextMenuSelect"
+    />
+
+    <!-- 标签组选择器 -->
+    <TabGroupSelector
+      v-model:visible="showGroupSelector"
+      :tab-data="currentContextItem"
+      @confirm="handleMoveToGroup"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive } from 'vue'
 import { getTabGroups, saveTabGroups } from '@/utils/chrome-storage'
+import { useGroupsStore } from '@/stores/groupsStore'
 import InputText from 'primevue/inputtext'
+import Button from 'primevue/button'
+import ContextMenu from '@/components/ContextMenu.vue'
+import TabGroupSelector from '@/components/TabGroupSelector.vue'
 
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
@@ -148,6 +283,17 @@ import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 
 const tabGroups = ref([])
+const groupsStore = useGroupsStore()
+
+// 右键菜单状态
+const contextMenuVisible = ref(false)
+const contextMenuPosition = reactive({ x: 0, y: 0 })
+const contextMenuItems = ref([])
+const currentContextItem = ref(null)
+const currentContextIndex = ref(null)
+
+// 标签组选择器状态
+const showGroupSelector = ref(false)
 
 onMounted(() => {
   loadTabGroups()
@@ -288,6 +434,96 @@ const resetStorage = async () => {
     alert('数据已重置')
   }
 }
+
+// 显示右键菜单
+const showContextMenu = (event, group, index) => {
+  currentContextItem.value = group
+  currentContextIndex.value = index
+
+  // 根据类型设置菜单项
+  if (group.type === 'grouped') {
+    contextMenuItems.value = [
+      { id: 'restore', label: '恢复为分组', icon: 'pi pi-external-link' },
+      { id: 'divider1', divider: true },
+      { id: 'move', label: '固定到标签组', icon: 'pi pi-bookmark' },
+      { id: 'divider2', divider: true },
+      { id: 'delete', label: '删除', icon: 'pi pi-trash', danger: true }
+    ]
+  } else {
+    contextMenuItems.value = [
+      { id: 'restore', label: '恢复标签', icon: 'pi pi-external-link' },
+      { id: 'divider1', divider: true },
+      { id: 'move', label: '固定到标签组', icon: 'pi pi-bookmark' },
+      { id: 'divider2', divider: true },
+      { id: 'delete', label: '删除', icon: 'pi pi-trash', danger: true }
+    ]
+  }
+
+  contextMenuPosition.x = event.clientX
+  contextMenuPosition.y = event.clientY
+  contextMenuVisible.value = true
+}
+
+// 处理右键菜单选择
+const handleContextMenuSelect = async (item) => {
+  if (!currentContextItem.value) return
+
+  switch (item.id) {
+    case 'restore':
+      if (currentContextItem.value.type === 'grouped') {
+        await restoreWithGroups(currentContextIndex.value)
+      } else {
+        await restoreGroup(currentContextIndex.value)
+      }
+      break
+    case 'move':
+      showGroupSelector.value = true
+      break
+    case 'delete':
+      await deleteGroup(currentContextIndex.value)
+      break
+  }
+}
+
+// 处理移动到标签组
+const handleMoveToGroup = async ({ groupId, tabData }) => {
+  if (!groupId || !tabData) return
+
+  try {
+    // 如果是标签组类型，批量添加标签
+    if (tabData.type === 'grouped' || tabData.type === 'ungrouped') {
+      for (const tab of tabData.tabs) {
+        await groupsStore.addTabToGroup(groupId, {
+          url: tab.url,
+          title: tab.title,
+          favIconUrl: tab.favIconUrl
+        })
+      }
+    }
+
+    // 从List中删除该项
+    await deleteGroup(currentContextIndex.value)
+
+    alert('已成功移动到标签组')
+  } catch (error) {
+    console.error('移动到标签组失败:', error)
+    alert('移动失败: ' + error.message)
+  }
+}
+
+// 打开标签
+const openTab = (url) => {
+  if (chrome.tabs) {
+    chrome.tabs.create({ url })
+  } else {
+    window.open(url, '_blank')
+  }
+}
+
+// 处理图标加载错误
+const handleIconError = (e) => {
+  e.target.src = '/icons/icon16.png'
+}
 </script>
 
 <style scoped lang="scss">
@@ -311,11 +547,6 @@ const resetStorage = async () => {
 
 .page-container {
   display: flex;
-  //width: 1800px;
-  //width: 100%;
-  //margin: 0 auto;
-
-  // height: calc(100% - 48px);
   height: 100%;
   padding: 24px;
 
@@ -326,12 +557,211 @@ const resetStorage = async () => {
     height: 100%;
 
     .tab-groups {
-      background-color: #1a73e8;
-      width: 340px;
+      width: 360px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+
+      .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e5e7eb;
+
+        h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #111827;
+        }
+      }
+
+      .list-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+
+        .empty-list {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 20px;
+          text-align: center;
+
+          i {
+            font-size: 48px;
+            color: #d1d5db;
+            margin-bottom: 12px;
+          }
+
+          p {
+            color: #9ca3af;
+            margin: 0;
+          }
+        }
+
+        .groups-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .list-group-item {
+          cursor: pointer;
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: translateX(4px);
+          }
+        }
+
+        .grouped-card {
+          background: white;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+          .card-header {
+            padding: 12px 16px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            h4 {
+              margin: 0;
+              font-size: 15px;
+              font-weight: 600;
+              flex: 1;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            .card-actions {
+              display: flex;
+              gap: 4px;
+              opacity: 0.9;
+
+              &:hover {
+                opacity: 1;
+              }
+            }
+          }
+
+          .card-body {
+            padding: 8px;
+
+            .tab-item {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 6px 8px;
+              border-radius: 6px;
+              transition: background-color 0.15s;
+
+              &:hover {
+                background-color: #f9fafb;
+              }
+
+              .tab-icon {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+              }
+
+              .tab-title {
+                flex: 1;
+                font-size: 13px;
+                color: #374151;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+            }
+
+            .card-meta {
+              padding: 8px;
+              font-size: 12px;
+              color: #6b7280;
+              text-align: center;
+              border-top: 1px solid #f3f4f6;
+              margin-top: 4px;
+            }
+          }
+        }
+
+        .ungrouped-item {
+          background: white;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          padding: 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+          .ungrouped-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f3f4f6;
+
+            .ungrouped-title {
+              font-size: 13px;
+              font-weight: 500;
+              color: #6b7280;
+            }
+
+            .ungrouped-actions {
+              display: flex;
+              gap: 4px;
+            }
+          }
+
+          .ungrouped-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            .tab-item {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 6px 8px;
+              border-radius: 6px;
+              transition: background-color 0.15s;
+
+              &:hover {
+                background-color: #f9fafb;
+              }
+
+              .tab-icon {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+              }
+
+              .tab-title {
+                flex: 1;
+                font-size: 13px;
+                color: #374151;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+            }
+          }
+        }
+      }
     }
 
     .collection-groups {
-      //background-color: #4285f4;
       flex: 1;
       display: flex;
       flex-direction: column;

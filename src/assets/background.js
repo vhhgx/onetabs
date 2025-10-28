@@ -11,12 +11,72 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
+/**
+ * 检查标签组是否已存在于 Groups 中
+ * @param {string} groupTitle - 标签组标题
+ * @returns {Promise<string|null>} 返回标签组ID或null
+ */
+async function checkGroupExistsInGroups(groupTitle) {
+  try {
+    const data = await chrome.storage.local.get(['onetabs_groups']);
+    if (data.onetabs_groups && data.onetabs_groups.tabGroups) {
+      const existingGroup = data.onetabs_groups.tabGroups.find(
+        group => group.name === groupTitle
+      );
+      return existingGroup ? existingGroup.id : null;
+    }
+  } catch (error) {
+    console.error('检查Groups时出错:', error);
+  }
+  return null;
+}
+
+/**
+ * 更新 Groups 中的标签组
+ * @param {string} groupId - 标签组ID
+ * @param {Array} tabs - 标签数组
+ */
+async function updateGroupInGroups(groupId, tabs) {
+  try {
+    const data = await chrome.storage.local.get(['onetabs_groups']);
+    if (data.onetabs_groups && data.onetabs_groups.tabGroups) {
+      const groups = data.onetabs_groups.tabGroups;
+      const groupIndex = groups.findIndex(g => g.id === groupId);
+
+      if (groupIndex !== -1) {
+        // 更新标签列表
+        groups[groupIndex].tabs = tabs.map(tab => ({
+          id: `tab-${Date.now()}-${Math.random()}`,
+          url: tab.url,
+          title: tab.title,
+          favIconUrl: tab.favIconUrl,
+          addedAt: new Date().toISOString()
+        }));
+        groups[groupIndex].updatedAt = new Date().toISOString();
+
+        await chrome.storage.local.set({
+          onetabs_groups: {
+            ...data.onetabs_groups,
+            tabGroups: groups
+          }
+        });
+
+        console.log('已更新Groups中的标签组:', groupId);
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error('更新Groups时出错:', error);
+  }
+  return false;
+}
+
 // 保存标签页并关闭它们
 async function saveTabs() {
   // 获取当前窗口
   const currentWindow = await chrome.windows.getCurrent();
   console.log('保存标签页:', currentWindow);
-  
+
   // 获取当前窗口中的所有标签页
   const tabs = await chrome.tabs.query({ windowId: currentWindow.id });
   
@@ -127,11 +187,11 @@ async function saveTabs() {
     // 为每个分组创建单独的标签组
     for (const group of tabGroups) {
       const groupTabs = [];
-      
+
       // 查找属于此分组的标签
       for (const tab of tabs) {
         if (tab.url.startsWith(onetabsUrl)) continue;
-        
+
         if (tab.groupId === group.id) {
           groupTabs.push({
             url: tab.url,
@@ -141,25 +201,38 @@ async function saveTabs() {
           });
         }
       }
-      
-      // 只有当分组中有标签时才保存
+
+      // 只有当分组中有标签时才处理
       if (groupTabs.length > 0) {
-        // 创建分组标签的组
-        const groupedTabsGroup = {
-          date: Date.now(),
-          type: 'grouped',
-          groupInfo: {
-            id: group.id,
-            title: group.title || '未命名分组',
-            color: group.color,
-            collapsed: group.collapsed
-          },
-          tabs: groupTabs,
-          title: group.title || '未命名分组',
-          isPinned: false
-        };
-        
-        unpinnedGroups.unshift(groupedTabsGroup);
+        const groupTitle = group.title || '未命名分组';
+
+        // 检查该标签组是否已存在于 Groups 中
+        const existingGroupId = await checkGroupExistsInGroups(groupTitle);
+
+        if (existingGroupId) {
+          // 如果存在于 Groups 中，更新 Groups 中的标签组
+          await updateGroupInGroups(existingGroupId, groupTabs);
+          console.log(`标签组 "${groupTitle}" 已存在于Groups中，已更新`);
+          // 不添加到 List (tabGroups) 中
+        } else {
+          // 如果不存在于 Groups 中，添加到 List
+          const groupedTabsGroup = {
+            date: Date.now(),
+            type: 'grouped',
+            groupInfo: {
+              id: group.id,
+              title: groupTitle,
+              color: group.color,
+              collapsed: group.collapsed
+            },
+            tabs: groupTabs,
+            title: groupTitle,
+            isPinned: false
+          };
+
+          unpinnedGroups.unshift(groupedTabsGroup);
+          console.log(`标签组 "${groupTitle}" 已添加到List中`);
+        }
       }
     }
     

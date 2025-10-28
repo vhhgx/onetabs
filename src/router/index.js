@@ -1,15 +1,25 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import TabGroups from '../views/TabGroups.vue'
+import Groups from '../views/Groups.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Group',
+    name: 'TabGroups',
     component: TabGroups,
     // 添加元数据帮助页面识别
     meta: {
-      title: '标签管理',
+      title: '标签列表',
       keepAlive: true // 启用组件缓存
+    }
+  },
+  {
+    path: '/groups',
+    name: 'Groups',
+    component: Groups,
+    meta: {
+      title: '标签组工作空间',
+      keepAlive: true
     }
   },
   // {
