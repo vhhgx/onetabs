@@ -1,0 +1,103 @@
+@import 'tailwindcss';
+@import "tailwindcss-primeui";
+
+@import "../icons/iconfont.css";
+
+
+@font-face {
+  font-family: 'bangla';
+  src: url('../fonts/bangla.ttf') format('truetype');
+}
+
+.bangla {
+  font-family: 'bangla';
+}
+
+@font-face {
+  font-family: 'barlow';
+  src: url('../fonts/barlow.otf') format('opentype');
+}
+
+.barlow {
+  font-family: 'barlow';
+}
+
+@font-face {
+  font-family: 'scream';
+  src: url('../fonts/big-scream.ttf') format('truetype');
+}
+
+.scream {
+  font-family: 'scream';
+}
+
+@font-face {
+  font-family: 'din';
+  src: url('../fonts/din-pro.otf') format('opentype');
+}
+
+.din {
+  font-family: 'din';
+}
+
+@font-face {
+  font-family: 'poppins';
+  src: url('../fonts/poppins.otf') format('opentype');
+}
+
+.poppins {
+  font-family: 'poppins';
+  line-height: 1.1;
+}
+
+@font-face {
+  font-family: 'hkjgh';
+  src: url('../fonts/hkjgh.ttf') format('truetype');
+}
+
+.hkjgh {
+  font-family: 'hkjgh';
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  font-family: poppins, Arial, sans-serif, hkjgh;
+  background-color: #f5f5f5;
+}
+
+.scroll-bar {
+
+}
+
+::-webkit-scrollbar {
+  width: 4px; /* 滚动条宽度 */
+  height: 4px; /* 水平滚动条高度 */
+}
+
+::-webkit-scrollbar-track {
+  /*background: #f1f1f1;      !* 轨道背景色 *!*/
+  border-radius: 4px; /* 轨道圆角 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1; /* 滑块颜色 */
+  border-radius: 4px; /* 滑块圆角 */
+  transition: background 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1; /* 悬停时滑块颜色 */
+}
+
+/*!* 适配 OneTabs 主题的配色方案 *!*/
+/*.tab-groups::-webkit-scrollbar-thumb {*/
+/*  background: #1a73e8;      !* 蓝色主题滑块 *!*/
+/*}*/
+
+/*.tab-groups::-webkit-scrollbar-thumb:hover {*/
+/*  background: #3367d6;      !* 蓝色主题滑块悬停 *!*/
+/*}*/

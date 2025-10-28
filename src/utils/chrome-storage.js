@@ -218,8 +218,7 @@ export async function getTabGroups() {
         {
           url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
           title: 'OneTab',
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
+          favIconUrl: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
           groupId: -1,
         },
         {
@@ -293,8 +292,7 @@ export async function getTabGroups() {
         {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: 1599388511,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
           url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
         {
@@ -310,8 +308,7 @@ export async function getTabGroups() {
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
         {
-          favIconUrl:
-            'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
           groupId: 1599388511,
           title: 'iconfont-阿里巴巴矢量图标库',
           url: 'https://www.iconfont.cn/',
@@ -323,8 +320,7 @@ export async function getTabGroups() {
           url: 'https://nuxt.com/docs/getting-started/installation',
         },
         {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
           groupId: 1599388511,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
@@ -374,8 +370,7 @@ export async function getTabGroups() {
         {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: -1,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
           url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
         {
@@ -391,8 +386,7 @@ export async function getTabGroups() {
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
         {
-          favIconUrl:
-            'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
           groupId: -1,
           title: 'iconfont-阿里巴巴矢量图标库',
           url: 'https://www.iconfont.cn/',
@@ -404,8 +398,7 @@ export async function getTabGroups() {
           url: 'https://nuxt.com/docs/getting-started/installation',
         },
         {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
           groupId: -1,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
@@ -433,8 +426,7 @@ export async function getTabGroups() {
         {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: 1989148891,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
           url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
         {
@@ -450,8 +442,7 @@ export async function getTabGroups() {
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
         {
-          favIconUrl:
-            'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
           groupId: 1989148891,
           title: 'iconfont-阿里巴巴矢量图标库',
           url: 'https://www.iconfont.cn/',
@@ -463,8 +454,7 @@ export async function getTabGroups() {
           url: 'https://nuxt.com/docs/getting-started/installation',
         },
         {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
           groupId: 1989148891,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
@@ -506,8 +496,7 @@ export async function getTabGroups() {
         {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: 1166835629,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
           url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
         {
@@ -523,8 +512,7 @@ export async function getTabGroups() {
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
         {
-          favIconUrl:
-            'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
           groupId: 1166835629,
           title: 'iconfont-阿里巴巴矢量图标库',
           url: 'https://www.iconfont.cn/',
@@ -536,8 +524,7 @@ export async function getTabGroups() {
           url: 'https://nuxt.com/docs/getting-started/installation',
         },
         {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
           groupId: 1166835629,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
@@ -549,7 +536,7 @@ export async function getTabGroups() {
           url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
         },
       ],
-      title: 'news',
+      title: 'news-2',
       type: 'grouped',
     },
     {
@@ -565,8 +552,7 @@ export async function getTabGroups() {
         {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: 2059450153,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
           url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
         {
@@ -582,8 +568,7 @@ export async function getTabGroups() {
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
         {
-          favIconUrl:
-            'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
           groupId: 2059450153,
           title: 'iconfont-阿里巴巴矢量图标库',
           url: 'https://www.iconfont.cn/',
@@ -595,8 +580,7 @@ export async function getTabGroups() {
           url: 'https://nuxt.com/docs/getting-started/installation',
         },
         {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
           groupId: 2059450153,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
@@ -608,7 +592,7 @@ export async function getTabGroups() {
           url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
         },
       ],
-      title: 'news',
+      title: '新的',
       type: 'grouped',
     },
     {
@@ -616,8 +600,7 @@ export async function getTabGroups() {
       isPinned: false,
       tabs: [
         {
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
+          favIconUrl: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
           groupId: -1,
           title: 'OneTab',
           url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
@@ -656,8 +639,7 @@ export async function getTabGroups() {
           url: 'chrome://newtab/',
         },
         {
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
+          favIconUrl: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
           groupId: -1,
           title: 'OneTab',
           url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
@@ -699,15 +681,13 @@ export async function getTabGroups() {
           url: 'https://lanhuapp.com/sso/#/main/home?tid=14bab8c2-d754-4c1b-b75e-d297276805be&redirect_to=https%253A%252F%252Flanhuapp.com%252Fweb%252F%253Freferrer%253Dinner_link%2526next_url%253Ditem%25252Fboard%25252Fdetail%25253Ftid%25253D14bab8c2-d754-4c1b-b75e-d297276805be%2526pid%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526project_id%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526image_id%253D0303a614-d609-4c37-a804-33d55571a2e9%2526fromEditor%253Dtrue%2526type%253Dimage',
         },
         {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
+          favIconUrl: 'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
           groupId: -1,
           title: '主页 - 山东优品',
           url: 'http://localhost:3000/zh_CN#/',
         },
         {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
+          favIconUrl: 'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
           groupId: -1,
           title: '主页 - 山东优品',
           url: 'http://localhost:3000/zh_CN',
@@ -745,8 +725,7 @@ export async function getTabGroups() {
           url: 'chrome://newtab/',
         },
         {
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
+          favIconUrl: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
           groupId: -1,
           title: 'OneTab',
           url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
@@ -788,15 +767,13 @@ export async function getTabGroups() {
           url: 'https://lanhuapp.com/sso/#/main/home?tid=14bab8c2-d754-4c1b-b75e-d297276805be&redirect_to=https%253A%252F%252Flanhuapp.com%252Fweb%252F%253Freferrer%253Dinner_link%2526next_url%253Ditem%25252Fboard%25252Fdetail%25253Ftid%25253D14bab8c2-d754-4c1b-b75e-d297276805be%2526pid%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526project_id%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526image_id%253D0303a614-d609-4c37-a804-33d55571a2e9%2526fromEditor%253Dtrue%2526type%253Dimage',
         },
         {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
+          favIconUrl: 'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
           groupId: -1,
           title: '主页 - 山东优品',
           url: 'http://localhost:3000/zh_CN#/',
         },
         {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
+          favIconUrl: 'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
           groupId: -1,
           title: '主页 - 山东优品',
           url: 'http://localhost:3000/zh_CN',
@@ -832,142 +809,111 @@ export async function getTabGroups() {
         id: 9451810,
         title: 'news',
       },
-      tabs: {
-        0: {
+      tabs: [
+        {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: 9451810,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
           url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
-        1: {
+        {
           favIconUrl: 'https://www.baidu.com/favicon.ico',
           groupId: 9451810,
           title: 'npm 淘宝镜像_百度搜索',
           url: 'https://www.baidu.com/s?ie=UTF-8&wd=npm%20%E6%B7%98%E5%AE%9D%E9%95%9C%E5%83%8F',
         },
-        2: {
+        {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
           groupId: 9451810,
           title: 'npm安装、切换淘宝镜像_npm淘宝镜像-CSDN博客',
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
-        3: {
-          favIconUrl:
-            'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+        {
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
           groupId: 9451810,
           title: 'iconfont-阿里巴巴矢量图标库',
           url: 'https://www.iconfont.cn/',
         },
-        4: {
+        {
           favIconUrl: 'https://nuxt.com/icon.png',
           groupId: 9451810,
           title: 'Installation · Get Started with Nuxt',
           url: 'https://nuxt.com/docs/getting-started/installation',
         },
-        5: {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+        {
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
           groupId: 9451810,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
         },
-        6: {
+        {
           favIconUrl: 'https://www.baidu.com/favicon.ico',
           groupId: 9451810,
           title: '国内 docker镜像_百度搜索',
           url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
         },
-      },
+      ],
       title: 'news',
       type: 'grouped',
     },
     {
       date: 1744598597863,
-      tabs: {
-        0: {
+      tabs: [
+        {
           favIconUrl: '',
           groupId: -1,
           title: '新标签页',
           url: 'chrome://newtab/',
         },
-        1: {
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
+        {
+          favIconUrl: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
           groupId: -1,
           title: 'OneTab',
           url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
         },
-        2: {
+        {
           favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
           groupId: -1,
           title: '易运营技术分享平台',
           url: 'http://192.168.31.254:8000/login',
         },
-        3: {
+        {
           favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
           groupId: -1,
           title: '易运营技术分享平台',
           url: 'http://192.168.31.254:8000/login',
         },
-        4: {
+        {
           favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
           groupId: -1,
           title: '易运营技术分享平台',
           url: 'http://192.168.31.254:8000/login',
         },
-        5: {
+        {
           favIconUrl: 'https://rp.mockplus.cn/favicon_rp_preview.ico',
           groupId: -1,
           title: '询盘列表 - 摹客RP',
           url: 'https://rp.mockplus.cn/run/YVHYp83hzg/HMUBX9gqkU/K7XBQ6x_3g?cps=hide&rps=hide&nav=1&ha=0&la=0&fc=0&out=1&rt=1&dt=none&as=true',
         },
-        6: {
+        {
           favIconUrl: 'https://sso-cdn.lanhuapp.com/ssoweb/favicon.ico',
           groupId: -1,
           title: '开始使用 - 蓝湖',
           url: 'https://lanhuapp.com/sso/#/main/home?redirect_to=https%253A%252F%252Flanhuapp.com%252Fweb%252F%253Freferrer%253Dinner_link%2526next_url%253Ditem%25252Fboard%25252Fdetail%25253Fpid%25253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526project_id%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526image_id%253D6dcb16ef-b298-4f42-b049-add732b7273f%2526fromEditor%253Dtrue%2526type%253Dprojectdetail',
         },
-        7: {
+        {
           favIconUrl: 'https://sso-cdn.lanhuapp.com/ssoweb/favicon.ico',
           groupId: -1,
           title: '开始使用 - 蓝湖',
           url: 'https://lanhuapp.com/sso/#/main/home?tid=14bab8c2-d754-4c1b-b75e-d297276805be&redirect_to=https%253A%252F%252Flanhuapp.com%252Fweb%252F%253Freferrer%253Dinner_link%2526next_url%253Ditem%25252Fboard%25252Fdetail%25253Ftid%25253D14bab8c2-d754-4c1b-b75e-d297276805be%2526pid%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526project_id%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526image_id%253D0303a614-d609-4c37-a804-33d55571a2e9%2526fromEditor%253Dtrue%2526type%253Dimage',
         },
-        8: {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
+        {
+          favIconUrl: 'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
           groupId: -1,
           title: '主页 - 山东优品',
           url: 'http://localhost:3000/zh_CN#/',
         },
-        9: {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
-          groupId: -1,
-          title: '主页 - 山东优品',
-          url: 'http://localhost:3000/zh_CN',
-        },
-        10: {
-          favIconUrl: '',
-          groupId: -1,
-          title: 'hub.docker.com',
-          url: 'https://hub.docker.com/_/node/tags?name=18.20.5',
-        },
-        11: {
-          favIconUrl: '',
-          groupId: -1,
-          title:
-            'raw.githubusercontent.com/vhhgx/cdn-src/refs/heads/main/src/bash/init.sh?token=GHSAT0AAAAAADA6PETS6O5I3RSXYZEHKUQ6Z72BQEA',
-          url: 'https://raw.githubusercontent.com/vhhgx/cdn-src/refs/heads/main/src/bash/init.sh?token=GHSAT0AAAAAADA6PETS6O5I3RSXYZEHKUQ6Z72BQEA',
-        },
-        12: {
-          favIconUrl: '',
-          groupId: -1,
-          title: '扩展程序',
-          url: 'chrome://extensions/',
-        },
-      },
+      ],
       title: '未分组标签',
       type: 'ungrouped',
     },
@@ -981,53 +927,51 @@ export async function getTabGroups() {
             id: 21219761,
             title: 'news',
           },
-          tabs: {
-            0: {
+          tabs: [
+            {
               favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
               groupId: 21219761,
-              title:
-                '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+              title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
               url: 'https://blog.csdn.net/c12312303/article/details/146428465',
             },
-            1: {
+            {
               favIconUrl: 'https://www.baidu.com/favicon.ico',
               groupId: 21219761,
               title: 'npm 淘宝镜像_百度搜索',
               url: 'https://www.baidu.com/s?ie=UTF-8&wd=npm%20%E6%B7%98%E5%AE%9D%E9%95%9C%E5%83%8F',
             },
-            2: {
+            {
               favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
               groupId: 21219761,
               title: 'npm安装、切换淘宝镜像_npm淘宝镜像-CSDN博客',
               url: 'https://blog.csdn.net/Achong999/article/details/127397533',
             },
-            3: {
-              favIconUrl:
-                'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+            {
+              favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
               groupId: 21219761,
               title: 'iconfont-阿里巴巴矢量图标库',
               url: 'https://www.iconfont.cn/',
             },
-            4: {
+            {
               favIconUrl: 'https://nuxt.com/icon.png',
               groupId: 21219761,
               title: 'Installation · Get Started with Nuxt',
               url: 'https://nuxt.com/docs/getting-started/installation',
             },
-            5: {
+            {
               favIconUrl:
                 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
               groupId: 21219761,
               title: '供应商-产品列表及详情优化',
               url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
             },
-            6: {
+            {
               favIconUrl: 'https://www.baidu.com/favicon.ico',
               groupId: 21219761,
               title: '国内 docker镜像_百度搜索',
               url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
             },
-          },
+          ],
         },
       },
       originalGroups: {
@@ -1042,8 +986,7 @@ export async function getTabGroups() {
             0: {
               favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
               groupId: 21219761,
-              title:
-                '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+              title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
               url: 'https://blog.csdn.net/c12312303/article/details/146428465',
             },
             1: {
@@ -1059,8 +1002,7 @@ export async function getTabGroups() {
               url: 'https://blog.csdn.net/Achong999/article/details/127397533',
             },
             3: {
-              favIconUrl:
-                'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+              favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
               groupId: 21219761,
               title: 'iconfont-阿里巴巴矢量图标库',
               url: 'https://www.iconfont.cn/',
@@ -1087,240 +1029,50 @@ export async function getTabGroups() {
           },
         },
       },
-      tabs: {
-        0: {
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
-          groupId: -1,
-          title: 'OneTab',
-          url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
+      tabs: [
+        {
+          favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
+          groupId: 21219761,
+          title: '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
+          url: 'https://blog.csdn.net/c12312303/article/details/146428465',
         },
-        1: {
-          favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
-          groupId: -1,
-          title: '易运营技术分享平台',
-          url: 'http://192.168.31.254:8000/login',
-        },
-        2: {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
-          groupId: -1,
-          title: '主页 - 山东优品',
-          url: 'http://localhost:3000/zh_CN#/',
-        },
-        3: {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
-          groupId: -1,
-          title: '主页 - 山东优品',
-          url: 'http://localhost:3000/zh_CN',
-        },
-        4: {
-          favIconUrl: 'https://hub.docker.com/favicon.ico',
-          groupId: -1,
-          title: 'node Tags | Docker Hub',
-          url: 'https://hub.docker.com/_/node/tags?name=18.20.5',
-        },
-        5: {
-          favIconUrl: '',
-          groupId: -1,
-          title:
-            'raw.githubusercontent.com/vhhgx/cdn-src/refs/heads/main/src/bash/init.sh?token=GHSAT0AAAAAADA6PETS6O5I3RSXYZEHKUQ6Z72BQEA',
-          url: 'https://raw.githubusercontent.com/vhhgx/cdn-src/refs/heads/main/src/bash/init.sh?token=GHSAT0AAAAAADA6PETS6O5I3RSXYZEHKUQ6Z72BQEA',
-        },
-        6: {
-          favIconUrl: '',
-          groupId: -1,
-          title: '扩展程序',
-          url: 'chrome://extensions/',
-        },
-      },
-    },
-    {
-      date: 1744597870478,
-      originalGroups: {
-        1867273199: {
-          info: {
-            collapsed: false,
-            color: 'red',
-            id: 1867273199,
-            title: '111',
-          },
-          tabIds: {
-            0: {
-              favIconUrl: 'https://nuxt.com/icon.png',
-              groupId: 1867273199,
-              title: 'Installation · Get Started with Nuxt',
-              url: 'https://nuxt.com/docs/getting-started/installation',
-            },
-            1: {
-              favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
-              groupId: 1867273199,
-              title: 'npm安装、切换淘宝镜像_npm淘宝镜像-CSDN博客',
-              url: 'https://blog.csdn.net/Achong999/article/details/127397533',
-            },
-            2: {
-              favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
-              groupId: 1867273199,
-              title:
-                '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
-              url: 'https://blog.csdn.net/c12312303/article/details/146428465',
-            },
-            3: {
-              favIconUrl:
-                'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
-              groupId: 1867273199,
-              title: '主页 - YOPIN',
-              url: 'http://localhost:3000/zh_CN',
-            },
-            4: {
-              favIconUrl: 'https://www.baidu.com/favicon.ico',
-              groupId: 1867273199,
-              title: '国内 docker镜像_百度搜索',
-              url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
-            },
-          },
-        },
-      },
-      tabs: {
-        0: {
-          favIconUrl:
-            'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/images/extension-icon32.png',
-          groupId: -1,
-          title: 'OneTab',
-          url: 'chrome-extension://chphlpgkkbolifaimnlloiipkdnihall/onetab.html',
-        },
-        1: {
-          favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
-          groupId: -1,
-          title: '易运营技术分享平台',
-          url: 'http://192.168.31.254:8000/login',
-        },
-        2: {
-          favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
-          groupId: -1,
-          title: '易运营技术分享平台',
-          url: 'http://192.168.31.254:8000/login',
-        },
-        3: {
-          favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
-          groupId: -1,
-          title: '易运营技术分享平台',
-          url: 'http://192.168.31.254:8000/login',
-        },
-        4: {
-          favIconUrl: 'https://rp.mockplus.cn/favicon_rp_preview.ico',
-          groupId: -1,
-          title: '询盘列表 - 摹客RP',
-          url: 'https://rp.mockplus.cn/run/YVHYp83hzg/HMUBX9gqkU/K7XBQ6x_3g?cps=hide&rps=hide&nav=1&ha=0&la=0&fc=0&out=1&rt=1&dt=none&as=true',
-        },
-        5: {
-          favIconUrl: 'https://sso-cdn.lanhuapp.com/ssoweb/favicon.ico',
-          groupId: -1,
-          title: '开始使用 - 蓝湖',
-          url: 'https://lanhuapp.com/sso/#/main/home?redirect_to=https%253A%252F%252Flanhuapp.com%252Fweb%252F%253Freferrer%253Dinner_link%2526next_url%253Ditem%25252Fboard%25252Fdetail%25253Fpid%25253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526project_id%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526image_id%253D6dcb16ef-b298-4f42-b049-add732b7273f%2526fromEditor%253Dtrue%2526type%253Dprojectdetail',
-        },
-        6: {
-          favIconUrl: 'https://sso-cdn.lanhuapp.com/ssoweb/favicon.ico',
-          groupId: -1,
-          title: '开始使用 - 蓝湖',
-          url: 'https://lanhuapp.com/sso/#/main/home?tid=14bab8c2-d754-4c1b-b75e-d297276805be&redirect_to=https%253A%252F%252Flanhuapp.com%252Fweb%252F%253Freferrer%253Dinner_link%2526next_url%253Ditem%25252Fboard%25252Fdetail%25253Ftid%25253D14bab8c2-d754-4c1b-b75e-d297276805be%2526pid%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526project_id%253D8cddd3ba-dda5-4a94-a815-a11a86aa36fe%2526image_id%253D0303a614-d609-4c37-a804-33d55571a2e9%2526fromEditor%253Dtrue%2526type%253Dimage',
-        },
-        7: {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
-          groupId: -1,
-          title: '供应商-产品列表及详情优化',
-          url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
-        },
-        8: {
-          favIconUrl: 'https://hub.docker.com/favicon.ico',
-          groupId: -1,
-          title: 'node Tags | Docker Hub',
-          url: 'https://hub.docker.com/_/node/tags?name=18.20.5',
-        },
-        9: {
+        {
           favIconUrl: 'https://www.baidu.com/favicon.ico',
-          groupId: -1,
+          groupId: 21219761,
           title: 'npm 淘宝镜像_百度搜索',
           url: 'https://www.baidu.com/s?ie=UTF-8&wd=npm%20%E6%B7%98%E5%AE%9D%E9%95%9C%E5%83%8F',
         },
-        10: {
-          favIconUrl: 'https://nuxt.com/icon.png',
-          groupId: 1867273199,
-          title: 'Installation · Get Started with Nuxt',
-          url: 'https://nuxt.com/docs/getting-started/installation',
-        },
-        11: {
+        {
           favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
-          groupId: 1867273199,
+          groupId: 21219761,
           title: 'npm安装、切换淘宝镜像_npm淘宝镜像-CSDN博客',
           url: 'https://blog.csdn.net/Achong999/article/details/127397533',
         },
-        12: {
-          favIconUrl: 'https://g.csdnimg.cn/static/logo/favicon32.ico',
-          groupId: 1867273199,
-          title:
-            '国内仍然可用docker镜像源汇总，长期维护，定期更新（2025年3月21日）_docker 国内镜像源-CSDN博客',
-          url: 'https://blog.csdn.net/c12312303/article/details/146428465',
+        {
+          favIconUrl: 'https://img.alicdn.com/imgextra/i4/O1CN01Z5paLz1O0zuCC7osS_!!6000000001644-55-tps-83-82.svg',
+          groupId: 21219761,
+          title: 'iconfont-阿里巴巴矢量图标库',
+          url: 'https://www.iconfont.cn/',
         },
-        13: {
-          favIconUrl:
-            'https://cdn.yopinhub.com/2025/02/714f969a1c4948dda72e165b1c06be1a.jpg',
-          groupId: 1867273199,
-          title: '主页 - YOPIN',
-          url: 'http://localhost:3000/zh_CN',
+        {
+          favIconUrl: 'https://nuxt.com/icon.png',
+          groupId: 21219761,
+          title: 'Installation · Get Started with Nuxt',
+          url: 'https://nuxt.com/docs/getting-started/installation',
         },
-        14: {
-          favIconUrl: 'https://www.baidu.com/favicon.ico',
-          groupId: 1867273199,
-          title: '国内 docker镜像_百度搜索',
-          url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
-        },
-        15: {
-          favIconUrl: '',
-          groupId: -1,
-          title: '扩展程序',
-          url: 'chrome://extensions/',
-        },
-      },
-    },
-    {
-      date: 1744597866221,
-      originalGroups: {},
-      tabs: {
-        0: {
-          favIconUrl: '',
-          groupId: -1,
-          title: '新标签页',
-          url: 'chrome://newtab/',
-        },
-      },
-    },
-    {
-      date: 1744596947197,
-      originalGroups: {},
-      tabs: {
-        0: {
-          favIconUrl: '',
-          groupId: -1,
-          title: 'Mall Home - YOPIN',
-          url: 'http://localhost:3000/',
-        },
-        1: {
-          favIconUrl:
-            'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
-          groupId: -1,
+        {
+          favIconUrl: 'https://mdn.alipayobjects.com/huamei_0prmtq/afts/img/A*vMxOQIh4KBMAAAAAAAAAAAAADvuFAQ/original',
+          groupId: 21219761,
           title: '供应商-产品列表及详情优化',
           url: 'https://www.yuque.com/chenkai-nfwtm/btm6bw/yefrv0rpap1oz0fu?singleDoc#wLQkN',
         },
-        2: {
-          favIconUrl: 'http://192.168.31.254:8000/icon-32.png',
-          groupId: -1,
-          title: '易运营技术分享平台',
-          url: 'http://192.168.31.254:8000/login',
+        {
+          favIconUrl: 'https://www.baidu.com/favicon.ico',
+          groupId: 21219761,
+          title: '国内 docker镜像_百度搜索',
+          url: 'https://www.baidu.com/s?ie=UTF-8&wd=%E5%9B%BD%E5%86%85%20docker%E9%95%9C%E5%83%8F',
         },
-      },
+      ],
     },
   ]
 }

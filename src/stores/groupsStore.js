@@ -14,7 +14,7 @@ export const useGroupsStore = defineStore('groups', {
     // 加载状态
     isLoading: false,
     // 最后保存时间
-    lastSaved: null
+    lastSaved: null,
   }),
 
   getters: {

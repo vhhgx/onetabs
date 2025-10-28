@@ -11,11 +11,7 @@
     },
     "default_title": "OneTabs"
   },
-  "permissions": [
-    "tabs",
-    "storage",
-    "tabGroups"
-  ],
+  "permissions": ["tabs", "storage", "tabGroups"],
   "background": {
     "service_worker": "background.js"
   },
