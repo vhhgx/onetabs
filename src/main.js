@@ -5,6 +5,8 @@ import App from './App.vue'
 import './assets/style/index.css'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
+import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 
 import Tooltip from 'primevue/tooltip'
 
@@ -36,6 +38,10 @@ app.use(PrimeVue, {
     },
   },
 })
+
+// 注册 Toast 和 Confirmation 服务
+app.use(ToastService)
+app.use(ConfirmationService)
 
 app.directive('tooltip', Tooltip)
 

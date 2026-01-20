@@ -809,10 +809,12 @@ async function handleTabDrop(sourceTab, targetCollection) {
    - 全局搜索框（搜索标签页、标签页组、模板）
    - 设置按钮
 
-2. **Tab 导航**（三个主要功能模块）
+2. **Tab 导航**（三个主要功能模块，在同一页面内切换）
    - **窗口模板**：管理完整的工作环境
    - **标签页组**：管理常用的标签页集合
    - **会话收纳**：查看历史保存的会话
+   
+   注：使用Tab组件（如PrimeVue Tabs）在同一页面内切换，不使用Vue Router路由切换
 
 3. **窗口模板区域**
    - 模板卡片：显示名称、包含的资源数量、最后更新时间
@@ -1307,7 +1309,8 @@ export const useTemplatesStore = defineStore('templates', {
 
 **通用组件：**
 - `AppHeader.vue` - 顶部导航栏
-- `TabNavigation.vue` - Tab 导航
+- `MainView.vue` - 主视图容器（包含Tab导航和内容区）
+- `TabNavigation.vue` - Tab 导航组件（内部状态管理，不依赖路由）
 - `SearchBar.vue` - 搜索框
 
 **会话收纳组件：**

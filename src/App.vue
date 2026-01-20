@@ -6,41 +6,31 @@
         <i class="pi pi-bookmark"></i>
         <span>OneTabs</span>
       </div>
-      <div class="nav-links">
-        <router-link to="/" :class="{ active: $route.path === '/' }">
-          <i class="pi pi-list"></i>
-          <span>标签列表</span>
-        </router-link>
-        <router-link to="/groups" :class="{ active: $route.path === '/groups' }">
-          <i class="pi pi-objects-column"></i>
-          <span>标签组</span>
-        </router-link>
-      </div>
+      <!-- 可选：添加搜索框和设置按钮 -->
     </nav>
 
     <!-- 路由视图 -->
     <router-view />
 
-    <!-- 使用条件渲染代替复杂的渲染函数 -->
-    <!--    <transition name="fade" mode="out-in">-->
-    <!--      <div :key="$route.path">-->
-    <!--        &lt;!&ndash; 需要缓存的组件 &ndash;&gt;-->
-    <!--        <keep-alive v-if="$route.meta.keepAlive">-->
-    <!--          <router-view />-->
-    <!--        </keep-alive>-->
-
-    <!--        &lt;!&ndash; 不需要缓存的组件 &ndash;&gt;-->
-    <!--        <router-view v-if="!$route.meta.keepAlive" />-->
-    <!--      </div>-->
-    <!--    </transition>-->
+    <!-- Toast 通知组件 -->
+    <Toast />
+    
+    <!-- 确认对话框组件 -->
+    <ConfirmDialog />
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
+import Toast from 'primevue/toast'
+import ConfirmDialog from 'primevue/confirmdialog'
 
 export default defineComponent({
   name: 'App',
+  components: {
+    Toast,
+    ConfirmDialog
+  }
 })
 </script>
 

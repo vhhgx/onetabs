@@ -13,12 +13,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // 保存标签页并关闭它们
 async function saveTabs() {
+  // 获取设置
+  let settings = { autoClose: true, keepPinned: false, maxSessions: 50 }
+  try {
+    const settingsData = await chrome.storage.local.get(['onetabs_settings'])
+    if (settingsData.onetabs_settings) {
+      settings = { ...settings, ...settingsData.onetabs_settings }
+    }
+  } catch (error) {
+    console.error('读取设置失败:', error)
+  }
+
+  console.log('当前设置:', settings)
+
   // 获取当前窗口
   const currentWindow = await chrome.windows.getCurrent()
   console.log('保存标签页:', currentWindow)
 
   // 获取当前窗口中的所有标签页
-  const tabs = await chrome.tabs.query({ windowId: currentWindow.id })
+  const allTabs = await chrome.tabs.query({ windowId: currentWindow.id })
+  
+  // 根据 keepPinned 设置过滤标签页
+  let tabs = allTabs
+  if (settings.keepPinned) {
+    tabs = allTabs.filter(tab => !tab.pinned)
+    console.log(`保留 ${allTabs.length - tabs.length} 个固定标签页`)
+  }
 
   // 先检查每个标签所属的分组ID
   let groupedTabsExist = false
@@ -167,6 +187,14 @@ async function saveTabs() {
 
     // 合并置顶组和非置顶组
     savedTabGroups = [...pinnedGroups, ...unpinnedGroups]
+    
+    // 应用 maxSessions 限制（只限制非置顶组）
+    if (settings.maxSessions && unpinnedGroups.length > settings.maxSessions) {
+      const excessCount = unpinnedGroups.length - settings.maxSessions
+      console.log(`超过最大会话数限制 (${settings.maxSessions})，删除最旧的 ${excessCount} 个会话`)
+      // 删除最旧的会话（unpinnedGroups 已按时间倒序排列，所以删除末尾的）
+      savedTabGroups = [...pinnedGroups, ...unpinnedGroups.slice(0, settings.maxSessions)]
+    }
 
     // 保存所有标签组
     await chrome.storage.local.set({ tabGroups: savedTabGroups })
@@ -190,10 +218,16 @@ async function saveTabs() {
     await chrome.tabs.reload(onetabTabId)
   }
 
-  // 关闭其他标签页
-  for (const tab of tabs) {
-    if (tab.id !== onetabTabId) {
-      await chrome.tabs.remove(tab.id)
+  // 关闭其他标签页（根据设置保留固定标签页）
+  for (const tab of allTabs) {
+    // 跳过 OneTab 页面
+    if (tab.id === onetabTabId) {
+      continue
     }
+    // 如果设置了保留固定标签页，则跳过固定标签页
+    if (settings.keepPinned && tab.pinned) {
+      continue
+    }
+    await chrome.tabs.remove(tab.id)
   }
 }

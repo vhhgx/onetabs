@@ -61,18 +61,27 @@
 - [ ] 创建顶部导航栏组件 `AppHeader.vue`
   - [ ] Logo和产品名称显示
   - [ ] 设置按钮
+- [ ] 创建主视图容器 `MainView.vue` 或直接在 `App.vue` 中实现
+  - [ ] 包含Tab导航和内容区域
+  - [ ] 使用局部状态管理当前激活的Tab
 - [ ] 创建Tab导航组件 `TabNavigation.vue`
   - [ ] 三个Tab：窗口模板、标签页组、会话收纳
-  - [ ] Tab切换逻辑
+  - [ ] Tab切换逻辑（使用v-model绑定activeTab）
   - [ ] 高亮当前活动Tab
+- [ ] 创建内容区域组件
+  - [ ] `TemplatesView.vue` - 窗口模板视图
+  - [ ] `CollectionsView.vue` - 标签页组视图
+  - [ ] `SessionsView.vue` - 会话收纳视图
+  - [ ] 使用v-show或动态组件切换显示
 
 #### 2.2 路由配置
-- [ ] 配置 Vue Router
-- [ ] 三个主要路由：
-  - [ ] `/templates` - 窗口模板页
-  - [ ] `/collections` - 标签页组页
-  - [ ] `/sessions` - 会话收纳页（默认）
-- [ ] 设置默认路由为会话收纳
+- [ ] 配置 Vue Router（简化版）
+- [ ] 主路由配置：
+  - [ ] `/` - 主页面（包含Tab切换功能）
+  - [ ] `/settings` - 设置页面（独立路由）
+- [ ] 默认显示主页面，内部默认激活会话收纳Tab
+
+注：采用单页面+Tab切换方式，三个功能模块不使用独立路由
 
 ---
 

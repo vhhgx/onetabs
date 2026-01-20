@@ -2,369 +2,429 @@
   <div class="settings-container">
     <h1>设置</h1>
 
+    <!-- P0: 基础设置 -->
     <div class="settings-section">
-      <h2>同步设置</h2>
-      <label>
-        <input type="checkbox" v-model="syncEnabled" @change="saveSyncSettings" />
-        启用云同步
-      </label>
+      <h2>基础设置</h2>
 
-      <div v-if="syncEnabled" class="sync-options">
-        <h3>同步账号</h3>
-        <div v-if="!isLoggedIn">
-          <input type="email" v-model="email" placeholder="邮箱" />
-          <input type="password" v-model="password" placeholder="密码" />
-          <button @click="login">登录</button>
-          <button @click="register">注册</button>
-        </div>
-        <div v-else>
-          <p>已登录为: {{ userEmail }}</p>
-          <button @click="logout">退出登录</button>
-          <button @click="syncNow">立即同步</button>
-        </div>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" v-model="autoClose" @change="updateAutoClose" />
+          <span class="label-text">收纳标签页后自动关闭插件页面</span>
+        </label>
+        <p class="setting-desc">点击收纳标签页按钮后，自动关闭插件页面</p>
+      </div>
+
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" v-model="keepPinned" @change="updateKeepPinned" />
+          <span class="label-text">保留固定标签页</span>
+        </label>
+        <p class="setting-desc">收纳标签页时，保留固定的标签页不关闭</p>
+      </div>
+
+      <div class="setting-item">
+        <label class="label-text">最大保存会话数量</label>
+        <input 
+          type="number" 
+          v-model.number="maxSessions" 
+          @change="updateMaxSessions"
+          min="10"
+          max="200"
+          class="number-input"
+        />
+        <p class="setting-desc">超过此数量时，将自动删除最旧的会话（范围：10-200）</p>
       </div>
     </div>
 
-    <div class="settings-section">
-      <h2>显示设置</h2>
-      <label>
-        <input type="checkbox" v-model="darkMode" @change="saveDisplaySettings" />
-        深色模式
-      </label>
-      <label>
-        <input type="checkbox" v-model="showFavicons" @change="saveDisplaySettings" />
-        显示网站图标
-      </label>
-    </div>
-
+    <!-- P0: 数据管理 -->
     <div class="settings-section">
       <h2>数据管理</h2>
-      <button @click="exportData" class="export-btn">导出数据</button>
-      <input type="file" @change="importData" ref="importFile" style="display: none" />
-      <button @click="triggerImport" class="import-btn">导入数据</button>
-      <button @click="clearData" class="clear-btn">清除所有数据</button>
+      <div class="button-group">
+        <button @click="exportData" class="btn export-btn">导出数据</button>
+        <input type="file" @change="importData" ref="importFile" style="display: none" accept=".json" />
+        <button @click="triggerImport" class="btn import-btn">导入数据</button>
+        <button @click="clearData" class="btn clear-btn">清除所有数据</button>
+      </div>
+      <p class="setting-desc">导出/导入您的标签页会话数据，或清除所有已保存的会话</p>
     </div>
   </div>
 </template>
 
-<script>
-import { defineComponent, ref, onMounted, onActivated, onDeactivated } from 'vue'
-import { useTabsStore } from '../stores/tabsStore'
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useSettingsStore } from '../stores/settingsStore'
+import { useSessionsStore } from '../stores/sessionsStore'
+import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 
-// 检查是否在Chrome扩展环境中
-const isChromeExtension = () => {
-  return typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id
-}
+const settingsStore = useSettingsStore()
+const sessionsStore = useSessionsStore()
+const toast = useToast()
+const confirm = useConfirm()
 
-// 获取适当的存储API
-const getStorageApi = () => {
-  if (isChromeExtension()) {
-    return chrome.storage.sync
+// 设置项
+const autoClose = ref(true)
+const keepPinned = ref(false)
+const maxSessions = ref(50)
+
+// 导入文件引用
+const importFile = ref(null)
+
+// 页面加载时初始化
+onMounted(async () => {
+  try {
+    await settingsStore.loadSettings()
+    autoClose.value = settingsStore.autoClose
+    keepPinned.value = settingsStore.keepPinned
+    maxSessions.value = settingsStore.maxSessions
+  } catch (error) {
+    console.error('加载设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '加载失败',
+      detail: '无法加载设置，已使用默认值',
+      life: 3000
+    })
   }
-
-  // 在非扩展环境中使用localStorage模拟chrome.storage.sync API
-  return {
-    get: (keys, callback) => {
-      try {
-        const result = {}
-        if (typeof keys === 'string') {
-          result[keys] = JSON.parse(localStorage.getItem('settings_' + keys) || 'null')
-        } else if (Array.isArray(keys)) {
-          keys.forEach((key) => {
-            result[key] = JSON.parse(localStorage.getItem('settings_' + key) || 'null')
-          })
-        } else if (typeof keys === 'object') {
-          Object.keys(keys).forEach((key) => {
-            const value = localStorage.getItem('settings_' + key)
-            result[key] = value !== null ? JSON.parse(value) : keys[key]
-          })
-        }
-        callback(result)
-      } catch (error) {
-        console.error('模拟存储读取错误:', error)
-        callback({})
-      }
-    },
-    set: (items, callback) => {
-      try {
-        Object.keys(items).forEach((key) => {
-          localStorage.setItem('settings_' + key, JSON.stringify(items[key]))
-        })
-        if (callback) callback()
-      } catch (error) {
-        console.error('模拟存储写入错误:', error)
-        if (callback) callback(error)
-      }
-    },
-    remove: (keys, callback) => {
-      try {
-        if (typeof keys === 'string') {
-          localStorage.removeItem('settings_' + keys)
-        } else if (Array.isArray(keys)) {
-          keys.forEach((key) => localStorage.removeItem('settings_' + key))
-        }
-        if (callback) callback()
-      } catch (error) {
-        console.error('模拟存储删除错误:', error)
-        if (callback) callback(error)
-      }
-    },
-  }
-}
-
-export default defineComponent({
-  name: 'SettingsView',
-
-  setup() {
-    const tabsStore = useTabsStore()
-    const storageApi = getStorageApi()
-    const syncEnabled = ref(false)
-    const darkMode = ref(false)
-    const showFavicons = ref(true)
-    const isLoggedIn = ref(false)
-    const userEmail = ref('')
-    const email = ref('')
-    const password = ref('')
-    const importFile = ref(null)
-    const isDev = ref(process.env.NODE_ENV === 'development')
-
-    onMounted(() => {
-      // 从存储加载设置
-      storageApi.get(['syncEnabled', 'darkMode', 'showFavicons', 'userInfo'], (data) => {
-        syncEnabled.value = data.syncEnabled || false
-        darkMode.value = data.darkMode || false
-        showFavicons.value = data.showFavicons !== false // 默认为true
-
-        if (data.userInfo && data.userInfo.email) {
-          isLoggedIn.value = true
-          userEmail.value = data.userInfo.email
-        }
-
-        // 应用深色模式
-        if (darkMode.value) {
-          document.body.classList.add('dark-theme')
-        }
-      })
-    })
-
-    onActivated(() => {
-      console.log('设置页面被激活')
-      // 可以在这里重新获取最新数据
-    })
-
-    onDeactivated(() => {
-      console.log('设置页面被停用')
-      // 可以在这里清理资源
-    })
-
-    const saveSyncSettings = () => {
-      storageApi.set({ syncEnabled: syncEnabled.value })
-    }
-
-    const saveDisplaySettings = () => {
-      storageApi.set({
-        darkMode: darkMode.value,
-        showFavicons: showFavicons.value,
-      })
-
-      if (darkMode.value) {
-        document.body.classList.add('dark-theme')
-      } else {
-        document.body.classList.remove('dark-theme')
-      }
-    }
-
-    const login = async () => {
-      if (!email.value || !password.value) {
-        alert('请输入邮箱和密码')
-        return
-      }
-
-      try {
-        // 这里应该调用实际的登录API
-        // const response = await apiService.login(email.value, password.value);
-
-        // 模拟登录成功
-        const mockUserInfo = {
-          email: email.value,
-          token: 'mock-token-' + Date.now(),
-        }
-
-        storageApi.set({ userInfo: mockUserInfo })
-        isLoggedIn.value = true
-        userEmail.value = email.value
-
-        // 清空表单
-        email.value = ''
-        password.value = ''
-
-        alert('登录成功')
-      } catch (error) {
-        alert('登录失败: ' + error.message)
-      }
-    }
-
-    const register = async () => {
-      // 注册逻辑，类似login
-      alert('注册功能尚未实现')
-    }
-
-    const logout = () => {
-      storageApi.remove('userInfo', () => {
-        isLoggedIn.value = false
-        userEmail.value = ''
-      })
-    }
-
-    const syncNow = async () => {
-      try {
-        // 这里应该调用实际的同步API
-        // await tabsStore.syncWithCloud();
-        alert('同步成功')
-      } catch (error) {
-        alert('同步失败: ' + error.message)
-      }
-    }
-
-    const exportData = async () => {
-      try {
-        const data = await tabsStore.getAllData()
-        const blob = new Blob([JSON.stringify(data)], {
-          type: 'application/json',
-        })
-        const url = URL.createObjectURL(blob)
-
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'onetabs_backup_' + new Date().toISOString().split('T')[0] + '.json'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      } catch (error) {
-        console.error('导出数据失败:', error)
-        alert('导出失败: ' + (error.message || '未知错误'))
-      }
-    }
-
-    const triggerImport = () => {
-      importFile.value.click()
-    }
-
-    const importData = (event) => {
-      const file = event.target.files[0]
-      if (!file) return
-
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        try {
-          const data = JSON.parse(e.target.result)
-          await tabsStore.importData(data)
-          alert('数据导入成功')
-        } catch (error) {
-          alert('导入失败: ' + error.message)
-        }
-      }
-      reader.readAsText(file)
-
-      // 重置文件输入以便再次导入
-      event.target.value = null
-    }
-
-    const clearData = () => {
-      if (confirm('确定要删除所有已保存的标签页数据吗？此操作无法撤销。')) {
-        // 检查方法存在再调用
-        if (typeof tabsStore.clearAllData === 'function') {
-          tabsStore.clearAllData()
-          alert('所有数据已清除')
-        } else {
-          console.error('clearAllData 方法未实现')
-          alert('清除数据功能尚未实现')
-        }
-      }
-    }
-
-    return {
-      syncEnabled,
-      darkMode,
-      showFavicons,
-      isLoggedIn,
-      userEmail,
-      email,
-      password,
-      importFile,
-      saveSyncSettings,
-      saveDisplaySettings,
-      login,
-      register,
-      logout,
-      syncNow,
-      exportData,
-      triggerImport,
-      importData,
-      clearData,
-      isDev,
-    }
-  },
 })
+
+// 更新自动关闭设置
+const updateAutoClose = async () => {
+  try {
+    await settingsStore.updateSetting('autoClose', autoClose.value)
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: `自动关闭已${autoClose.value ? '开启' : '关闭'}`,
+      life: 2000
+    })
+  } catch (error) {
+    console.error('更新设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: '无法保存设置',
+      life: 3000
+    })
+  }
+}
+
+// 更新保留固定标签页设置
+const updateKeepPinned = async () => {
+  try {
+    await settingsStore.updateSetting('keepPinned', keepPinned.value)
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: `保留固定标签页已${keepPinned.value ? '开启' : '关闭'}`,
+      life: 2000
+    })
+  } catch (error) {
+    console.error('更新设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: '无法保存设置',
+      life: 3000
+    })
+  }
+}
+
+// 更新最大会话数设置
+const updateMaxSessions = async () => {
+  try {
+    // 确保值在范围内
+    if (maxSessions.value < 10) maxSessions.value = 10
+    if (maxSessions.value > 200) maxSessions.value = 200
+    
+    await settingsStore.updateSetting('maxSessions', maxSessions.value)
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: `最大会话数已设置为 ${maxSessions.value}`,
+      life: 2000
+    })
+  } catch (error) {
+    console.error('更新设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: '无法保存设置',
+      life: 3000
+    })
+  }
+}
+
+// 导出数据
+const exportData = async () => {
+  try {
+    await sessionsStore.loadSessions()
+    const data = {
+      sessions: sessionsStore.sessions,
+      settings: settingsStore.getSettings,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    }
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json'
+    })
+    const url = URL.createObjectURL(blob)
+    
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `onetabs_backup_${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    toast.add({
+      severity: 'success',
+      summary: '导出成功',
+      detail: '数据已导出到文件',
+      life: 3000
+    })
+  } catch (error) {
+    console.error('导出数据失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '导出失败',
+      detail: error.message || '无法导出数据',
+      life: 3000
+    })
+  }
+}
+
+// 触发导入文件选择
+const triggerImport = () => {
+  importFile.value.click()
+}
+
+// 导入数据
+const importData = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    try {
+      const data = JSON.parse(e.target.result)
+      
+      // 验证数据格式
+      if (!data.sessions || !Array.isArray(data.sessions)) {
+        throw new Error('无效的数据格式')
+      }
+      
+      // 导入会话数据
+      for (const session of data.sessions) {
+        await sessionsStore.saveSession(session)
+      }
+      
+      // 如果有设置数据，也导入
+      if (data.settings) {
+        if (data.settings.autoClose !== undefined) {
+          await settingsStore.updateSetting('autoClose', data.settings.autoClose)
+          autoClose.value = data.settings.autoClose
+        }
+        if (data.settings.keepPinned !== undefined) {
+          await settingsStore.updateSetting('keepPinned', data.settings.keepPinned)
+          keepPinned.value = data.settings.keepPinned
+        }
+        if (data.settings.maxSessions !== undefined) {
+          await settingsStore.updateSetting('maxSessions', data.settings.maxSessions)
+          maxSessions.value = data.settings.maxSessions
+        }
+      }
+      
+      await sessionsStore.loadSessions()
+      
+      toast.add({
+        severity: 'success',
+        summary: '导入成功',
+        detail: `已导入 ${data.sessions.length} 个会话`,
+        life: 3000
+      })
+    } catch (error) {
+      console.error('导入数据失败:', error)
+      toast.add({
+        severity: 'error',
+        summary: '导入失败',
+        detail: error.message || '无法导入数据',
+        life: 3000
+      })
+    }
+  }
+  reader.readAsText(file)
+  
+  // 重置文件输入
+  event.target.value = null
+}
+
+// 清除所有数据 - 使用 ConfirmDialog
+const clearData = () => {
+  confirm.require({
+    message: '确定要删除所有已保存的会话数据吗？此操作无法撤销。',
+    header: '清除数据确认',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '取消',
+    acceptLabel: '确定清除',
+    accept: async () => {
+      try {
+        await sessionsStore.clearAllSessions()
+        
+        toast.add({
+          severity: 'success',
+          summary: '清除成功',
+          detail: '所有会话数据已清除',
+          life: 3000
+        })
+      } catch (error) {
+        console.error('清除数据失败:', error)
+        toast.add({
+          severity: 'error',
+          summary: '清除失败',
+          detail: error.message || '无法清除数据',
+          life: 3000
+        })
+      }
+    }
+  })
+}
 </script>
 
 <style scoped>
 .settings-container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 32px 24px;
+}
+
+.settings-container h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 32px;
 }
 
 .settings-section {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
 }
 
-.settings-section:last-child {
-  border-bottom: none;
+.settings-section h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-h2 {
-  color: #333;
-  margin-bottom: 15px;
+.setting-item {
+  margin-bottom: 24px;
 }
 
-label {
-  display: block;
-  margin-bottom: 10px;
+.setting-item:last-child {
+  margin-bottom: 0;
 }
 
-input[type='checkbox'] {
-  margin-right: 8px;
+.setting-item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 8px;
 }
 
-input[type='email'],
-input[type='password'] {
-  padding: 8px;
-  margin-right: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.setting-item input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  cursor: pointer;
 }
 
-.sync-options {
-  margin-top: 15px;
-  padding: 15px;
-  background: #f9f9f9;
-  border-radius: 4px;
+.label-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.setting-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 8px 0 0 30px;
+  line-height: 1.5;
+}
+
+.number-input {
+  width: 120px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-top: 8px;
+  transition: border-color 0.2s;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.export-btn {
+  background-color: #10b981;
+}
+
+.export-btn:hover {
+  background-color: #059669;
+}
+
+.import-btn {
+  background-color: #3b82f6;
+}
+
+.import-btn:hover {
+  background-color: #2563eb;
 }
 
 .clear-btn {
-  background-color: #ea4335;
+  background-color: #ef4444;
 }
 
-.import-btn,
-.export-btn {
-  background-color: #34a853;
-  margin-right: 10px;
+.clear-btn:hover {
+  background-color: #dc2626;
 }
 </style>
+
