@@ -11,7 +11,7 @@
           <input type="checkbox" v-model="autoClose" @change="updateAutoClose" />
           <span class="label-text">收纳标签页后自动关闭插件页面</span>
         </label>
-        <p class="setting-desc">点击收纳标签页按钮后，自动关闭插件页面</p>
+        <p class="setting-desc">点击收纳标签页按钮后,自动关闭插件页面</p>
       </div>
 
       <div class="setting-item">
@@ -33,6 +33,35 @@
           class="number-input"
         />
         <p class="setting-desc">超过此数量时，将自动删除最旧的会话（范围：10-200）</p>
+      </div>
+    </div>
+
+    <!-- P1: 拖拽设置 -->
+    <div class="settings-section">
+      <h2>拖拽设置</h2>
+
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" v-model="enableDrag" @change="updateEnableDrag" />
+          <span class="label-text">启用拖拽功能</span>
+        </label>
+        <p class="setting-desc">允许通过拖拽将标签页添加到收藏集或模板</p>
+      </div>
+
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" v-model="removeAfterDrag" @change="updateRemoveAfterDrag" :disabled="!enableDrag" />
+          <span class="label-text">拖拽后从源移除</span>
+        </label>
+        <p class="setting-desc">拖拽标签页到收藏集或模板后，从原会话中移除该标签页</p>
+      </div>
+
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" v-model="showDragPreview" @change="updateShowDragPreview" :disabled="!enableDrag" />
+          <span class="label-text">显示拖拽预览</span>
+        </label>
+        <p class="setting-desc">拖拽时显示标签页信息预览（实验性功能）</p>
       </div>
     </div>
 
@@ -66,6 +95,9 @@ const confirm = useConfirm()
 const autoClose = ref(true)
 const keepPinned = ref(false)
 const maxSessions = ref(50)
+const enableDrag = ref(true)
+const removeAfterDrag = ref(false)
+const showDragPreview = ref(true)
 
 // 导入文件引用
 const importFile = ref(null)
@@ -77,6 +109,9 @@ onMounted(async () => {
     autoClose.value = settingsStore.autoClose
     keepPinned.value = settingsStore.keepPinned
     maxSessions.value = settingsStore.maxSessions
+    enableDrag.value = settingsStore.enableDrag
+    removeAfterDrag.value = settingsStore.removeAfterDrag
+    showDragPreview.value = settingsStore.showDragPreview
   } catch (error) {
     console.error('加载设置失败:', error)
     toast.add({
@@ -142,6 +177,69 @@ const updateMaxSessions = async () => {
       severity: 'success',
       summary: '设置已保存',
       detail: `最大会话数已设置为 ${maxSessions.value}`,
+      life: 2000
+    })
+  } catch (error) {
+    console.error('更新设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: '无法保存设置',
+      life: 3000
+    })
+  }
+}
+
+// 更新启用拖拽设置
+const updateEnableDrag = async () => {
+  try {
+    await settingsStore.updateSetting('enableDrag', enableDrag.value)
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: `拖拽功能已${enableDrag.value ? '启用' : '禁用'}`,
+      life: 2000
+    })
+  } catch (error) {
+    console.error('更新设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: '无法保存设置',
+      life: 3000
+    })
+  }
+}
+
+// 更新拖拽后移除设置
+const updateRemoveAfterDrag = async () => {
+  try {
+    await settingsStore.updateSetting('removeAfterDrag', removeAfterDrag.value)
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: `拖拽后移除已${removeAfterDrag.value ? '开启' : '关闭'}`,
+      life: 2000
+    })
+  } catch (error) {
+    console.error('更新设置失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: '无法保存设置',
+      life: 3000
+    })
+  }
+}
+
+// 更新显示拖拽预览设置
+const updateShowDragPreview = async () => {
+  try {
+    await settingsStore.updateSetting('showDragPreview', showDragPreview.value)
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: `拖拽预览已${showDragPreview.value ? '开启' : '关闭'}`,
       life: 2000
     })
   } catch (error) {

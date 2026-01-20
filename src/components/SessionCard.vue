@@ -46,6 +46,9 @@
             v-for="(tab, index) in session.tabs"
             :key="index"
             :tab="tab"
+            :draggable="true"
+            source-type="session"
+            :source-id="session.date"
             @click="handleTabClick(tab.url)"
           />
         </div>
