@@ -146,8 +146,6 @@ async function saveTabs() {
 
     // 为每个分组创建单独的标签组
     for (const group of tabGroups) {
-      const groupTabs = [];
-
       const groupTabs = []
 
       // 查找属于此分组的标签

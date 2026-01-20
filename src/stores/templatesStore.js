@@ -25,6 +25,44 @@ export const useTemplatesStore = defineStore('templates', {
 
   actions: {
     /**
+     * 将对象格式的数据转换为数组格式
+     * Chrome Storage 有时会将数组保存为对象格式
+     */
+    normalizeData(data) {
+      if (Array.isArray(data)) {
+        // 已经是数组，递归处理每个元素
+        return data.map(item => this.normalizeData(item))
+      }
+      
+      if (data && typeof data === 'object') {
+        // 检查是否是类数组对象（键为 "0", "1", "2" 等）
+        const keys = Object.keys(data)
+        const isArrayLike = keys.length > 0 && keys.every(key => /^\d+$/.test(key))
+        
+        if (isArrayLike) {
+          // 转换为数组
+          const arr = []
+          for (let i = 0; i < keys.length; i++) {
+            if (data[i] !== undefined) {
+              arr.push(this.normalizeData(data[i]))
+            }
+          }
+          return arr
+        }
+        
+        // 普通对象，递归处理每个属性
+        const normalized = {}
+        for (const key in data) {
+          normalized[key] = this.normalizeData(data[key])
+        }
+        return normalized
+      }
+      
+      // 基本类型，直接返回
+      return data
+    },
+
+    /**
      * 从存储加载所有模板
      */
     async loadTemplates() {
@@ -32,7 +70,19 @@ export const useTemplatesStore = defineStore('templates', {
       try {
         console.log('开始加载窗口模板...')
         const result = await chromeStorageGet(STORAGE_KEY)
-        this.templates = result[STORAGE_KEY] || []
+        console.log('加载的模板原始数据:', result)
+        
+        let templatesList = []
+        if (result && result[STORAGE_KEY]) {
+          const normalized = this.normalizeData(result[STORAGE_KEY])
+          console.log('规范化后的模板数据:', normalized)
+          
+          if (Array.isArray(normalized)) {
+            templatesList = normalized
+          }
+        }
+        
+        this.templates = templatesList
         console.log('窗口模板加载完成，数量:', this.templates.length)
         return this.templates
       } catch (error) {
@@ -48,7 +98,7 @@ export const useTemplatesStore = defineStore('templates', {
      */
     async saveToStorage() {
       try {
-        await chromeStorageSet({ [STORAGE_KEY]: this.templates })
+        await chromeStorageSet(STORAGE_KEY, this.templates)
         console.log('窗口模板已保存到存储')
       } catch (error) {
         console.error('保存窗口模板失败:', error)
@@ -247,6 +297,24 @@ export const useTemplatesStore = defineStore('templates', {
         const newWindow = await chrome.windows.create({
           focused: options.inBackground ? false : true
         })
+
+        console.log('新窗口已创建，ID:', newWindow.id)
+        console.log('尝试设置窗口名称:', template.name)
+
+        // 尝试设置窗口名称
+        // 注意：Chrome 目前的 API 可能不支持窗口命名功能
+        try {
+          // 尝试使用 windows.update 设置名称
+          await chrome.windows.update(newWindow.id, {
+            // @ts-ignore
+            name: template.name
+          })
+          console.log('✓ 成功设置窗口名称:', template.name)
+        } catch (error) {
+          console.log('ℹ️ 窗口命名功能不可用:', error.message)
+          console.log('   原因：当前 Chrome 版本或 API 不支持此功能')
+          console.log('   这不影响窗口的正常打开和使用')
+        }
 
         const createdTabs = []
         let currentIndex = 0

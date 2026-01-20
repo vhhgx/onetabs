@@ -79,21 +79,66 @@
             </div>
 
           <!-- 模板内容预览 -->
-          <div v-if="template.collections.length > 0" class="template-content">
-            <div class="collections-preview">
-              <div 
-                v-for="(collection, index) in template.collections.slice(0, 3)" 
-                :key="index"
-                class="collection-preview-item"
-              >
-                <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
-                <span class="collection-name">{{ collection.name }}</span>
-                <span class="collection-count">({{ collection.tabs.length }})</span>
-                <span v-if="collection.isReference" class="badge-small badge-ref">引用</span>
-                <span v-else class="badge-small badge-snapshot">快照</span>
+          <div v-if="template.collections.length > 0 || template.standaloneTabs.length > 0" class="template-content">
+            <!-- 标签页组列表 -->
+            <div v-if="template.collections.length > 0" class="collections-section">
+              <div class="section-title">📁 标签页组 ({{ template.collections.length }})</div>
+              <div class="collections-list-expanded">
+                <div 
+                  v-for="(collection, index) in template.collections" 
+                  :key="index"
+                  class="collection-item-expanded"
+                >
+                  <div class="collection-header-mini">
+                    <div class="collection-color-mini" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
+                    <span class="collection-name-mini">{{ collection.name }}</span>
+                    <span class="collection-count-mini">({{ collection.tabs?.length || 0 }})</span>
+                    <span v-if="collection.isReference" class="badge-tiny badge-ref">引用</span>
+                    <span v-else class="badge-tiny badge-snapshot">快照</span>
+                  </div>
+                  <!-- 显示该标签组内的标签页 -->
+                  <div v-if="collection.tabs && collection.tabs.length > 0" class="tabs-mini-list">
+                    <div 
+                      v-for="(tab, tabIndex) in collection.tabs.slice(0, 5)" 
+                      :key="tabIndex"
+                      class="tab-mini-item"
+                    >
+                      <img 
+                        v-if="tab.favIconUrl" 
+                        :src="tab.favIconUrl" 
+                        class="tab-favicon-mini"
+                        @error="(e) => e.target.style.display = 'none'"
+                      />
+                      <span class="tab-title-mini">{{ tab.title || tab.url }}</span>
+                    </div>
+                    <div v-if="collection.tabs.length > 5" class="more-tabs-indicator">
+                      还有 {{ collection.tabs.length - 5 }} 个标签页...
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div v-if="template.collections.length > 3" class="more-indicator">
-                还有 {{ template.collections.length - 3 }} 个标签页组...
+            </div>
+            
+            <!-- 独立标签页列表 -->
+            <div v-if="template.standaloneTabs && template.standaloneTabs.length > 0" class="standalone-section">
+              <div class="section-title">🔗 独立标签页 ({{ template.standaloneTabs.length }})</div>
+              <div class="tabs-mini-list">
+                <div 
+                  v-for="(tab, index) in template.standaloneTabs.slice(0, 5)" 
+                  :key="index"
+                  class="tab-mini-item"
+                >
+                  <img 
+                    v-if="tab.favIconUrl" 
+                    :src="tab.favIconUrl" 
+                    class="tab-favicon-mini"
+                    @error="(e) => e.target.style.display = 'none'"
+                  />
+                  <span class="tab-title-mini">{{ tab.title || tab.url }}</span>
+                </div>
+                <div v-if="template.standaloneTabs.length > 5" class="more-tabs-indicator">
+                  还有 {{ template.standaloneTabs.length - 5 }} 个标签页...
+                </div>
               </div>
             </div>
           </div>
@@ -283,6 +328,18 @@ const duplicateTemplate = async (id) => {
       life: 3000
     })
   }
+}
+
+// 处理拖放到模板
+const handleDropToTemplate = async (event) => {
+  console.log('拖放到模板:', event)
+  // TODO: 实现拖放功能
+  toast.add({
+    severity: 'info',
+    summary: '功能开发中',
+    detail: '拖放功能即将上线',
+    life: 2000
+  })
 }
 
 // 删除模板
@@ -662,8 +719,124 @@ const handleDropToTemplate = async ({ dragData, targetId }) => {
 
 /* 模板内容预览 */
 .template-content {
+  margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid #f3f4f6;
+}
+
+.collections-section,
+.standalone-section {
+  margin-bottom: 16px;
+}
+
+.collections-section:last-child,
+.standalone-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.collections-list-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.collection-item-expanded {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.collection-header-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.collection-color-mini {
+  width: 8px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.collection-name-mini {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.collection-count-mini {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.badge-tiny {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.badge-ref {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-snapshot {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tabs-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 16px;
+}
+
+.tab-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: white;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.tab-favicon-mini {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.tab-title-mini {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.more-tabs-indicator {
+  font-size: 11px;
+  color: #9ca3af;
+  padding: 4px 8px;
+  text-align: center;
 }
 
 .collections-preview {

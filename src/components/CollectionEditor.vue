@@ -228,7 +228,7 @@ const errors = reactive({
 const isEditMode = computed(() => !!props.collection)
 
 const isValid = computed(() => {
-  return formData.name.trim().length > 0 && formData.tabs.length > 0
+  return formData.name.trim().length > 0
 })
 
 // 监听 visible 变化
@@ -381,15 +381,16 @@ const validateForm = () => {
     return false
   }
 
-  if (formData.tabs.length === 0) {
-    toast.add({
-      severity: 'warn',
-      summary: '验证失败',
-      detail: '请至少添加一个标签页',
-      life: 3000
-    })
-    return false
-  }
+  // 允许创建空收藏集，用户可以稍后添加标签页
+  // if (formData.tabs.length === 0) {
+  //   toast.add({
+  //     severity: 'warn',
+  //     summary: '验证失败',
+  //     detail: '请至少添加一个标签页',
+  //     life: 3000
+  //   })
+  //   return false
+  // }
 
   return true
 }
@@ -409,7 +410,8 @@ const handleSave = async () => {
       }))
     }
 
-    emit('save', data)
+    // 等待保存完成
+    await emit('save', data)
     
     toast.add({
       severity: 'success',
@@ -418,7 +420,10 @@ const handleSave = async () => {
       life: 2000
     })
 
-    handleClose()
+    // 延迟关闭，确保父组件处理完成
+    setTimeout(() => {
+      handleClose()
+    }, 300)
   } catch (error) {
     console.error('保存收藏集失败:', error)
     toast.add({

@@ -43,6 +43,9 @@
           <div class="collection-card">
             <div class="card-header">
               <div class="header-left">
+                <div class="collection-icon">
+                  {{ collection.icon || '📚' }}
+                </div>
                 <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
                 <div class="collection-info">
                   <h3 class="collection-name">{{ collection.name }}</h3>
@@ -62,6 +65,27 @@
                 <button class="action-btn danger" @click="deleteCollection(collection.id)" title="删除">
                   <i class="pi pi-trash"></i>
                 </button>
+              </div>
+            </div>
+            
+            <!-- 标签页列表 -->
+            <div v-if="collection.tabs && collection.tabs.length > 0" class="tabs-list">
+              <div 
+                v-for="(tab, index) in collection.tabs" 
+                :key="index"
+                class="tab-item"
+                @click="openSingleTab(tab.url)"
+              >
+                <img 
+                  v-if="tab.favIconUrl" 
+                  :src="tab.favIconUrl" 
+                  class="tab-favicon"
+                  @error="(e) => e.target.style.display = 'none'"
+                />
+                <div class="tab-info">
+                  <div class="tab-title">{{ tab.title || '未命名' }}</div>
+                  <div class="tab-url">{{ tab.url }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -134,16 +158,28 @@ const editCollection = (collection) => {
 // 保存收藏集
 const handleSaveCollection = async (data) => {
   try {
+    console.log('开始保存收藏集:', data)
     if (editingCollection.value) {
       // 更新现有收藏集
       await collectionsStore.updateCollection(editingCollection.value.id, data)
+      console.log('收藏集更新完成')
     } else {
       // 创建新收藏集
-      await collectionsStore.createCollection(data)
+      const newCollection = await collectionsStore.createCollection(data)
+      console.log('收藏集创建完成:', newCollection)
     }
+    // 强制重新加载数据
+    console.log('重新加载收藏集数据...')
     await collectionsStore.loadCollections()
+    console.log('收藏集数据加载完成，当前数量:', collectionsStore.collections.length)
   } catch (error) {
     console.error('保存收藏集失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '保存失败',
+      detail: error.message || '无法保存收藏集',
+      life: 3000
+    })
     throw error
   }
 }
@@ -168,6 +204,31 @@ const openCollection = async (id) => {
       severity: 'error',
       summary: '打开失败',
       detail: error.message || '无法打开收藏集',
+      life: 3000
+    })
+  }
+}
+
+// 打开单个标签页
+const openSingleTab = async (url) => {
+  try {
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      await chrome.tabs.create({ url, active: false })
+      toast.add({
+        severity: 'success',
+        summary: '已在后台打开',
+        detail: '',
+        life: 2000
+      })
+    } else {
+      window.open(url, '_blank')
+    }
+  } catch (error) {
+    console.error('打开标签页失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '打开失败',
+      detail: error.message,
       life: 3000
     })
   }
@@ -474,6 +535,17 @@ const handleDropToCollection = async ({ dragData, targetId }) => {
   flex-shrink: 0;
 }
 
+.collection-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
 .collection-info {
   flex: 1;
   min-width: 0;
@@ -522,5 +594,62 @@ const handleDropToCollection = async ({ dragData, targetId }) => {
 .action-btn.danger:hover {
   background: #fee2e2;
   color: #dc2626;
+}
+
+/* 标签列表 */
+.tabs-list {
+  margin-top: 16px;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-item:hover {
+  background: #f3f4f6;
+  transform: translateX(4px);
+}
+
+.tab-favicon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.tab-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tab-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.tab-url {
+  font-size: 11px;
+  color: #9ca3af;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // import Components from 'unplugin-vue-components/vite'
 // import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
-import { writeFileSync, copyFileSync, existsSync, mkdirSync } from 'fs'
+import { writeFileSync, readFileSync, copyFileSync, existsSync, mkdirSync } from 'fs'
 import sharp from 'sharp' // 添加sharp依赖，用于处理图像调整大小
 
 // 自定义插件，用于处理 Chrome 扩展程序的所需文件
@@ -70,9 +70,13 @@ function chromeExtensionPlugins() {
 
       console.log('🚀 正在复制背景脚本')
 
-      if (!existsSync(BGDIST) && existsSync(BACKGROUND)) {
-        copyFileSync(BACKGROUND, BGDIST)
-        console.log('✅ 背景脚本已复制')
+      if (existsSync(BACKGROUND)) {
+        // 使用 readFileSync 和 writeFileSync 确保 UTF-8 编码
+        const backgroundContent = readFileSync(BACKGROUND, 'utf-8')
+        writeFileSync(BGDIST, backgroundContent, 'utf-8')
+        console.log('✅ 背景脚本已复制 (UTF-8)')
+      } else {
+        console.error('❌ 源 background.js 不存在')
       }
 
       console.log('✨ Chrome扩展处理完成!')

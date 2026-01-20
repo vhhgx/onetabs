@@ -57,6 +57,44 @@ export const useCollectionsStore = defineStore('collections', {
 
   actions: {
     /**
+     * 将对象格式的数据转换为数组格式
+     * Chrome Storage 有时会将数组保存为对象格式
+     */
+    normalizeData(data) {
+      if (Array.isArray(data)) {
+        // 已经是数组，递归处理每个元素
+        return data.map(item => this.normalizeData(item))
+      }
+      
+      if (data && typeof data === 'object') {
+        // 检查是否是类数组对象（键为 "0", "1", "2" 等）
+        const keys = Object.keys(data)
+        const isArrayLike = keys.length > 0 && keys.every(key => /^\d+$/.test(key))
+        
+        if (isArrayLike) {
+          // 转换为数组
+          const arr = []
+          for (let i = 0; i < keys.length; i++) {
+            if (data[i] !== undefined) {
+              arr.push(this.normalizeData(data[i]))
+            }
+          }
+          return arr
+        }
+        
+        // 普通对象，递归处理每个属性
+        const normalized = {}
+        for (const key in data) {
+          normalized[key] = this.normalizeData(data[key])
+        }
+        return normalized
+      }
+      
+      // 基本类型，直接返回
+      return data
+    },
+
+    /**
      * 从 Storage 加载所有标签页组
      */
     async loadCollections() {
@@ -66,10 +104,18 @@ export const useCollectionsStore = defineStore('collections', {
         console.log('加载的标签页组原始数据:', data)
         
         let collectionsList = []
-        if (data && data.onetabs_collections && Array.isArray(data.onetabs_collections)) {
-          collectionsList = data.onetabs_collections
-        } else if (Array.isArray(data)) {
-          collectionsList = data
+        if (data && data.onetabs_collections) {
+          const normalized = this.normalizeData(data.onetabs_collections)
+          console.log('规范化后的数据:', normalized)
+          
+          if (Array.isArray(normalized)) {
+            collectionsList = normalized
+          }
+        } else if (data) {
+          const normalized = this.normalizeData(data)
+          if (Array.isArray(normalized)) {
+            collectionsList = normalized
+          }
         }
         
         this.collections = collectionsList

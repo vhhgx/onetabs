@@ -4,14 +4,23 @@
     <div class="card-header">
       <div class="header-left">
         <!-- 置顶图标 -->
-        <button v-if="session.isPinned" class="pin-indicator" @click="$emit('toggle-pin', session.date)" title="取消置顶">
+        <button
+          v-if="session.isPinned"
+          class="pin-indicator"
+          @click="$emit('toggle-pin', session.date)"
+          title="取消置顶"
+        >
           📌
         </button>
-        
+
         <!-- 标题信息 -->
         <div class="title-info">
           <h3 class="session-title">
-            <span v-if="session.type === 'grouped'" class="group-indicator" :style="{ backgroundColor: getGroupColor(session.groupInfo?.color) }"></span>
+            <span
+              v-if="session.type === 'grouped'"
+              class="group-indicator"
+              :style="{ backgroundColor: getGroupColor(session.groupInfo?.color) }"
+            ></span>
             <span>{{ session.title || '未分组标签' }}</span>
           </h3>
           <div class="session-meta">
@@ -23,42 +32,37 @@
 
       <!-- 操作按钮 -->
       <div class="header-actions">
-        <button v-if="!session.isPinned" class="action-btn pin-btn" @click="$emit('toggle-pin', session.date)" title="置顶">
+        <button
+          v-if="!session.isPinned"
+          class="action-btn pin-btn"
+          @click="$emit('toggle-pin', session.date)"
+          title="置顶"
+        >
           📌
         </button>
-        <button class="action-btn restore-btn" @click="handleRestore" title="恢复">
-          ↻
-        </button>
-        <button class="action-btn delete-btn" @click="handleDelete" title="删除">
-          🗑️
-        </button>
-        <button class="action-btn expand-btn" @click="expanded = !expanded" :title="expanded ? '收起' : '展开'">
-          {{ expanded ? '▼' : '▶' }}
-        </button>
+        <button class="action-btn restore-btn" @click="handleRestore" title="恢复"> ↻ </button>
+        <button class="action-btn delete-btn" @click="handleDelete" title="删除"> 🗑️ </button>
       </div>
     </div>
 
     <!-- 展开的标签页列表 -->
-    <transition name="expand">
-      <div v-if="expanded" class="card-body">
-        <div class="tabs-list">
-          <TabItem
-            v-for="(tab, index) in session.tabs"
-            :key="index"
-            :tab="tab"
-            :draggable="true"
-            source-type="session"
-            :source-id="session.date"
-            @click="handleTabClick(tab.url)"
-          />
-        </div>
+    <div class="card-body">
+      <div class="tabs-list">
+        <TabItem
+          v-for="(tab, index) in session.tabs"
+          :key="index"
+          :tab="tab"
+          :draggable="true"
+          source-type="session"
+          :source-id="String(session.date)"
+          @click="handleTabClick(tab.url)"
+        />
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import TabItem from './TabItem.vue'
 
@@ -72,7 +76,6 @@ const props = defineProps({
 const emit = defineEmits(['restore', 'restore-group', 'delete', 'toggle-pin'])
 
 const confirm = useConfirm()
-const expanded = ref(false)
 
 // 格式化时间
 const formatTime = (timestamp) => {
@@ -86,7 +89,7 @@ const formatTime = (timestamp) => {
   if (minutes < 60) return `${minutes} 分钟前`
   if (hours < 24) return `${hours} 小时前`
   if (days < 7) return `${days} 天前`
-  
+
   const date = new Date(timestamp)
   return date.toLocaleDateString('zh-CN')
 }
@@ -265,24 +268,5 @@ const handleTabClick = (url) => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-/* 展开动画 */
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.expand-enter-from,
-.expand-leave-to {
-  max-height: 0;
-  opacity: 0;
-}
-
-.expand-enter-to,
-.expand-leave-from {
-  max-height: 1000px;
-  opacity: 1;
 }
 </style>

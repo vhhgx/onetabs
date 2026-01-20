@@ -10,15 +10,16 @@
     <div class="tab-item" @click="handleClick">
       <img :src="tabIcon" alt="icon" class="tab-icon" @error="handleIconError" />
       <div class="tab-info">
-        <span class="tab-title">{{ tab.title }}</span>
-        <span class="tab-url">{{ formatUrl(tab.url) }}</span>
+        <a class="tab-title">{{ tab.title }}</a>
+        <!-- {{ tab.url }}
+        <span class="tab-url">{{ formatUrl(tab.url) }}</span> -->
       </div>
       <div v-if="draggable" class="drag-handle" title="拖拽到收藏集或模板">
         <i class="pi pi-bars"></i>
       </div>
     </div>
   </DraggableTab>
-  
+
   <div v-else class="tab-item" @click="handleClick">
     <img :src="tabIcon" alt="icon" class="tab-icon" @error="handleIconError" />
     <div class="tab-info">
@@ -39,16 +40,16 @@ const props = defineProps({
   },
   draggable: {
     type: Boolean,
-    default: false
+    default: false,
   },
   sourceType: {
     type: String,
-    default: 'session'
+    default: 'session',
   },
   sourceId: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 const emit = defineEmits(['click', 'dragstart', 'dragend'])
@@ -127,24 +128,24 @@ const handleDragEnd = (event) => {
 }
 
 .tab-title {
-  font-size: 14px;
+  font-size: 13px;
   color: #111827;
 
-.drag-handle {
-  display: none;
-  color: #9ca3af;
-  font-size: 14px;
-  cursor: grab;
-  padding: 4px;
-}
+  .drag-handle {
+    display: none;
+    color: #9ca3af;
+    font-size: 14px;
+    cursor: grab;
+    padding: 4px;
+  }
 
-.tab-item:hover .drag-handle {
-  display: block;
-}
+  .tab-item:hover .drag-handle {
+    display: block;
+  }
 
-.drag-handle:active {
-  cursor: grabbing;
-}
+  .drag-handle:active {
+    cursor: grabbing;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
