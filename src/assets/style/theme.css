@@ -1,0 +1,168 @@
+/* ====================================
+   主题变量定义
+   ==================================== */
+
+/* 默认主题（亮色） */
+:root,
+.theme-light {
+  /* 主色调 */
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-active: #1d4ed8;
+  
+  /* 背景色 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-hover: #f3f4f6;
+  --bg-active: #e5e7eb;
+  
+  /* 文字颜色 */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-disabled: #d1d5db;
+  --text-inverse: #ffffff;
+  
+  /* 边框颜色 */
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+  --border-hover: #9ca3af;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  
+  /* 状态颜色 */
+  --success-color: #10b981;
+  --success-bg: #d1fae5;
+  --warning-color: #f59e0b;
+  --warning-bg: #fef3c7;
+  --error-color: #ef4444;
+  --error-bg: #fee2e2;
+  --info-color: #3b82f6;
+  --info-bg: #dbeafe;
+  
+  /* 卡片 */
+  --card-bg: #ffffff;
+  --card-hover: #f9fafb;
+  --card-border: #e5e7eb;
+  
+  /* 输入框 */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-focus: #3b82f6;
+  --input-placeholder: #9ca3af;
+  
+  /* 滚动条 */
+  --scrollbar-track: #f3f4f6;
+  --scrollbar-thumb: #d1d5db;
+  --scrollbar-thumb-hover: #9ca3af;
+}
+
+/* 暗色主题 */
+.theme-dark {
+  /* 主色调 */
+  --primary-color: #60a5fa;
+  --primary-hover: #3b82f6;
+  --primary-active: #2563eb;
+  
+  /* 背景色 */
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #0f172a;
+  --bg-hover: #374151;
+  --bg-active: #4b5563;
+  
+  /* 文字颜色 */
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-disabled: #6b7280;
+  --text-inverse: #1f2937;
+  
+  /* 边框颜色 */
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+  --border-hover: #6b7280;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  
+  /* 状态颜色 */
+  --success-color: #34d399;
+  --success-bg: #064e3b;
+  --warning-color: #fbbf24;
+  --warning-bg: #78350f;
+  --error-color: #f87171;
+  --error-bg: #7f1d1d;
+  --info-color: #60a5fa;
+  --info-bg: #1e3a8a;
+  
+  /* 卡片 */
+  --card-bg: #1f2937;
+  --card-hover: #374151;
+  --card-border: #374151;
+  
+  /* 输入框 */
+  --input-bg: #111827;
+  --input-border: #4b5563;
+  --input-focus: #60a5fa;
+  --input-placeholder: #6b7280;
+  
+  /* 滚动条 */
+  --scrollbar-track: #1f2937;
+  --scrollbar-thumb: #4b5563;
+  --scrollbar-thumb-hover: #6b7280;
+}
+
+/* ====================================
+   主题切换动画
+   ==================================== */
+
+/* 为所有颜色相关属性添加平滑过渡 */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* 避免特定元素的过渡效果 */
+*:not(.no-theme-transition) {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+/* ====================================
+   自定义滚动条样式
+   ==================================== */
+
+/* Webkit浏览器（Chrome, Safari, Edge） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}

@@ -7,6 +7,42 @@
       <h1>设置</h1>
     </div>
 
+    <!-- P3: 主题设置 -->
+    <div class="settings-section">
+      <h2>主题设置</h2>
+
+      <div class="setting-item">
+        <label class="label-text">主题模式</label>
+        <div class="theme-options">
+          <button 
+            @click="setTheme('light')" 
+            class="theme-btn"
+            :class="{ active: currentTheme === 'light' && !followSystem }"
+          >
+            <i class="pi pi-sun"></i>
+            <span>亮色</span>
+          </button>
+          <button 
+            @click="setTheme('dark')" 
+            class="theme-btn"
+            :class="{ active: currentTheme === 'dark' && !followSystem }"
+          >
+            <i class="pi pi-moon"></i>
+            <span>暗色</span>
+          </button>
+          <button 
+            @click="setFollowSystem(true)" 
+            class="theme-btn"
+            :class="{ active: followSystem }"
+          >
+            <i class="pi pi-desktop"></i>
+            <span>跟随系统</span>
+          </button>
+        </div>
+        <p class="setting-desc">选择应用的主题外观</p>
+      </div>
+    </div>
+
     <!-- P0: 基础设置 -->
     <div class="settings-section">
       <h2>基础设置</h2>
@@ -147,6 +183,7 @@ import { useSettingsStore } from '../stores/settingsStore'
 import { useSessionsStore } from '../stores/sessionsStore'
 import { useCollectionsStore } from '../stores/collectionsStore'
 import { useTemplatesStore } from '../stores/templatesStore'
+import { useThemeStore } from '../stores/themeStore'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import Dialog from 'primevue/dialog'
@@ -157,8 +194,13 @@ const settingsStore = useSettingsStore()
 const sessionsStore = useSessionsStore()
 const collectionsStore = useCollectionsStore()
 const templatesStore = useTemplatesStore()
+const themeStore = useThemeStore()
 const toast = useToast()
 const confirm = useConfirm()
+
+// 主题设置
+const currentTheme = ref('light')
+const followSystem = ref(false)
 
 // 设置项
 const autoClose = ref(true)
@@ -180,9 +222,58 @@ const goBack = () => {
   router.push('/')
 }
 
+// 设置主题
+const setTheme = async (theme) => {
+  try {
+    await themeStore.setTheme(theme)
+    currentTheme.value = theme
+    followSystem.value = false
+    toast.add({
+      severity: 'success',
+      summary: '主题已切换',
+      detail: `已切换到${theme === 'light' ? '亮色' : '暗色'}主题`,
+      life: 2000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '切换失败',
+      detail: '无法切换主题',
+      life: 3000
+    })
+  }
+}
+
+// 设置跟随系统
+const setFollowSystem = async (follow) => {
+  try {
+    await themeStore.setFollowSystem(follow)
+    followSystem.value = follow
+    toast.add({
+      severity: 'success',
+      summary: '设置已保存',
+      detail: '主题将跟随系统设置',
+      life: 2000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '设置失败',
+      detail: '无法设置跟随系统',
+      life: 3000
+    })
+  }
+}
+
 // 页面加载时初始化
 onMounted(async () => {
   try {
+    // 加载主题设置
+    await themeStore.loadTheme()
+    currentTheme.value = themeStore.currentTheme
+    followSystem.value = themeStore.followSystem
+
+    // 加载其他设置
     await settingsStore.loadSettings()
     autoClose.value = settingsStore.autoClose
     keepPinned.value = settingsStore.keepPinned
@@ -622,15 +713,15 @@ const getSeverityLabel = (severity) => {
   justify-content: center;
   border: none;
   border-radius: 8px;
-  background: white;
-  color: #374151;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .back-btn:hover {
-  background: #f3f4f6;
+  background: var(--bg-hover);
   transform: translateX(-2px);
 }
 
@@ -641,26 +732,26 @@ const getSeverityLabel = (severity) => {
 .settings-container h1 {
   font-size: 28px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .settings-section {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--card-border);
 }
 
 .settings-section h2 {
   font-size: 18px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .setting-item {
@@ -688,29 +779,76 @@ const getSeverityLabel = (severity) => {
 .label-text {
   font-size: 15px;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .setting-desc {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 8px 0 0 30px;
   line-height: 1.5;
+}
+
+.theme-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border: 2px solid var(--border-primary);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.theme-btn i {
+  font-size: 24px;
+}
+
+.theme-btn span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.theme-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--bg-hover);
+}
+
+.theme-btn.active {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  color: white;
+}
+
+.theme-btn.active:hover {
+  background: var(--primary-hover);
 }
 
 .number-input {
   width: 120px;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--input-border);
   border-radius: 6px;
   font-size: 14px;
   margin-top: 8px;
   transition: border-color 0.2s;
+  background: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .number-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--input-focus);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -742,7 +880,7 @@ const getSeverityLabel = (severity) => {
 }
 
 .export-btn {
-  background-color: #10b981;
+  background-color: var(--success-color);
 }
 
 .export-btn:hover {
@@ -750,7 +888,7 @@ const getSeverityLabel = (severity) => {
 }
 
 .import-btn {
-  background-color: #3b82f6;
+  background-color: var(--info-color);
 }
 
 .import-btn:hover {
@@ -758,7 +896,7 @@ const getSeverityLabel = (severity) => {
 }
 
 .clear-btn {
-  background-color: #ef4444;
+  background-color: var(--error-color);
 }
 
 .clear-btn:hover {
@@ -774,7 +912,7 @@ const getSeverityLabel = (severity) => {
 .no-logs {
   text-align: center;
   padding: 40px 20px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .no-logs p {
@@ -792,22 +930,22 @@ const getSeverityLabel = (severity) => {
   padding: 16px;
   border-radius: 8px;
   border-left: 4px solid;
-  background: #f9fafb;
+  background: var(--bg-tertiary);
 }
 
 .log-item.severity-error {
-  border-left-color: #ef4444;
-  background: #fef2f2;
+  border-left-color: var(--error-color);
+  background: var(--error-bg);
 }
 
 .log-item.severity-warning {
-  border-left-color: #f59e0b;
-  background: #fffbeb;
+  border-left-color: var(--warning-color);
+  background: var(--warning-bg);
 }
 
 .log-item.severity-info {
-  border-left-color: #3b82f6;
-  background: #eff6ff;
+  border-left-color: var(--info-color);
+  background: var(--info-bg);
 }
 
 .log-header {
@@ -843,12 +981,12 @@ const getSeverityLabel = (severity) => {
 
 .log-time {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .log-message {
   font-size: 14px;
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 8px;
   line-height: 1.5;
 }
@@ -861,7 +999,7 @@ const getSeverityLabel = (severity) => {
 
 .log-stack details {
   cursor: pointer;
-  color: #3b82f6;
+  color: var(--primary-color);
 }
 
 .log-stack summary {
@@ -872,8 +1010,8 @@ const getSeverityLabel = (severity) => {
 .log-stack pre {
   margin-top: 8px;
   padding: 12px;
-  background: #1f2937;
-  color: #f3f4f6;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   border-radius: 4px;
   overflow-x: auto;
   font-size: 11px;
@@ -882,9 +1020,9 @@ const getSeverityLabel = (severity) => {
 
 .log-context {
   padding: 12px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 4px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-primary);
   white-space: pre-wrap;
   word-break: break-word;
 }

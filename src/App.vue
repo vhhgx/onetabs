@@ -36,13 +36,14 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
 import SearchBar from './components/SearchBar.vue'
 import ShortcutsHelp from './components/ShortcutsHelp.vue'
 import { useShortcuts } from './utils/shortcuts'
+import { useThemeStore } from './stores/themeStore'
 
 export default defineComponent({
   name: 'App',
@@ -54,8 +55,14 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter()
+    const themeStore = useThemeStore()
     const searchBarRef = ref(null)
     const showShortcutsHelp = ref(false)
+
+    // 初始化主题
+    onMounted(async () => {
+      await themeStore.loadTheme()
+    })
 
     // 注册全局快捷键
     useShortcuts({
@@ -101,7 +108,7 @@ export default defineComponent({
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f9fafb;
+  background: var(--bg-secondary);
 }
 
 .app-navbar {
@@ -109,9 +116,9 @@ export default defineComponent({
   align-items: center;
   gap: 24px;
   padding: 12px 24px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
 
   .nav-brand {
     display: flex;
@@ -119,11 +126,11 @@ export default defineComponent({
     gap: 8px;
     font-size: 20px;
     font-weight: 700;
-    color: #111827;
+    color: var(--text-primary);
     flex-shrink: 0;
 
     i {
-      color: #3b82f6;
+      color: var(--primary-color);
     }
   }
 
@@ -142,7 +149,7 @@ export default defineComponent({
     border: none;
     background: transparent;
     border-radius: 8px;
-    color: #6b7280;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
 
@@ -151,8 +158,8 @@ export default defineComponent({
     }
 
     &:hover {
-      background: #f3f4f6;
-      color: #374151;
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
   }
 }
