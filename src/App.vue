@@ -6,7 +6,19 @@
         <i class="pi pi-bookmark"></i>
         <span>OneTabs</span>
       </div>
-      <!-- 可选：添加搜索框和设置按钮 -->
+      
+      <!-- 搜索框 -->
+      <SearchBar ref="searchBarRef" @result-click="handleSearchResult" />
+      
+      <!-- 右侧操作 -->
+      <div class="nav-actions">
+        <button class="nav-btn" @click="showShortcutsHelp = true" title="快捷键帮助">
+          <i class="pi pi-question-circle"></i>
+        </button>
+        <button class="nav-btn" @click="goToSettings" title="设置">
+          <i class="pi pi-cog"></i>
+        </button>
+      </div>
     </nav>
 
     <!-- 路由视图 -->
@@ -17,19 +29,68 @@
     
     <!-- 确认对话框组件 -->
     <ConfirmDialog />
+    
+    <!-- 快捷键帮助对话框 -->
+    <ShortcutsHelp v-model:visible="showShortcutsHelp" />
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
+import SearchBar from './components/SearchBar.vue'
+import ShortcutsHelp from './components/ShortcutsHelp.vue'
+import { useShortcuts } from './utils/shortcuts'
 
 export default defineComponent({
   name: 'App',
   components: {
     Toast,
-    ConfirmDialog
+    ConfirmDialog,
+    SearchBar,
+    ShortcutsHelp
+  },
+  setup() {
+    const router = useRouter()
+    const searchBarRef = ref(null)
+    const showShortcutsHelp = ref(false)
+
+    // 注册全局快捷键
+    useShortcuts({
+      FOCUS_SEARCH: () => {
+        const input = document.querySelector('.search-input')
+        if (input) input.focus()
+      },
+      OPEN_SETTINGS: () => {
+        router.push('/settings')
+      },
+      TAB_SESSIONS: () => {
+        router.push('/?tab=sessions')
+      },
+      TAB_COLLECTIONS: () => {
+        router.push('/?tab=collections')
+      },
+      TAB_TEMPLATES: () => {
+        router.push('/?tab=templates')
+      }
+    })
+
+    const handleSearchResult = ({ type, item }) => {
+      console.log('Search result clicked:', type, item)
+    }
+
+    const goToSettings = () => {
+      router.push('/settings')
+    }
+
+    return {
+      searchBarRef,
+      showShortcutsHelp,
+      handleSearchResult,
+      goToSettings
+    }
   }
 })
 </script>
@@ -46,7 +107,7 @@ export default defineComponent({
 .app-navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 24px;
   padding: 12px 24px;
   background: white;
   border-bottom: 1px solid #e5e7eb;
@@ -59,40 +120,39 @@ export default defineComponent({
     font-size: 20px;
     font-weight: 700;
     color: #111827;
+    flex-shrink: 0;
 
     i {
       color: #3b82f6;
     }
   }
 
-  .nav-links {
+  .nav-actions {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
+  }
 
-    a {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      color: #6b7280;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s;
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
 
-      i {
-        font-size: 16px;
-      }
+    i {
+      font-size: 18px;
+    }
 
-      &:hover {
-        background: #f3f4f6;
-        color: #374151;
-      }
-
-      &.active {
-        background: #eff6ff;
-        color: #3b82f6;
-      }
+    &:hover {
+      background: #f3f4f6;
+      color: #374151;
     }
   }
 }

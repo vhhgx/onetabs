@@ -1,84 +1,122 @@
 <template>
-  <div class="template-card">
-    <div class="card-header">
-      <div class="template-icon">
-        <i class="pi pi-window-maximize"></i>
-      </div>
-      <div class="template-info">
-        <h3 class="template-name">{{ template.name }}</h3>
-        <p v-if="template.description" class="template-description">
-          {{ template.description }}
-        </p>
+  <div 
+    class="template-card card-hover"
+    @contextmenu.prevent="handleContextMenu"
+  >
+    <div class="card-header" @click="toggleExpanded">
+      <div class="header-left">
+        <!-- 展开/折叠图标 -->
+        <button class="expand-icon btn-press" :class="{ 'expanded': isExpanded }">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+
+        <div class="template-icon">
+          <i class="pi pi-window-maximize"></i>
+        </div>
         
-        <!-- 统计信息 -->
-        <div class="template-stats">
-          <span class="stat-item">
-            <i class="pi pi-folder"></i>
-            {{ collectionsCount }} 个收藏集
-          </span>
-          <span class="stat-item">
-            <i class="pi pi-book"></i>
-            {{ tabsCount }} 个标签页
-          </span>
-        </div>
+        <div class="template-info">
+          <h3 class="template-name">{{ template.name }}</h3>
+          <p v-if="template.description" class="template-description">
+            {{ template.description }}
+          </p>
+          
+          <!-- 统计信息 -->
+          <div class="template-stats">
+            <span class="stat-item">
+              <i class="pi pi-folder"></i>
+              {{ collectionsCount }} 个收藏集
+            </span>
+            <span class="stat-item">
+              <i class="pi pi-book"></i>
+              {{ tabsCount }} 个标签页
+            </span>
+          </div>
 
-        <!-- 最后更新时间 -->
-        <div class="template-meta">
-          <span class="meta-time">
-            <i class="pi pi-clock"></i>
-            {{ formatTime(template.updatedAt || template.createdAt) }}
-          </span>
+          <!-- 最后更新时间 -->
+          <div class="template-meta">
+            <span class="meta-time">
+              <i class="pi pi-clock"></i>
+              {{ formatTime(template.updatedAt || template.createdAt) }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="card-actions">
-        <button class="action-btn" @click="handleOpen" title="打开">
+      <div class="card-actions" @click.stop>
+        <button class="action-btn btn-press" @click="handleOpen" title="打开">
           <i class="pi pi-external-link"></i>
         </button>
-        <button class="action-btn" @click="handleEdit" title="编辑">
+        <button class="action-btn btn-press" @click="handleEdit" title="编辑">
           <i class="pi pi-pencil"></i>
         </button>
-        <button class="action-btn" @click="handleDuplicate" title="复制">
+        <button class="action-btn btn-press" @click="handleDuplicate" title="复制">
           <i class="pi pi-copy"></i>
         </button>
-        <button class="action-btn danger" @click="handleDelete" title="删除">
+        <button class="action-btn danger btn-press" @click="handleDelete" title="删除">
           <i class="pi pi-trash"></i>
         </button>
       </div>
     </div>
 
     <!-- 收藏集预览 -->
-    <div v-if="template.collections && template.collections.length > 0" class="card-body">
-      <div class="collections-preview">
-        <div class="preview-label">收藏集：</div>
-        <div class="collections-tags">
-          <span 
-            v-for="collection in displayCollections" 
-            :key="collection.id"
-            class="collection-tag"
-            :style="{ borderColor: getColorValue(collection.color) }"
-          >
-            <span class="tag-color" :style="{ backgroundColor: getColorValue(collection.color) }"></span>
-            {{ collection.name }}
-            <span class="tag-badge">{{ collection.tabs?.length || 0 }}</span>
-          </span>
-          <span v-if="template.collections.length > 3" class="more-tag">
-            +{{ template.collections.length - 3 }}
-          </span>
+    <Transition name="expand">
+      <div v-show="isExpanded" class="card-body">
+        <div v-if="template.collections && template.collections.length > 0" class="collections-preview">
+          <div class="preview-label">收藏集：</div>
+          <TransitionGroup name="list" tag="div" class="collections-tags">
+            <span 
+              v-for="collection in template.collections" 
+              :key="collection.id"
+              class="collection-tag card-hover"
+              :style="{ borderColor: getColorValue(collection.color) }"
+            >
+              <span class="tag-color" :style="{ backgroundColor: getColorValue(collection.color) }"></span>
+              {{ collection.name }}
+              <span class="tag-badge">{{ collection.tabs?.length || 0 }}</span>
+            </span>
+          </TransitionGroup>
+        </div>
+
+        <!-- 独立标签页提示 -->
+        <div v-if="template.standaloneTabs && template.standaloneTabs.length > 0" class="standalone-section">
+          <div class="preview-label">独立标签页：</div>
+          <TransitionGroup name="list" tag="div" class="tabs-preview">
+            <div
+              v-for="(tab, index) in template.standaloneTabs"
+              :key="tab.id || index"
+              class="tab-preview-item card-hover"
+            >
+              <img 
+                v-if="tab.favIconUrl" 
+                :src="tab.favIconUrl" 
+                class="tab-favicon"
+                @error="(e) => e.target.style.display = 'none'"
+              />
+              <span class="tab-title">{{ tab.title || '未命名标签页' }}</span>
+            </div>
+          </TransitionGroup>
         </div>
       </div>
-    </div>
+    </Transition>
 
-    <!-- 独立标签页提示 -->
-    <div v-if="template.standaloneTabs && template.standaloneTabs.length > 0" class="card-footer">
-      <i class="pi pi-bookmark"></i>
-      <span>包含 {{ template.standaloneTabs.length }} 个独立标签页</span>
-    </div>
+    <!-- 右键菜单 -->
+    <ContextMenu
+      v-if="showContextMenu"
+      v-model:visible="showContextMenu"
+      :items="contextMenuItems"
+      :position="contextMenuPosition"
+      @select="handleMenuAction"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import ContextMenu from './ContextMenu.vue'
+import { getTemplateContextMenu } from '../utils/contextMenus'
+import { useContextMenu } from '../composables/useContextMenu'
 
 const props = defineProps({
   template: {
@@ -87,7 +125,22 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['open', 'edit', 'duplicate', 'delete'])
+const emit = defineEmits(['open', 'edit', 'duplicate', 'delete', 'export'])
+
+const confirm = useConfirm()
+const toast = useToast()
+const isExpanded = ref(false)
+const { showContextMenu, contextMenuPosition, showMenu } = useContextMenu()
+
+// 右键菜单配置
+const contextMenuItems = computed(() => {
+  return getTemplateContextMenu(props.template)
+})
+
+// 切换展开状态
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+}
 
 // 计算收藏集和标签页数量
 const collectionsCount = computed(() => {
@@ -182,7 +235,44 @@ const handleDuplicate = () => {
 }
 
 const handleDelete = () => {
-  emit('delete', props.template.id)
+  confirm.require({
+    message: `确定要删除模板 "${props.template.name}" 吗？此操作无法撤销。`,
+    header: '删除确认',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '取消',
+    acceptLabel: '删除',
+    accept: () => {
+      emit('delete', props.template.id)
+    }
+  })
+}
+
+// 处理右键菜单
+const handleContextMenu = (event) => {
+  showMenu(event)
+}
+
+// 处理菜单操作
+const handleMenuAction = (action) => {
+  showContextMenu.value = false
+
+  switch (action.id) {
+    case 'open':
+      handleOpen()
+      break
+    case 'edit':
+      handleEdit()
+      break
+    case 'duplicate':
+      handleDuplicate()
+      break
+    case 'export':
+      emit('export', props.template)
+      break
+    case 'delete':
+      handleDelete()
+      break
+  }
 }
 </script>
 
@@ -195,17 +285,45 @@ const handleDelete = () => {
   overflow: hidden;
 }
 
-.template-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
 .card-header {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  justify-content: space-between;
   padding: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.expand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.expand-icon:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
 }
 
 .template-icon {
@@ -217,6 +335,9 @@ const handleDelete = () => {
   align-items: center;
   justify-content: center;
   color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
   font-size: 20px;
   flex-shrink: 0;
 }
@@ -287,6 +408,12 @@ const handleDelete = () => {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card-header:hover .card-actions {
+  opacity: 1;
 }
 
 .action-btn {
@@ -389,6 +516,47 @@ const handleDelete = () => {
   color: #6b7280;
 }
 
+/* 独立标签页部分 */
+.standalone-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.tabs-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tab-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.tab-preview-item:hover {
+  background: #f9fafb;
+}
+
+.tab-favicon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.tab-title {
+  font-size: 13px;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* 卡片底部 */
 .card-footer {
   display: flex;
@@ -401,6 +569,35 @@ const handleDelete = () => {
   color: #6b7280;
 }
 
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 16px;
+  }
+
+  .card-actions {
+    opacity: 1;
+  }
+
+  .template-name {
+    font-size: 16px;
+  }
+
+  .template-description {
+    font-size: 12px;
+  }
+
+  .template-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .card-body {
+    padding: 12px 16px;
+  }
+}
+</style>
 .card-footer i {
   font-size: 11px;
 }

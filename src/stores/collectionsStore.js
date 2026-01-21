@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
+import { errorHandler } from '../utils/errorHandler'
 
 /**
  * Collections Store - 管理标签页组（收藏集）
@@ -122,7 +123,7 @@ export const useCollectionsStore = defineStore('collections', {
         console.log('加载的标签页组数量:', this.collections.length)
         this.lastLoaded = new Date().toISOString()
       } catch (error) {
-        console.error('加载标签页组失败:', error)
+        errorHandler.handleStorageError(error, '加载收藏集失败')
         this.collections = []
       } finally {
         this.isLoading = false
@@ -138,7 +139,7 @@ export const useCollectionsStore = defineStore('collections', {
         await chromeStorageSet('onetabs_collections', this.collections)
         console.log('标签页组保存成功')
       } catch (error) {
-        console.error('保存标签页组失败:', error)
+        errorHandler.handleStorageError(error, '保存收藏集失败')
         throw error
       }
     },
@@ -166,7 +167,7 @@ export const useCollectionsStore = defineStore('collections', {
         
         return newCollection
       } catch (error) {
-        console.error('创建标签页组失败:', error)
+        errorHandler.handleError(error, '创建收藏集失败')
         throw error
       }
     },
@@ -197,7 +198,7 @@ export const useCollectionsStore = defineStore('collections', {
         
         return collection
       } catch (error) {
-        console.error('更新标签页组失败:', error)
+        errorHandler.handleError(error, '更新收藏集失败')
         throw error
       }
     },
@@ -219,7 +220,7 @@ export const useCollectionsStore = defineStore('collections', {
         
         return true
       } catch (error) {
-        console.error('删除标签页组失败:', error)
+        errorHandler.handleError(error, '删除收藏集失败')
         throw error
       }
     },

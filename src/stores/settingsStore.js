@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
+import { errorHandler } from '../utils/errorHandler'
 
 /**
  * Settings Store - 管理应用设置
@@ -132,10 +133,7 @@ export const useSettingsStore = defineStore('settings', {
         await this.saveSettings()
         return true
       } catch (error) {
-        console.error('更新拖拽ttings()
-        return true
-      } catch (error) {
-        console.error('重置设置失败:', error)
+        console.error('更新拖拽设置失败:', error)
         throw error
       }
     },

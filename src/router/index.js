@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import MainView from '../views/MainView.vue'
+import Settings from '../views/Settings.vue'
 
 const routes = [
   {
@@ -9,6 +10,14 @@ const routes = [
     meta: {
       title: 'OneTabs',
       keepAlive: true,
+    },
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: Settings,
+    meta: {
+      title: 'OneTabs - 设置',
     },
   },
   // 重定向所有未知路径

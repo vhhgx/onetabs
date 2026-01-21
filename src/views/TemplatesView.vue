@@ -21,12 +21,28 @@
       </div>
 
       <!-- 空状态 -->
-      <div v-if="!isLoading && templates.length === 0" class="empty-state">
-        <div class="empty-icon">🚀</div>
-        <p class="empty-text">还没有窗口模板</p>
-        <p class="empty-hint">创建窗口模板来快速恢复工作环境</p>
-        <p class="empty-hint">点击"新建模板"或"从当前窗口创建"开始</p>
-      </div>
+      <EmptyState
+        v-if="!isLoading && templates.length === 0"
+        icon="pi pi-window-maximize"
+        title="还没有窗口模板"
+        description="创建窗口模板来快速恢复完整的工作环境，包含多个收藏集和标签页"
+      >
+        <template #icon>
+          <div style="font-size: 64px;">🚀</div>
+        </template>
+        <template #action>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" @click="openCreateDialog">
+              <i class="pi pi-plus"></i>
+              <span>新建模板</span>
+            </button>
+            <button class="btn btn-secondary" @click="createFromCurrentWindow">
+              <i class="pi pi-window-maximize"></i>
+              <span>从当前窗口创建</span>
+            </button>
+          </div>
+        </template>
+      </EmptyState>
 
       <!-- 加载状态 -->
       <div v-if="isLoading" class="loading-state">
@@ -37,7 +53,7 @@
       <!-- 模板列表 -->
       <div v-else-if="templates.length > 0" class="templates-list">
         <DropZone
-          v-for="template in templates" 
+          v-for="template in templates"
           :key="template.id"
           target-type="template"
           :target-id="template.id"
@@ -78,81 +94,72 @@
               </div>
             </div>
 
-          <!-- 模板内容预览 -->
-          <div v-if="template.collections.length > 0 || template.standaloneTabs.length > 0" class="template-content">
-            <!-- 标签页组列表 -->
-            <div v-if="template.collections.length > 0" class="collections-section">
-              <div class="section-title">📁 标签页组 ({{ template.collections.length }})</div>
-              <div class="collections-list-expanded">
-                <div 
-                  v-for="(collection, index) in template.collections" 
-                  :key="index"
-                  class="collection-item-expanded"
-                >
-                  <div class="collection-header-mini">
-                    <div class="collection-color-mini" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
-                    <span class="collection-name-mini">{{ collection.name }}</span>
-                    <span class="collection-count-mini">({{ collection.tabs?.length || 0 }})</span>
-                    <span v-if="collection.isReference" class="badge-tiny badge-ref">引用</span>
-                    <span v-else class="badge-tiny badge-snapshot">快照</span>
-                  </div>
-                  <!-- 显示该标签组内的标签页 -->
-                  <div v-if="collection.tabs && collection.tabs.length > 0" class="tabs-mini-list">
-                    <div 
-                      v-for="(tab, tabIndex) in collection.tabs.slice(0, 5)" 
-                      :key="tabIndex"
-                      class="tab-mini-item"
-                    >
-                      <img 
-                        v-if="tab.favIconUrl" 
-                        :src="tab.favIconUrl" 
-                        class="tab-favicon-mini"
-                        @error="(e) => e.target.style.display = 'none'"
-                      />
-                      <span class="tab-title-mini">{{ tab.title || tab.url }}</span>
+            <!-- 模板内容预览 -->
+            <div v-if="template.collections.length > 0 || template.standaloneTabs.length > 0" class="template-content">
+              <!-- 标签页组列表 -->
+              <div v-if="template.collections.length > 0" class="collections-section">
+                <div class="section-title">📁 标签页组 ({{ template.collections.length }})</div>
+                <div class="collections-list-expanded">
+                  <div
+                    v-for="(collection, index) in template.collections"
+                    :key="index"
+                    class="collection-item-expanded"
+                  >
+                    <div class="collection-header-mini">
+                      <div
+                        class="collection-color-mini"
+                        :style="{ backgroundColor: getColorValue(collection.color) }"
+                      ></div>
+                      <span class="collection-name-mini">{{ collection.name }}</span>
+                      <span class="collection-count-mini">({{ collection.tabs?.length || 0 }})</span>
+                      <span v-if="collection.isReference" class="badge-tiny badge-ref">引用</span>
+                      <span v-else class="badge-tiny badge-snapshot">快照</span>
                     </div>
-                    <div v-if="collection.tabs.length > 5" class="more-tabs-indicator">
-                      还有 {{ collection.tabs.length - 5 }} 个标签页...
+                    <!-- 显示该标签组内的标签页 -->
+                    <div v-if="collection.tabs && collection.tabs.length > 0" class="tabs-mini-list">
+                      <div v-for="(tab, tabIndex) in collection.tabs.slice(0, 5)" :key="tabIndex" class="tab-mini-item">
+                        <img
+                          v-if="tab.favIconUrl"
+                          :src="tab.favIconUrl"
+                          class="tab-favicon-mini"
+                          @error="(e) => (e.target.style.display = 'none')"
+                        />
+                        <span class="tab-title-mini">{{ tab.title || tab.url }}</span>
+                      </div>
+                      <div v-if="collection.tabs.length > 5" class="more-tabs-indicator">
+                        还有 {{ collection.tabs.length - 5 }} 个标签页...
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <!-- 独立标签页列表 -->
-            <div v-if="template.standaloneTabs && template.standaloneTabs.length > 0" class="standalone-section">
-              <div class="section-title">🔗 独立标签页 ({{ template.standaloneTabs.length }})</div>
-              <div class="tabs-mini-list">
-                <div 
-                  v-for="(tab, index) in template.standaloneTabs.slice(0, 5)" 
-                  :key="index"
-                  class="tab-mini-item"
-                >
-                  <img 
-                    v-if="tab.favIconUrl" 
-                    :src="tab.favIconUrl" 
-                    class="tab-favicon-mini"
-                    @error="(e) => e.target.style.display = 'none'"
-                  />
-                  <span class="tab-title-mini">{{ tab.title || tab.url }}</span>
-                </div>
-                <div v-if="template.standaloneTabs.length > 5" class="more-tabs-indicator">
-                  还有 {{ template.standaloneTabs.length - 5 }} 个标签页...
+
+              <!-- 独立标签页列表 -->
+              <div v-if="template.standaloneTabs && template.standaloneTabs.length > 0" class="standalone-section">
+                <div class="section-title">🔗 独立标签页 ({{ template.standaloneTabs.length }})</div>
+                <div class="tabs-mini-list">
+                  <div v-for="(tab, index) in template.standaloneTabs.slice(0, 5)" :key="index" class="tab-mini-item">
+                    <img
+                      v-if="tab.favIconUrl"
+                      :src="tab.favIconUrl"
+                      class="tab-favicon-mini"
+                      @error="(e) => (e.target.style.display = 'none')"
+                    />
+                    <span class="tab-title-mini">{{ tab.title || tab.url }}</span>
+                  </div>
+                  <div v-if="template.standaloneTabs.length > 5" class="more-tabs-indicator">
+                    还有 {{ template.standaloneTabs.length - 5 }} 个标签页...
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
         </DropZone>
       </div>
     </div>
 
     <!-- 模板编辑器 -->
-    <TemplateEditor 
-      v-model:visible="showEditor"
-      :template="editingTemplate"
-      @save="handleSaveTemplate"
-    />
+    <TemplateEditor v-model:visible="showEditor" :template="editingTemplate" @save="handleSaveTemplate" />
   </div>
 </template>
 
@@ -164,6 +171,7 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import TemplateEditor from '@/components/TemplateEditor.vue'
 import DropZone from '@/components/DropZone.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const templatesStore = useTemplatesStore()
 const collectionsStore = useCollectionsStore()
@@ -198,21 +206,18 @@ const formatTime = (timestamp) => {
   const now = new Date()
   const diff = now - date
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  
+
   if (days === 0) return '今天'
   if (days === 1) return '昨天'
   if (days < 7) return `${days} 天前`
-  
+
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
 
 // 页面挂载时加载数据
 onMounted(async () => {
   console.log('TemplatesView 挂载，开始加载数据')
-  await Promise.all([
-    templatesStore.loadTemplates(),
-    collectionsStore.loadCollections()
-  ])
+  await Promise.all([templatesStore.loadTemplates(), collectionsStore.loadCollections()])
   console.log('窗口模板数据加载完成，数量:', templates.value.length)
 })
 
@@ -228,12 +233,12 @@ const createFromCurrentWindow = async () => {
     const name = `窗口模板 ${new Date().toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
     await templatesStore.createFromCurrentWindow(name, '从当前窗口自动生成')
     await templatesStore.loadTemplates()
-    
+
     toast.add({
       severity: 'success',
       summary: '创建成功',
       detail: '已从当前窗口创建模板',
-      life: 3000
+      life: 3000,
     })
   } catch (error) {
     console.error('从当前窗口创建模板失败:', error)
@@ -241,7 +246,7 @@ const createFromCurrentWindow = async () => {
       severity: 'error',
       summary: '创建失败',
       detail: error.message || '无法创建模板',
-      life: 3000
+      life: 3000,
     })
   }
 }
@@ -262,7 +267,7 @@ const handleSaveTemplate = async (data, creationMethod) => {
         severity: 'success',
         summary: '更新成功',
         detail: '模板已更新',
-        life: 2000
+        life: 2000,
       })
     } else {
       // 创建新模板
@@ -275,7 +280,7 @@ const handleSaveTemplate = async (data, creationMethod) => {
         severity: 'success',
         summary: '创建成功',
         detail: '模板已创建',
-        life: 2000
+        life: 2000,
       })
     }
     await templatesStore.loadTemplates()
@@ -289,13 +294,13 @@ const handleSaveTemplate = async (data, creationMethod) => {
 const openTemplate = async (id) => {
   try {
     await templatesStore.openTemplate(id, {
-      inBackground: false
+      inBackground: false,
     })
     toast.add({
       severity: 'success',
       summary: '打开成功',
       detail: '窗口模板已在新窗口打开',
-      life: 3000
+      life: 3000,
     })
   } catch (error) {
     console.error('打开模板失败:', error)
@@ -303,7 +308,7 @@ const openTemplate = async (id) => {
       severity: 'error',
       summary: '打开失败',
       detail: error.message || '无法打开模板',
-      life: 3000
+      life: 3000,
     })
   }
 }
@@ -317,7 +322,7 @@ const duplicateTemplate = async (id) => {
       severity: 'success',
       summary: '复制成功',
       detail: '模板已复制',
-      life: 2000
+      life: 2000,
     })
   } catch (error) {
     console.error('复制模板失败:', error)
@@ -325,7 +330,7 @@ const duplicateTemplate = async (id) => {
       severity: 'error',
       summary: '复制失败',
       detail: error.message || '无法复制模板',
-      life: 3000
+      life: 3000,
     })
   }
 }
@@ -338,7 +343,7 @@ const handleDropToTemplate = async (event) => {
     severity: 'info',
     summary: '功能开发中',
     detail: '拖放功能即将上线',
-    life: 2000
+    life: 2000,
   })
 }
 
@@ -358,7 +363,7 @@ const deleteTemplate = (id) => {
           severity: 'success',
           summary: '删除成功',
           detail: '模板已删除',
-          life: 3000
+          life: 3000,
         })
       } catch (error) {
         console.error('删除模板失败:', error)
@@ -366,10 +371,10 @@ const deleteTemplate = (id) => {
           severity: 'error',
           summary: '删除失败',
           detail: error.message || '无法删除模板',
-          life: 3000
+          life: 3000,
         })
       }
-    }
+    },
   })
 }
 
@@ -379,44 +384,47 @@ const addMockTemplate = async () => {
     // 确保有收藏集数据
     await collectionsStore.loadCollections()
     const collections = collectionsStore.getCollections
-    
+
     const mockData = {
       name: '工作环境模板',
       description: '包含开发、文档和通讯工具的完整工作环境',
-      collections: collections.length > 0 ? [
-        {
-          collectionId: collections[0].id,
-          name: collections[0].name,
-          color: collections[0].color,
-          createGroup: true,
-          isReference: true,
-          tabs: collections[0].tabs
-        }
-      ] : [],
+      collections:
+        collections.length > 0
+          ? [
+              {
+                collectionId: collections[0].id,
+                name: collections[0].name,
+                color: collections[0].color,
+                createGroup: true,
+                isReference: true,
+                tabs: collections[0].tabs,
+              },
+            ]
+          : [],
       standaloneTabs: [
         {
           title: 'Gmail',
           url: 'https://mail.google.com',
           favIconUrl: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico',
-          pinned: true
+          pinned: true,
         },
         {
           title: 'Calendar',
           url: 'https://calendar.google.com',
           favIconUrl: 'https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_14.ico',
-          pinned: true
-        }
-      ]
+          pinned: true,
+        },
+      ],
     }
-    
+
     await templatesStore.createTemplate(mockData)
     await templatesStore.loadTemplates()
-    
+
     toast.add({
       severity: 'success',
       summary: '添加成功',
       detail: '已添加测试模板',
-      life: 3000
+      life: 3000,
     })
   } catch (error) {
     console.error('添加测试数据失败:', error)
@@ -424,54 +432,54 @@ const addMockTemplate = async () => {
       severity: 'error',
       summary: '添加失败',
       detail: error.message || '无法添加测试数据',
-      life: 3000
+      life: 3000,
     })
   }
+}
 
-// 处理拖放到模板
-const handleDropToTemplate = async ({ dragData, targetId }) => {
-  try {
-    console.log('拖放标签页到模板:', dragData.tab.title, '→', targetId)
-    
-    const template = templatesStore.getTemplateById(targetId)
-    if (!template) {
-      throw new Error('模板不存在')
-    }
-    
-    // 添加标签页到模板的独立标签页列表
-    const updatedStandaloneTabs = [
-      ...template.standaloneTabs,
-      {
-        title: dragData.tab.title,
-        url: dragData.tab.url,
-        favIconUrl: dragData.tab.favIconUrl || '',
-        pinned: false
-      }
-    ]
-    
-    await templatesStore.updateTemplate(targetId, {
-      standaloneTabs: updatedStandaloneTabs
-    })
-    
-    await templatesStore.loadTemplates()
-    
-    toast.add({
-      severity: 'success',
-      summary: '添加成功',
-      detail: `"${dragData.tab.title}" 已添加到模板`,
-      life: 3000
-    })
-  } catch (error) {
-    console.error('拖放到模板失败:', error)
-    toast.add({
-      severity: 'error',
-      summary: '添加失败',
-      detail: error.message || '无法添加标签页',
-      life: 3000
-    })
-  }
-}
-}
+// // 处理拖放到模板
+// const handleDropToTemplate = async ({ dragData, targetId }) => {
+//   try {
+//     console.log('拖放标签页到模板:', dragData.tab.title, '→', targetId)
+
+//     const template = templatesStore.getTemplateById(targetId)
+//     if (!template) {
+//       throw new Error('模板不存在')
+//     }
+
+//     // 添加标签页到模板的独立标签页列表
+//     const updatedStandaloneTabs = [
+//       ...template.standaloneTabs,
+//       {
+//         title: dragData.tab.title,
+//         url: dragData.tab.url,
+//         favIconUrl: dragData.tab.favIconUrl || '',
+//         pinned: false,
+//       },
+//     ]
+
+//     await templatesStore.updateTemplate(targetId, {
+//       standaloneTabs: updatedStandaloneTabs,
+//     })
+
+//     await templatesStore.loadTemplates()
+
+//     toast.add({
+//       severity: 'success',
+//       summary: '添加成功',
+//       detail: `"${dragData.tab.title}" 已添加到模板`,
+//       life: 3000,
+//     })
+//   } catch (error) {
+//     console.error('拖放到模板失败:', error)
+//     toast.add({
+//       severity: 'error',
+//       summary: '添加失败',
+//       detail: error.message || '无法添加标签页',
+//       life: 3000,
+//     })
+//   }
+// }
 </script>
 
 <style scoped>

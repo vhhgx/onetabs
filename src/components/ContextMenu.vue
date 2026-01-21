@@ -47,7 +47,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:visible', 'select'])
+const emit = defineEmits(['update:visible', 'select', 'close'])
 
 const menuRef = ref(null)
 
@@ -56,12 +56,21 @@ const handleItemClick = (item) => {
 
   emit('select', item)
   emit('update:visible', false)
+  emit('close')
 }
 
 const handleClickOutside = (e) => {
-  if (menuRef.value && !menuRef.value.contains(e.target)) {
-    emit('update:visible', false)
+  // 如果菜单不可见，不处理
+  if (!props.visible) return
+  
+  // 如果点击的是菜单内部，不关闭
+  if (menuRef.value && menuRef.value.contains(e.target)) {
+    return
   }
+  
+  // 其他情况都关闭菜单
+  emit('update:visible', false)
+  emit('close')
 }
 
 const adjustPosition = async () => {
@@ -89,20 +98,22 @@ const adjustPosition = async () => {
   menu.style.top = y + 'px'
 }
 
+// 在组件挂载时就添加全局监听器
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside, true)
+  document.addEventListener('contextmenu', handleClickOutside, true)
+})
+
+// 监听 visible 变化，调整位置
 watch(() => props.visible, (newVal) => {
   if (newVal) {
     adjustPosition()
-    document.addEventListener('click', handleClickOutside)
-    document.addEventListener('contextmenu', handleClickOutside)
-  } else {
-    document.removeEventListener('click', handleClickOutside)
-    document.removeEventListener('contextmenu', handleClickOutside)
   }
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  document.removeEventListener('contextmenu', handleClickOutside)
+  document.removeEventListener('click', handleClickOutside, true)
+  document.removeEventListener('contextmenu', handleClickOutside, true)
 })
 </script>
 

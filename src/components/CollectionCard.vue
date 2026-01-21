@@ -1,40 +1,51 @@
 <template>
-  <div class="collection-card">
+  <div 
+    class="collection-card card-hover"
+    @contextmenu.prevent="handleContextMenu"
+  >
     <div class="card-header" @click="toggleExpanded">
       <div class="header-left">
+        <!-- 展开/折叠图标 -->
+        <button class="expand-icon btn-press" :class="{ 'expanded': isExpanded }">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+
         <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
+        
         <div class="collection-info">
           <h3 class="collection-name">{{ collection.name }}</h3>
           <span class="collection-meta">{{ collection.tabs.length }} 个标签页</span>
         </div>
-        <button class="expand-btn" :class="{ 'expanded': isExpanded }">
-          <i class="pi pi-chevron-down"></i>
-        </button>
       </div>
+      
       <div class="header-actions" @click.stop>
-        <button class="action-btn" @click="handlePin" :title="collection.pinned ? '取消置顶' : '置顶'">
+        <button 
+          class="action-btn btn-press" 
+          @click="handlePin" 
+          :title="collection.pinned ? '取消置顶' : '置顶'"
+        >
           <i :class="collection.pinned ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"></i>
         </button>
-        <button class="action-btn" @click="handleOpen" title="打开">
+        <button class="action-btn btn-press" @click="handleOpen" title="在新窗口打开">
           <i class="pi pi-external-link"></i>
         </button>
-        <button class="action-btn" @click="handleEdit" title="编辑">
+        <button class="action-btn btn-press" @click="handleEdit" title="编辑">
           <i class="pi pi-pencil"></i>
         </button>
-        <button class="action-btn danger" @click="handleDelete" title="删除">
+        <button class="action-btn danger btn-press" @click="handleDelete" title="删除">
           <i class="pi pi-trash"></i>
         </button>
       </div>
     </div>
 
     <!-- 可折叠的标签页列表 -->
-    <transition name="expand">
-      <div v-if="isExpanded" class="card-body">
-        <div class="tabs-list">
+    <Transition name="expand">
+      <div v-show="isExpanded" class="card-body">
+        <TransitionGroup name="list" tag="div" class="tabs-list">
           <div 
             v-for="(tab, index) in collection.tabs" 
-            :key="index"
-            class="tab-item"
+            :key="tab.id || index"
+            class="tab-item card-hover"
             @click="openTab(tab.url)"
           >
             <img 
@@ -44,18 +55,39 @@
               @error="(e) => e.target.style.display = 'none'"
             />
             <div class="tab-info">
-              <div class="tab-title">{{ tab.title }}</div>
-              <div class="tab-url">{{ tab.url }}</div>
+              <div class="tab-title">{{ tab.title || '未命名标签页' }}</div>
+              <div class="tab-url">{{ formatUrl(tab.url) }}</div>
             </div>
+            <button 
+              class="tab-remove-btn btn-press" 
+              @click.stop="handleRemoveTab(index)"
+              title="从收藏集移除"
+            >
+              <i class="pi pi-times"></i>
+            </button>
           </div>
-        </div>
+        </TransitionGroup>
       </div>
-    </transition>
+    </Transition>
+
+    <!-- 右键菜单 -->
+    <ContextMenu
+      v-if="showContextMenu"
+      v-model:visible="showContextMenu"
+      :items="contextMenuItems"
+      :position="contextMenuPosition"
+      @select="handleMenuAction"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import ContextMenu from './ContextMenu.vue'
+import { getCollectionContextMenu } from '../utils/contextMenus'
+import { useContextMenu } from '../composables/useContextMenu'
 
 const props = defineProps({
   collection: {
@@ -64,9 +96,17 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['pin', 'open', 'edit', 'delete'])
+const emit = defineEmits(['pin', 'open', 'open-current', 'edit', 'delete', 'duplicate', 'add-to-template', 'remove-tab'])
 
+const confirm = useConfirm()
+const toast = useToast()
 const isExpanded = ref(false)
+const { showContextMenu, contextMenuPosition, showMenu } = useContextMenu()
+
+// 右键菜单配置
+const contextMenuItems = computed(() => {
+  return getCollectionContextMenu(props.collection)
+})
 
 // 颜色映射
 const getColorValue = (color) => {
@@ -89,6 +129,16 @@ const toggleExpanded = () => {
   isExpanded.value = !isExpanded.value
 }
 
+// 格式化 URL
+const formatUrl = (url) => {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.hostname + urlObj.pathname
+  } catch {
+    return url
+  }
+}
+
 // 操作处理
 const handlePin = () => {
   emit('pin', props.collection.id)
@@ -103,15 +153,66 @@ const handleEdit = () => {
 }
 
 const handleDelete = () => {
-  emit('delete', props.collection.id)
+  confirm.require({
+    message: `确定要删除收藏集 "${props.collection.name}" 吗？此操作无法撤销。`,
+    header: '删除确认',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '取消',
+    acceptLabel: '删除',
+    accept: () => {
+      emit('delete', props.collection.id)
+    }
+  })
+}
+
+// 移除标签页
+const handleRemoveTab = (index) => {
+  emit('remove-tab', props.collection.id, index)
 }
 
 // 打开单个标签页
 const openTab = (url) => {
   if (typeof chrome !== 'undefined' && chrome.tabs) {
     chrome.tabs.create({ url })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '已打开标签页',
+      life: 2000
+    })
   } else {
     window.open(url, '_blank')
+  }
+}
+
+// 处理右键菜单
+const handleContextMenu = (event) => {
+  showMenu(event)
+}
+
+// 处理菜单操作
+const handleMenuAction = (action) => {
+  showContextMenu.value = false
+
+  switch (action.id) {
+    case 'open-new':
+      emit('open', props.collection.id)
+      break
+    case 'open-current':
+      emit('open-current', props.collection.id)
+      break
+    case 'edit':
+      handleEdit()
+      break
+    case 'duplicate':
+      emit('duplicate', props.collection.id)
+      break
+    case 'add-to-template':
+      emit('add-to-template', props.collection.id)
+      break
+    case 'delete':
+      handleDelete()
+      break
   }
 }
 </script>
@@ -123,12 +224,6 @@ const openTab = (url) => {
   border: 1px solid #e5e7eb;
   transition: all 0.2s;
   overflow: hidden;
-}
-
-.collection-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
 }
 
 .card-header {
@@ -146,6 +241,29 @@ const openTab = (url) => {
   gap: 12px;
   flex: 1;
   min-width: 0;
+}
+
+.expand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+}
+
+.expand-icon:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
 }
 
 .collection-color {
@@ -206,6 +324,12 @@ const openTab = (url) => {
 .header-actions {
   display: flex;
   gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card-header:hover .header-actions {
+  opacity: 1;
 }
 
 .action-btn {
@@ -226,6 +350,7 @@ const openTab = (url) => {
 .action-btn:hover {
   background: #e5e7eb;
   color: #1f2937;
+}
 }
 
 .action-btn.danger:hover {
@@ -253,6 +378,7 @@ const openTab = (url) => {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  position: relative;
 }
 
 .tab-item:hover {
@@ -288,15 +414,57 @@ const openTab = (url) => {
   white-space: nowrap;
 }
 
-/* 展开/折叠动画 */
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease;
-  max-height: 500px;
-  overflow: hidden;
+.tab-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #9ca3af;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
 }
 
-.expand-enter-from,
+.tab-item:hover .tab-remove-btn {
+  opacity: 1;
+}
+
+.tab-remove-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 16px;
+  }
+
+  .header-actions {
+    opacity: 1;
+  }
+
+  .tab-remove-btn {
+    opacity: 1;
+  }
+
+  .collection-name {
+    font-size: 14px;
+  }
+
+  .collection-meta {
+    font-size: 12px;
+  }
+
+  .card-body {
+    padding: 12px 16px;
+  }
+}
+</style>.expand-enter-from,
 .expand-leave-to {
   max-height: 0;
   opacity: 0;

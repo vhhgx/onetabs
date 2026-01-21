@@ -17,12 +17,28 @@
       </div>
 
       <!-- 空状态 -->
-      <div v-if="!isLoading && collections.length === 0" class="empty-state">
-        <div class="empty-icon">📚</div>
-        <p class="empty-text">还没有收藏集</p>
-        <p class="empty-hint">创建收藏集来组织你常用的网站</p>
-        <p class="empty-hint">点击"新建收藏集"按钮开始</p>
-      </div>
+      <EmptyState
+        v-if="!isLoading && collections.length === 0"
+        icon="pi pi-folder"
+        title="还没有收藏集"
+        description="创建收藏集来组织你常用的网站，方便快速访问"
+      >
+        <template #icon>
+          <div style="font-size: 64px;">📁</div>
+        </template>
+        <template #action>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" @click="openCreateDialog">
+              <i class="pi pi-plus"></i>
+              <span>新建收藏集</span>
+            </button>
+            <button class="btn btn-secondary" @click="addMockCollection">
+              <i class="pi pi-code"></i>
+              <span>添加测试数据</span>
+            </button>
+          </div>
+        </template>
+      </EmptyState>
 
       <!-- 加载状态 -->
       <div v-if="isLoading" class="loading-state">
@@ -109,6 +125,7 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import CollectionEditor from '@/components/CollectionEditor.vue'
 import DropZone from '@/components/DropZone.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const collectionsStore = useCollectionsStore()
 const toast = useToast()

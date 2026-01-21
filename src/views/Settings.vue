@@ -1,6 +1,11 @@
 <template>
   <div class="settings-container">
-    <h1>设置</h1>
+    <div class="settings-header">
+      <button @click="goBack" class="back-btn" title="返回">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <h1>设置</h1>
+    </div>
 
     <!-- P0: 基础设置 -->
     <div class="settings-section">
@@ -76,18 +81,82 @@
       </div>
       <p class="setting-desc">导出/导入您的标签页会话数据，或清除所有已保存的会话</p>
     </div>
+
+    <!-- P2: 错误日志查看器 -->
+    <div class="settings-section">
+      <h2>错误日志</h2>
+      <div class="button-group">
+        <button @click="showErrorLogs" class="btn">
+          <i class="pi pi-list"></i>
+          查看错误日志
+        </button>
+        <button @click="exportErrorLogs" class="btn">
+          <i class="pi pi-download"></i>
+          导出日志
+        </button>
+        <button @click="clearErrorLogs" class="btn clear-btn">
+          <i class="pi pi-trash"></i>
+          清空日志
+        </button>
+      </div>
+      <p class="setting-desc">查看、导出或清空应用程序错误日志（最多保存 100 条）</p>
+    </div>
   </div>
+
+  <!-- 错误日志对话框 -->
+  <Dialog 
+    v-model:visible="errorLogDialogVisible" 
+    header="错误日志" 
+    :style="{ width: '80vw', maxWidth: '900px' }"
+    :modal="true"
+  >
+    <div class="error-logs-container">
+      <div v-if="errorLogs.length === 0" class="no-logs">
+        <i class="pi pi-check-circle" style="font-size: 3rem; color: #10b981;"></i>
+        <p>没有错误日志</p>
+      </div>
+      <div v-else class="logs-list">
+        <div v-for="(log, index) in errorLogs" :key="index" class="log-item" :class="`severity-${log.severity}`">
+          <div class="log-header">
+            <span class="log-severity">{{ getSeverityLabel(log.severity) }}</span>
+            <span class="log-time">{{ formatLogTime(log.timestamp) }}</span>
+          </div>
+          <div class="log-message">{{ log.message }}</div>
+          <div v-if="log.stack" class="log-stack">
+            <details>
+              <summary>查看堆栈跟踪</summary>
+              <pre>{{ log.stack }}</pre>
+            </details>
+          </div>
+          <div v-if="log.context" class="log-context">
+            <strong>上下文：</strong> {{ JSON.stringify(log.context, null, 2) }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <template #footer>
+      <button @click="errorLogDialogVisible = false" class="btn">关闭</button>
+    </template>
+  </Dialog>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useSessionsStore } from '../stores/sessionsStore'
+import { useCollectionsStore } from '../stores/collectionsStore'
+import { useTemplatesStore } from '../stores/templatesStore'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
+import Dialog from 'primevue/dialog'
+import { errorHandler } from '../utils/errorHandler'
 
+const router = useRouter()
 const settingsStore = useSettingsStore()
 const sessionsStore = useSessionsStore()
+const collectionsStore = useCollectionsStore()
+const templatesStore = useTemplatesStore()
 const toast = useToast()
 const confirm = useConfirm()
 
@@ -99,8 +168,17 @@ const enableDrag = ref(true)
 const removeAfterDrag = ref(false)
 const showDragPreview = ref(true)
 
+// 错误日志相关
+const errorLogDialogVisible = ref(false)
+const errorLogs = ref([])
+
 // 导入文件引用
 const importFile = ref(null)
+
+// 返回主页
+const goBack = () => {
+  router.push('/')
+}
 
 // 页面加载时初始化
 onMounted(async () => {
@@ -256,12 +334,18 @@ const updateShowDragPreview = async () => {
 // 导出数据
 const exportData = async () => {
   try {
+    // 加载所有数据
     await sessionsStore.loadSessions()
+    await collectionsStore.loadCollections()
+    await templatesStore.loadTemplates()
+    
     const data = {
       sessions: sessionsStore.sessions,
+      collections: collectionsStore.collections,
+      templates: templatesStore.templates,
       settings: settingsStore.getSettings,
       exportDate: new Date().toISOString(),
-      version: '1.0'
+      version: '2.0'
     }
     
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -280,7 +364,7 @@ const exportData = async () => {
     toast.add({
       severity: 'success',
       summary: '导出成功',
-      detail: '数据已导出到文件',
+      detail: `已导出 ${data.sessions.length} 个会话、${data.collections.length} 个收藏集、${data.templates.length} 个模板`,
       life: 3000
     })
   } catch (error) {
@@ -310,13 +394,41 @@ const importData = async (event) => {
       const data = JSON.parse(e.target.result)
       
       // 验证数据格式
-      if (!data.sessions || !Array.isArray(data.sessions)) {
-        throw new Error('无效的数据格式')
+      if (!data.sessions && !data.collections && !data.templates) {
+        throw new Error('无效的数据格式：未找到任何有效数据')
+      }
+      
+      let importCount = {
+        sessions: 0,
+        collections: 0,
+        templates: 0
       }
       
       // 导入会话数据
-      for (const session of data.sessions) {
-        await sessionsStore.saveSession(session)
+      if (data.sessions && Array.isArray(data.sessions)) {
+        for (const session of data.sessions) {
+          await sessionsStore.saveSession(session)
+          importCount.sessions++
+        }
+        await sessionsStore.loadSessions()
+      }
+      
+      // 导入收藏集数据
+      if (data.collections && Array.isArray(data.collections)) {
+        for (const collection of data.collections) {
+          await collectionsStore.createCollection(collection)
+          importCount.collections++
+        }
+        await collectionsStore.loadCollections()
+      }
+      
+      // 导入模板数据
+      if (data.templates && Array.isArray(data.templates)) {
+        for (const template of data.templates) {
+          await templatesStore.createTemplate(template)
+          importCount.templates++
+        }
+        await templatesStore.loadTemplates()
       }
       
       // 如果有设置数据，也导入
@@ -333,16 +445,34 @@ const importData = async (event) => {
           await settingsStore.updateSetting('maxSessions', data.settings.maxSessions)
           maxSessions.value = data.settings.maxSessions
         }
+        if (data.settings.enableDrag !== undefined) {
+          await settingsStore.updateSetting('enableDrag', data.settings.enableDrag)
+          enableDrag.value = data.settings.enableDrag
+        }
+        if (data.settings.removeAfterDrag !== undefined) {
+          await settingsStore.updateSetting('removeAfterDrag', data.settings.removeAfterDrag)
+          removeAfterDrag.value = data.settings.removeAfterDrag
+        }
+        if (data.settings.showDragPreview !== undefined) {
+          await settingsStore.updateSetting('showDragPreview', data.settings.showDragPreview)
+          showDragPreview.value = data.settings.showDragPreview
+        }
       }
       
-      await sessionsStore.loadSessions()
+      const summary = []
+      if (importCount.sessions > 0) summary.push(`${importCount.sessions} 个会话`)
+      if (importCount.collections > 0) summary.push(`${importCount.collections} 个收藏集`)
+      if (importCount.templates > 0) summary.push(`${importCount.templates} 个模板`)
       
       toast.add({
         severity: 'success',
         summary: '导入成功',
-        detail: `已导入 ${data.sessions.length} 个会话`,
+        detail: `已导入 ${summary.join('、')}`,
         life: 3000
       })
+      
+      // 重置文件输入
+      event.target.value = ''
     } catch (error) {
       console.error('导入数据失败:', error)
       toast.add({
@@ -389,6 +519,85 @@ const clearData = () => {
     }
   })
 }
+
+// 显示错误日志
+const showErrorLogs = () => {
+  errorLogs.value = errorHandler.getLogs()
+  errorLogDialogVisible.value = true
+}
+
+// 导出错误日志
+const exportErrorLogs = () => {
+  try {
+    errorHandler.exportLogs()
+    toast.add({
+      severity: 'success',
+      summary: '导出成功',
+      detail: '错误日志已导出',
+      life: 2000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '导出失败',
+      detail: '无法导出错误日志',
+      life: 3000
+    })
+  }
+}
+
+// 清空错误日志
+const clearErrorLogs = () => {
+  confirm.require({
+    message: '确定要清空所有错误日志吗？',
+    header: '清空确认',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '取消',
+    acceptLabel: '清空',
+    accept: async () => {
+      try {
+        await errorHandler.clearLogs()
+        errorLogs.value = []
+        toast.add({
+          severity: 'success',
+          summary: '清空成功',
+          detail: '错误日志已清空',
+          life: 2000
+        })
+      } catch (error) {
+        toast.add({
+          severity: 'error',
+          summary: '清空失败',
+          detail: '无法清空错误日志',
+          life: 3000
+        })
+      }
+    }
+  })
+}
+
+// 格式化日志时间
+const formatLogTime = (timestamp) => {
+  const date = new Date(timestamp)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
+// 获取严重性标签
+const getSeverityLabel = (severity) => {
+  const labels = {
+    error: '错误',
+    warning: '警告',
+    info: '信息'
+  }
+  return labels[severity] || severity
+}
 </script>
 
 <style scoped>
@@ -398,11 +607,42 @@ const clearData = () => {
   padding: 32px 24px;
 }
 
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn:hover {
+  background: #f3f4f6;
+  transform: translateX(-2px);
+}
+
+.back-btn:active {
+  transform: translateX(0);
+}
+
 .settings-container h1 {
   font-size: 28px;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 32px;
+  margin: 0;
 }
 
 .settings-section {
@@ -524,5 +764,128 @@ const clearData = () => {
 .clear-btn:hover {
   background-color: #dc2626;
 }
-</style>
 
+/* 错误日志样式 */
+.error-logs-container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.no-logs {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.no-logs p {
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.log-item {
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid;
+  background: #f9fafb;
+}
+
+.log-item.severity-error {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
+.log-item.severity-warning {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.log-item.severity-info {
+  border-left-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.log-severity {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.severity-error .log-severity {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.severity-warning .log-severity {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.severity-info .log-severity {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.log-time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.log-message {
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.log-stack,
+.log-context {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.log-stack details {
+  cursor: pointer;
+  color: #3b82f6;
+}
+
+.log-stack summary {
+  user-select: none;
+  outline: none;
+}
+
+.log-stack pre {
+  margin-top: 8px;
+  padding: 12px;
+  background: #1f2937;
+  color: #f3f4f6;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.log-context {
+  padding: 12px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>

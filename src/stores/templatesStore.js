@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '@/utils/chrome-storage'
 import { useCollectionsStore } from './collectionsStore'
-
+import { errorHandler } from '../utils/errorHandler'
 const STORAGE_KEY = 'onetabs_templates'
 
 export const useTemplatesStore = defineStore('templates', {
@@ -101,7 +101,7 @@ export const useTemplatesStore = defineStore('templates', {
         await chromeStorageSet(STORAGE_KEY, this.templates)
         console.log('窗口模板已保存到存储')
       } catch (error) {
-        console.error('保存窗口模板失败:', error)
+        errorHandler.handleStorageError(error, '保存模板失败')
         throw error
       }
     },
@@ -127,7 +127,7 @@ export const useTemplatesStore = defineStore('templates', {
         await this.saveToStorage()
         return template
       } catch (error) {
-        console.error('创建窗口模板失败:', error)
+        errorHandler.handleError(error, '创建模板失败')
         throw error
       }
     },

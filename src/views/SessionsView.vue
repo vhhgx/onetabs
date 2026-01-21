@@ -13,12 +13,22 @@
       </div>
 
       <!-- 空状态 -->
-      <div v-if="!isLoading && sessions.length === 0" class="empty-state">
-        <div class="empty-icon">📦</div>
-        <p class="empty-text">还没有保存的会话</p>
-        <p class="empty-hint">点击扩展图标保存当前窗口的所有标签页</p>
-        <p class="empty-hint">或点击上方"添加测试数据"按钮添加示例会话</p>
-      </div>
+      <EmptyState
+        v-if="!isLoading && sessions.length === 0"
+        icon="pi pi-clock"
+        title="还没有保存的会话"
+        description="点击浏览器工具栏的扩展图标即可保存当前窗口的所有标签页"
+      >
+        <template #icon>
+          <div style="font-size: 64px;">📦</div>
+        </template>
+        <template #action>
+          <button class="btn btn-primary" @click="addMockData">
+            <i class="pi pi-plus"></i>
+            <span>添加测试数据</span>
+          </button>
+        </template>
+      </EmptyState>
 
       <!-- 加载状态 -->
       <div v-if="isLoading" class="loading-state">
@@ -46,6 +56,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useSessionsStore } from '@/stores/sessionsStore'
 import SessionCard from '@/components/SessionCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { useToast } from 'primevue/usetoast'
 
 const sessionsStore = useSessionsStore()

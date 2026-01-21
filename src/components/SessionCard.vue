@@ -1,13 +1,22 @@
 <template>
-  <div :class="['session-card', { pinned: session.isPinned }]">
+  <div :class="['session-card card-hover', { pinned: session.isPinned }]">
     <!-- 卡片头部 -->
-    <div class="card-header">
+    <div 
+      class="card-header" 
+      @click="toggleExpanded"
+      @contextmenu.prevent="handleContextMenu"
+    >
       <div class="header-left">
+        <!-- 折叠/展开图标 -->
+        <button class="expand-btn btn-press" :class="{ expanded: isExpanded }">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+
         <!-- 置顶图标 -->
         <button
           v-if="session.isPinned"
           class="pin-indicator"
-          @click="$emit('toggle-pin', session.date)"
+          @click.stop="$emit('toggle-pin', session.date)"
           title="取消置顶"
         >
           📌
@@ -34,37 +43,60 @@
       <div class="header-actions">
         <button
           v-if="!session.isPinned"
-          class="action-btn pin-btn"
-          @click="$emit('toggle-pin', session.date)"
+          class="action-btn pin-btn btn-press"
+          @click.stop="$emit('toggle-pin', session.date)"
           title="置顶"
         >
           📌
         </button>
-        <button class="action-btn restore-btn" @click="handleRestore" title="恢复"> ↻ </button>
-        <button class="action-btn delete-btn" @click="handleDelete" title="删除"> 🗑️ </button>
+        <button class="action-btn restore-btn btn-press" @click.stop="handleRestore" title="恢复"> 
+          <i class="pi pi-refresh"></i>
+        </button>
+        <button class="action-btn delete-btn btn-press" @click.stop="handleDelete" title="删除"> 
+          <i class="pi pi-trash"></i>
+        </button>
       </div>
     </div>
 
     <!-- 展开的标签页列表 -->
-    <div class="card-body">
-      <div class="tabs-list">
-        <TabItem
-          v-for="(tab, index) in session.tabs"
-          :key="index"
-          :tab="tab"
-          :draggable="true"
-          source-type="session"
-          :source-id="String(session.date)"
-          @click="handleTabClick(tab.url)"
-        />
+    <Transition name="expand">
+      <div v-show="isExpanded" class="card-body">
+        <TransitionGroup name="list" tag="div" class="tabs-list">
+          <TabItem
+            v-for="(tab, index) in session.tabs"
+            :key="tab.id || index"
+            :tab="tab"
+            :draggable="true"
+            source-type="session"
+            :source-id="String(session.date)"
+            @click="handleTabClick(tab.url)"
+            @delete="handleDeleteTab(tab, index)"
+            @add-to-collection="handleAddToCollection"
+            @add-to-template="handleAddToTemplate"
+          />
+        </TransitionGroup>
       </div>
-    </div>
+    </Transition>
+
+    <!-- 右键菜单 -->
+    <ContextMenu
+      v-if="showContextMenu"
+      v-model:visible="showContextMenu"
+      :items="contextMenuItems"
+      :position="contextMenuPosition"
+      @select="handleMenuAction"
+    />
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import TabItem from './TabItem.vue'
+import ContextMenu from './ContextMenu.vue'
+import { getSessionContextMenu } from '../utils/contextMenus'
+import { useContextMenu } from '../composables/useContextMenu'
 
 const props = defineProps({
   session: {
@@ -76,6 +108,20 @@ const props = defineProps({
 const emit = defineEmits(['restore', 'restore-group', 'delete', 'toggle-pin'])
 
 const confirm = useConfirm()
+const toast = useToast()
+
+const isExpanded = ref(false)
+const { showContextMenu, contextMenuPosition, showMenu } = useContextMenu()
+
+// 右键菜单配置
+const contextMenuItems = computed(() => {
+  return getSessionContextMenu(props.session)
+})
+
+// 切换展开状态
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+}
 
 // 格式化时间
 const formatTime = (timestamp) => {
@@ -137,6 +183,59 @@ const handleDelete = () => {
 const handleTabClick = (url) => {
   chrome.tabs.create({ url })
 }
+
+// 删除单个标签页
+const handleDeleteTab = (tab, index) => {
+  // 这里应该调用 store 的方法来删除标签
+  console.log('删除标签:', tab, index)
+}
+
+// 添加到收藏集
+const handleAddToCollection = (tab) => {
+  console.log('添加到收藏集:', tab)
+  toast.add({
+    severity: 'info',
+    summary: '提示',
+    detail: '请选择一个收藏集',
+    life: 3000
+  })
+}
+
+// 添加到模板
+const handleAddToTemplate = (tab) => {
+  console.log('添加到模板:', tab)
+  toast.add({
+    severity: 'info',
+    summary: '提示',
+    detail: '请选择一个模板',
+    life: 3000
+  })
+}
+
+// 处理右键菜单
+const handleContextMenu = (event) => {
+  showMenu(event)
+}
+
+// 处理菜单操作
+const handleMenuAction = (action) => {
+  showContextMenu.value = false
+
+  switch (action.id) {
+    case 'restore':
+      handleRestore()
+      break
+    case 'pin':
+      emit('toggle-pin', props.session.date)
+      break
+    case 'unpin':
+      emit('toggle-pin', props.session.date)
+      break
+    case 'delete':
+      handleDelete()
+      break
+  }
+}
 </script>
 
 <style scoped>
@@ -146,11 +245,6 @@ const handleTabClick = (url) => {
   border: 1px solid #e5e7eb;
   overflow: hidden;
   transition: all 0.2s;
-}
-
-.session-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .session-card.pinned {
@@ -165,6 +259,7 @@ const handleTabClick = (url) => {
   justify-content: space-between;
   padding: 16px;
   cursor: pointer;
+  user-select: none;
 }
 
 .header-left {
@@ -175,6 +270,29 @@ const handleTabClick = (url) => {
   min-width: 0;
 }
 
+.expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+}
+
+.expand-btn:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.expand-btn.expanded {
+  transform: rotate(90deg);
+}
+
 .pin-indicator {
   border: none;
   background: none;
@@ -182,6 +300,11 @@ const handleTabClick = (url) => {
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  transition: transform 0.2s;
+}
+
+.pin-indicator:hover {
+  transform: scale(1.1);
 }
 
 .title-info {
@@ -230,32 +353,47 @@ const handleTabClick = (url) => {
   display: flex;
   align-items: center;
   gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card-header:hover .header-actions {
+  opacity: 1;
 }
 
 .action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border: none;
   background: transparent;
-  padding: 6px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  color: #6b7280;
   transition: all 0.2s;
 }
 
 .action-btn:hover {
   background: #f3f4f6;
+  color: #1f2937;
 }
 
 .pin-btn:hover {
   background: #dbeafe;
+  color: #3b82f6;
 }
 
 .restore-btn:hover {
   background: #d1fae5;
+  color: #10b981;
 }
 
 .delete-btn:hover {
   background: #fee2e2;
+  color: #ef4444;
 }
 
 /* 卡片主体 */
@@ -268,5 +406,28 @@ const handleTabClick = (url) => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 12px;
+  }
+
+  .header-actions {
+    opacity: 1;
+  }
+
+  .session-title {
+    font-size: 14px;
+  }
+
+  .session-meta {
+    font-size: 12px;
+  }
+
+  .card-body {
+    padding: 8px 12px;
+  }
 }
 </style>

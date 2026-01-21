@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
+import { errorHandler } from '../utils/errorHandler'
 
 /**
  * Sessions Store - 管理会话收纳数据
@@ -82,7 +83,7 @@ export const useSessionsStore = defineStore('sessions', {
         console.log('加载的会话数量:', this.sessions.length)
         this.lastLoaded = new Date().toISOString()
       } catch (error) {
-        console.error('加载会话失败:', error)
+        errorHandler.handleStorageError(error, '加载会话失败')
         this.sessions = []
       } finally {
         this.isLoading = false
@@ -98,7 +99,7 @@ export const useSessionsStore = defineStore('sessions', {
         await chromeStorageSet('tabGroups', this.sessions)
         console.log('会话保存成功')
       } catch (error) {
-        console.error('保存会话失败:', error)
+        errorHandler.handleStorageError(error, '保存会话失败')
         throw error
       }
     },
@@ -115,7 +116,7 @@ export const useSessionsStore = defineStore('sessions', {
         await this.saveSessions()
         console.log('新会话保存完成')
       } catch (error) {
-        console.error('保存新会话失败:', error)
+        errorHandler.handleStorageError(error, '保存新会话失败')
         throw error
       }
     },
@@ -134,7 +135,7 @@ export const useSessionsStore = defineStore('sessions', {
         }
         return false
       } catch (error) {
-        console.error('删除会话失败:', error)
+        errorHandler.handleStorageError(error, '删除会话失败')
         throw error
       }
     },
@@ -281,7 +282,7 @@ export const useSessionsStore = defineStore('sessions', {
         await this.saveSessions()
         return true
       } catch (error) {
-        console.error('清空会话失败:', error)
+        errorHandler.handleError(error, '切换置顶状态失败')
         throw error
       }
     },
