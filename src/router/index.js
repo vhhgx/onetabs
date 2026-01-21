@@ -13,6 +13,14 @@ const routes = [
     },
   },
   {
+    path: '/bookmarks',
+    name: 'Bookmarks',
+    component: () => import('../views/BookmarksView.vue'),
+    meta: {
+      title: 'OneTabs - 书签导航',
+    },
+  },
+  {
     path: '/settings',
     name: 'Settings',
     component: Settings,

@@ -11,7 +11,7 @@
     },
     "default_title": "OneTabs"
   },
-  "permissions": ["tabs", "storage", "tabGroups", "activeTab"],
+  "permissions": ["tabs", "storage", "tabGroups", "activeTab", "bookmarks"],
   "background": {
     "service_worker": "background.js"
   },

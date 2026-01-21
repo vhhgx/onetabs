@@ -27,6 +27,7 @@ import { ref, computed } from 'vue'
 import SessionsView from './SessionsView.vue'
 import CollectionsView from './CollectionsView.vue'
 import TemplatesView from './TemplatesView.vue'
+import BookmarksView from './BookmarksView.vue'
 
 // 当前激活的Tab
 const activeTab = ref('sessions')
@@ -36,6 +37,7 @@ const tabs = [
   { key: 'sessions', label: '会话收纳', icon: '📦' },
   { key: 'collections', label: '标签页组', icon: '📁' },
   { key: 'templates', label: '窗口模板', icon: '🚀' },
+  { key: 'bookmarks', label: '书签导航', icon: '🔖' },
 ]
 
 // 根据activeTab动态获取组件
@@ -44,6 +46,7 @@ const currentComponent = computed(() => {
     sessions: SessionsView,
     collections: CollectionsView,
     templates: TemplatesView,
+    bookmarks: BookmarksView,
   }
   return componentMap[activeTab.value]
 })

@@ -118,6 +118,18 @@
       <p class="setting-desc">导出/导入您的标签页会话数据，或清除所有已保存的会话</p>
     </div>
 
+    <!-- P2: 书签导入 -->
+    <div class="settings-section">
+      <h2>书签导入</h2>
+      <div class="button-group">
+        <button @click="showImportDialog = true" class="btn import-btn">
+          <i class="pi pi-download"></i>
+          导入Chrome书签
+        </button>
+      </div>
+      <p class="setting-desc">从Chrome浏览器或HTML文件导入书签</p>
+    </div>
+
     <!-- P2: 错误日志查看器 -->
     <div class="settings-section">
       <h2>错误日志</h2>
