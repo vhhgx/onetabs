@@ -338,6 +338,9 @@ async function handleImport() {
       mergeMode.value
     )
 
+    console.log('导入结果:', result)
+    console.log('导入的书签数组:', result.bookmarks)
+
     // 更新store
     await bookmarksStore.importBookmarks(result.bookmarks)
 

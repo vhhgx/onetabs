@@ -41,7 +41,11 @@
       <!-- 主要内容区域 -->
       <div class="main-content" :class="{ 'no-sidebar': !currentFirstLevel }">
         <!-- 侧边栏：二级/三级分类 -->
-        <CategorySidebar v-if="currentFirstLevel" @add-category="handleAddCategory" @edit-category="handleEditCategory" />
+        <CategorySidebar
+          v-if="currentFirstLevel"
+          @add-category="handleAddCategory"
+          @edit-category="handleEditCategory"
+        />
 
         <!-- 书签列表区域 -->
         <div class="bookmarks-area">
@@ -66,38 +70,37 @@
 
           <!-- 搜索栏 -->
           <div class="search-section">
-            <BookmarkSearchBar
-              @search="handleSearchResults"
-              @select="handleSearchSelect"
-              @clear="handleSearchClear"
-            />
+            <BookmarkSearchBar @search="handleSearchResults" @select="handleSearchSelect" @clear="handleSearchClear" />
           </div>
 
-          <!-- 书签网格 -->
-          <div v-if="displayedBookmarks.length > 0" class="bookmarks-grid">
-            <BookmarkCard
-              v-for="bookmark in displayedBookmarks"
-              :key="bookmark.id"
-              :bookmark="bookmark"
-              :showDescription="true"
-              @click="openBookmark(bookmark)"
-              @pin="togglePin(bookmark)"
-              @favorite="toggleFavorite(bookmark)"
-              @edit="handleEditBookmark(bookmark)"
-              @delete="handleDeleteBookmark(bookmark)"
-              @contextmenu="handleBookmarkContextMenu($event, bookmark)"
-            />
-          </div>
+          <!-- 书签网格容器 -->
+          <div class="bookmarks-grid-container">
+            <!-- 书签网格 -->
+            <div v-if="displayedBookmarks.length > 0" class="bookmarks-grid">
+              <BookmarkCard
+                v-for="bookmark in displayedBookmarks"
+                :key="bookmark.id"
+                :bookmark="bookmark"
+                :showDescription="true"
+                @click="openBookmark(bookmark)"
+                @pin="togglePin(bookmark)"
+                @favorite="toggleFavorite(bookmark)"
+                @edit="handleEditBookmark(bookmark)"
+                @delete="handleDeleteBookmark(bookmark)"
+                @contextmenu="handleBookmarkContextMenu($event, bookmark)"
+              />
+            </div>
 
-          <!-- 空状态 -->
-          <EmptyState
-            v-else
-            icon="pi pi-inbox"
-            title="暂无书签"
-            :description="searchKeyword ? '没有找到匹配的书签' : '该分类下还没有书签'"
-          >
-            <Button v-if="!searchKeyword" label="添加书签" icon="pi pi-plus" @click="showAddBookmarkDialog" />
-          </EmptyState>
+            <!-- 空状态 -->
+            <EmptyState
+              v-else
+              icon="pi pi-inbox"
+              title="暂无书签"
+              :description="searchKeyword ? '没有找到匹配的书签' : '该分类下还没有书签'"
+            >
+              <Button v-if="!searchKeyword" label="添加书签" icon="pi pi-plus" @click="showAddBookmarkDialog" />
+            </EmptyState>
+          </div>
         </div>
       </div>
     </div>
@@ -162,7 +165,10 @@ const categoryParentId = ref(null)
 // 计算属性
 const firstLevelCategories = computed(() => bookmarksStore.getFirstLevelCategories)
 const totalBookmarksCount = computed(() => bookmarksStore.getTotalBookmarksCount)
-const currentFirstLevel = computed(() => bookmarksStore.getCurrentFirstLevel)
+const currentFirstLevel = computed(() => {
+  const value = bookmarksStore.getCurrentFirstLevel
+  return value
+})
 const currentSecondLevel = computed(() => bookmarksStore.getCurrentSecondLevel)
 const currentThirdLevel = computed(() => bookmarksStore.getCurrentThirdLevel)
 
@@ -178,13 +184,25 @@ const displayedBookmarks = computed(() => {
   if (currentFirstLevel.value) {
     // 选中了一级分类，按分类筛选
     bookmarks = bookmarksStore.getBookmarks({
-      firstLevel: currentFirstLevel.value,
-      secondLevel: currentSecondLevel.value || undefined,
-      thirdLevel: currentThirdLevel.value || undefined,
+      first: currentFirstLevel.value,
+      second: currentSecondLevel.value || undefined,
+      third: currentThirdLevel.value || undefined,
     })
   } else {
-    // 未选中分类，显示所有书签
-    bookmarks = bookmarksStore.bookmarks || []
+    // 选中"全部"，返回所有书签
+    const allBookmarks = []
+    bookmarksStore.bookmarks.forEach((category) => {
+      const collectAllBookmarks = (cat) => {
+        if (cat.bookmarks) {
+          allBookmarks.push(...cat.bookmarks)
+        }
+        if (cat.children) {
+          cat.children.forEach((child) => collectAllBookmarks(child))
+        }
+      }
+      collectAllBookmarks(category)
+    })
+    bookmarks = allBookmarks
   }
 
   return bookmarks
@@ -505,6 +523,16 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: 100%;
+  min-height: 0; /* 重要：允许 flex 子元素缩小 */
+}
+
+/* 书签网格容器 */
+.bookmarks-grid-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
 }
 
 /* 面包屑 */

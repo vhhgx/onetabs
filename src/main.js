@@ -49,3 +49,29 @@ app.use(ConfirmationService)
 app.directive('tooltip', Tooltip)
 
 app.mount('#app')
+
+// 注册 Service Worker（用于缓存 favicon）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('[App] Service Worker 注册成功:', registration.scope)
+        
+        // 监听更新
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing
+          console.log('[App] Service Worker 更新中...')
+          
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated') {
+              console.log('[App] Service Worker 已更新')
+            }
+          })
+        })
+      })
+      .catch((error) => {
+        console.log('[App] Service Worker 注册失败:', error)
+      })
+  })
+}

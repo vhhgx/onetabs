@@ -13,38 +13,38 @@ import { getFavIconUrl } from './urlValidator'
 export function parseGoogleBookmarks(htmlContent) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(htmlContent, 'text/html')
-  
+
   const result = {
     categories: [],
-    bookmarks: []
+    bookmarks: [],
   }
-  
+
   // 获取根书签文件夹 (通常是 "Bookmarks bar" 或 "Other bookmarks")
   const rootDLs = doc.querySelectorAll('body > dl > dt')
-  
-  rootDLs.forEach(rootDt => {
+
+  rootDLs.forEach((rootDt) => {
     const h3 = rootDt.querySelector('h3')
     if (!h3) return
-    
+
     const rootFolderName = h3.textContent.trim()
     const dl = rootDt.querySelector('dl')
     if (!dl) return
-    
+
     // 创建一级分类
     const firstLevelCategory = {
       id: generateId(),
       name: rootFolderName,
       icon: 'folder',
       color: '#3b82f6',
-      children: []
+      children: [],
     }
-    
+
     // 解析子项
     parseFolder(dl, firstLevelCategory, result.bookmarks, 1)
-    
+
     result.categories.push(firstLevelCategory)
   })
-  
+
   return result
 }
 
@@ -57,16 +57,16 @@ export function parseGoogleBookmarks(htmlContent) {
  */
 function parseFolder(dl, parentCategory, bookmarks, level) {
   const dts = dl.querySelectorAll(':scope > dt')
-  
-  dts.forEach(dt => {
+
+  dts.forEach((dt) => {
     const h3 = dt.querySelector('h3')
     const a = dt.querySelector('a')
-    
+
     if (h3) {
       // 这是一个文件夹
       const folderName = h3.textContent.trim()
       const childDl = dt.querySelector('dl')
-      
+
       if (level < 3) {
         // 创建子分类 (二级或三级)
         const childCategory = {
@@ -74,14 +74,14 @@ function parseFolder(dl, parentCategory, bookmarks, level) {
           name: folderName,
           icon: 'folder',
           color: level === 1 ? '#3b82f6' : '#6366f1',
-          children: level === 2 ? [] : undefined
+          children: level === 2 ? [] : undefined,
         }
-        
+
         if (!parentCategory.children) {
           parentCategory.children = []
         }
         parentCategory.children.push(childCategory)
-        
+
         if (childDl) {
           parseFolder(childDl, childCategory, bookmarks, level + 1)
         }
@@ -96,24 +96,26 @@ function parseFolder(dl, parentCategory, bookmarks, level) {
       const name = a.textContent.trim()
       const url = a.getAttribute('href')
       const addDate = a.getAttribute('add_date')
-      const icon = a.getAttribute('icon')
-      
+      // Chrome 导出的 base64 图标通常是 16x16，太小了
+      // 优先使用 Google Favicon 服务获取 64x64 高质量图标
+      // const icon = a.getAttribute('ICON') || a.getAttribute('icon')
+
       if (!url || url === '') return
-      
+
       const bookmark = {
         id: generateId(),
         name: name || url,
         url: url,
         description: '',
-        favIconUrl: icon || getFavIconUrl(url),
+        favIconUrl: getFavIconUrl(url), // 始终使用高质量图标服务
         categoryId: parentCategory.id,
         tags: [],
         isPinned: false,
         isFavorite: false,
         createdAt: addDate ? new Date(parseInt(addDate) * 1000).toISOString() : new Date().toISOString(),
-        source: 'chrome'
+        source: 'chrome',
       }
-      
+
       bookmarks.push(bookmark)
     }
   })
@@ -127,35 +129,35 @@ export async function importFromChromeApi() {
   if (!chrome || !chrome.bookmarks) {
     throw new Error('Chrome Bookmarks API 不可用')
   }
-  
+
   const tree = await chrome.bookmarks.getTree()
-  
+
   const result = {
     categories: [],
-    bookmarks: []
+    bookmarks: [],
   }
-  
+
   // Chrome书签树的根节点
   const root = tree[0]
   if (!root || !root.children) return result
-  
+
   // 通常包含 "Bookmarks Bar" 和 "Other Bookmarks"
-  root.children.forEach(rootNode => {
+  root.children.forEach((rootNode) => {
     if (rootNode.children) {
       const firstLevelCategory = {
         id: generateId(),
         name: rootNode.title || 'Bookmarks',
         icon: 'folder',
         color: '#3b82f6',
-        children: []
+        children: [],
       }
-      
+
       parseChromeNode(rootNode.children, firstLevelCategory, result.bookmarks, 1)
-      
+
       result.categories.push(firstLevelCategory)
     }
   })
-  
+
   return result
 }
 
@@ -167,7 +169,7 @@ export async function importFromChromeApi() {
  * @param {number} level - 当前层级
  */
 function parseChromeNode(nodes, parentCategory, bookmarks, level) {
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     if (node.url) {
       // 这是一个书签
       const bookmark = {
@@ -181,9 +183,9 @@ function parseChromeNode(nodes, parentCategory, bookmarks, level) {
         isPinned: false,
         isFavorite: false,
         createdAt: node.dateAdded ? new Date(node.dateAdded).toISOString() : new Date().toISOString(),
-        source: 'chrome'
+        source: 'chrome',
       }
-      
+
       bookmarks.push(bookmark)
     } else if (node.children) {
       // 这是一个文件夹
@@ -193,14 +195,14 @@ function parseChromeNode(nodes, parentCategory, bookmarks, level) {
           name: node.title || 'Unnamed',
           icon: 'folder',
           color: level === 1 ? '#3b82f6' : '#6366f1',
-          children: level === 2 ? [] : undefined
+          children: level === 2 ? [] : undefined,
         }
-        
+
         if (!parentCategory.children) {
           parentCategory.children = []
         }
         parentCategory.children.push(childCategory)
-        
+
         parseChromeNode(node.children, childCategory, bookmarks, level + 1)
       } else {
         // 已经是三级，继续添加到当前分类
@@ -226,60 +228,90 @@ function generateId() {
  */
 export function mergeBookmarks(currentData, importedData, mode = 'merge') {
   if (mode === 'replace') {
-    // 替换模式：直接返回导入的数据
+    // 替换模式：需要先将书签分配到分类树中
+    const categoriesWithBookmarks = assignBookmarksToCategories(importedData.categories, importedData.bookmarks)
     return {
-      bookmarks: importedData.categories,
+      bookmarks: categoriesWithBookmarks,
       mergedCount: importedData.bookmarks.length,
-      skippedCount: 0
+      skippedCount: 0,
     }
   }
-  
+
   // 合并模式：将导入的分类和书签合并到现有数据
   const existingUrls = new Set()
   const existingCategoryNames = new Set()
-  
+
   // 收集现有的URL和分类名称
-  currentData.bookmarks.forEach(category => {
+  currentData.bookmarks.forEach((category) => {
     existingCategoryNames.add(category.name.toLowerCase())
     collectBookmarkUrls(category, existingUrls)
   })
-  
+
   let mergedCount = 0
   let skippedCount = 0
-  
+
   // 合并分类和书签
   const mergedBookmarks = [...currentData.bookmarks]
-  
-  importedData.categories.forEach(importedCategory => {
+
+  // 先将书签分配到导入的分类树中
+  const categoriesWithBookmarks = assignBookmarksToCategories(importedData.categories, importedData.bookmarks)
+
+  categoriesWithBookmarks.forEach((importedCategory) => {
     const categoryNameLower = importedCategory.name.toLowerCase()
-    
+
     // 查找是否有同名分类
-    const existingCategory = mergedBookmarks.find(
-      cat => cat.name.toLowerCase() === categoryNameLower
-    )
-    
+    const existingCategory = mergedBookmarks.find((cat) => cat.name.toLowerCase() === categoryNameLower)
+
     if (existingCategory) {
       // 合并到现有分类
-      const stats = mergeCategory(existingCategory, importedCategory, importedData.bookmarks, existingUrls)
+      const stats = mergeCategoryWithBookmarks(existingCategory, importedCategory, existingUrls)
       mergedCount += stats.merged
       skippedCount += stats.skipped
     } else {
-      // 添加新分类
+      // 添加新分类（已经包含书签）
       mergedBookmarks.push(importedCategory)
-      
-      // 统计新分类中的书签
-      const categoryBookmarks = importedData.bookmarks.filter(
-        b => b.categoryId === importedCategory.id || isInSubCategory(b.categoryId, importedCategory)
-      )
-      mergedCount += categoryBookmarks.length
+
+      // 统计新分类中的书签（递归统计所有子分类中的书签）
+      const count = countBookmarksInCategory(importedCategory)
+      mergedCount += count
     }
   })
-  
+
   return {
     bookmarks: mergedBookmarks,
     mergedCount,
-    skippedCount
+    skippedCount,
   }
+}
+
+/**
+ * 将扁平的书签数组分配到分类树中
+ * @param {Array} categories - 分类树
+ * @param {Array} bookmarks - 扁平的书签数组
+ * @returns {Array} 包含书签的分类树
+ */
+function assignBookmarksToCategories(categories, bookmarks) {
+  // 创建一个深拷贝，避免修改原数据
+  const categoriesCopy = JSON.parse(JSON.stringify(categories))
+
+  // 递归分配书签到对应的分类
+  function assignToCategory(category) {
+    // 找到属于当前分类的书签
+    const categoryBookmarks = bookmarks.filter((b) => b.categoryId === category.id)
+    if (categoryBookmarks.length > 0) {
+      category.bookmarks = categoryBookmarks
+    } else {
+      category.bookmarks = []
+    }
+
+    // 递归处理子分类
+    if (category.children && category.children.length > 0) {
+      category.children.forEach((child) => assignToCategory(child))
+    }
+  }
+
+  categoriesCopy.forEach((category) => assignToCategory(category))
+  return categoriesCopy
 }
 
 /**
@@ -287,31 +319,95 @@ export function mergeBookmarks(currentData, importedData, mode = 'merge') {
  */
 function collectBookmarkUrls(category, urlSet) {
   if (category.bookmarks) {
-    category.bookmarks.forEach(b => urlSet.add(b.url.toLowerCase()))
+    category.bookmarks.forEach((b) => urlSet.add(b.url.toLowerCase()))
   }
   if (category.children) {
-    category.children.forEach(child => collectBookmarkUrls(child, urlSet))
+    category.children.forEach((child) => collectBookmarkUrls(child, urlSet))
   }
 }
 
 /**
- * 合并分类
+ * 递归统计分类中的书签数量
  */
-function mergeCategory(existingCategory, importedCategory, allBookmarks, existingUrls) {
+function countBookmarksInCategory(category) {
+  let count = category.bookmarks ? category.bookmarks.length : 0
+  if (category.children) {
+    category.children.forEach((child) => {
+      count += countBookmarksInCategory(child)
+    })
+  }
+  return count
+}
+
+/**
+ * 合并分类（新版本，分类中已包含书签）
+ */
+function mergeCategoryWithBookmarks(existingCategory, importedCategory, existingUrls) {
   let merged = 0
   let skipped = 0
-  
-  // 获取导入分类中的所有书签
-  const importedBookmarks = allBookmarks.filter(
-    b => b.categoryId === importedCategory.id
-  )
-  
+
   // 添加不重复的书签
   if (!existingCategory.bookmarks) {
     existingCategory.bookmarks = []
   }
-  
-  importedBookmarks.forEach(bookmark => {
+
+  if (importedCategory.bookmarks) {
+    importedCategory.bookmarks.forEach((bookmark) => {
+      const urlLower = bookmark.url.toLowerCase()
+      if (!existingUrls.has(urlLower)) {
+        // 更新 categoryId 为现有分类的 id
+        bookmark.categoryId = existingCategory.id
+        existingCategory.bookmarks.push(bookmark)
+        existingUrls.add(urlLower)
+        merged++
+      } else {
+        skipped++
+      }
+    })
+  }
+
+  // 合并子分类
+  if (importedCategory.children && importedCategory.children.length > 0) {
+    if (!existingCategory.children) {
+      existingCategory.children = []
+    }
+
+    importedCategory.children.forEach((importedChild) => {
+      const childNameLower = importedChild.name.toLowerCase()
+      const existingChild = existingCategory.children.find((c) => c.name.toLowerCase() === childNameLower)
+
+      if (existingChild) {
+        const stats = mergeCategoryWithBookmarks(existingChild, importedChild, existingUrls)
+        merged += stats.merged
+        skipped += stats.skipped
+      } else {
+        existingCategory.children.push(importedChild)
+
+        // 统计新子分类中的书签
+        merged += countBookmarksInCategory(importedChild)
+      }
+    })
+  }
+
+  return { merged, skipped }
+}
+
+/**
+ * 合并分类（旧版本，保留用于兼容）
+ */
+function mergeCategory(existingCategory, importedCategory, allBookmarks, existingUrls) {
+  let merged = 0
+  let skipped = 0
+
+  // 获取导入分类中的所有书签
+  const importedBookmarks = allBookmarks.filter((b) => b.categoryId === importedCategory.id)
+
+  // 添加不重复的书签
+  if (!existingCategory.bookmarks) {
+    existingCategory.bookmarks = []
+  }
+
+  importedBookmarks.forEach((bookmark) => {
     const urlLower = bookmark.url.toLowerCase()
     if (!existingUrls.has(urlLower)) {
       // 更新 categoryId 为现有分类的 id
@@ -323,35 +419,33 @@ function mergeCategory(existingCategory, importedCategory, allBookmarks, existin
       skipped++
     }
   })
-  
+
   // 合并子分类
   if (importedCategory.children && importedCategory.children.length > 0) {
     if (!existingCategory.children) {
       existingCategory.children = []
     }
-    
-    importedCategory.children.forEach(importedChild => {
+
+    importedCategory.children.forEach((importedChild) => {
       const childNameLower = importedChild.name.toLowerCase()
-      const existingChild = existingCategory.children.find(
-        c => c.name.toLowerCase() === childNameLower
-      )
-      
+      const existingChild = existingCategory.children.find((c) => c.name.toLowerCase() === childNameLower)
+
       if (existingChild) {
         const stats = mergeCategory(existingChild, importedChild, allBookmarks, existingUrls)
         merged += stats.merged
         skipped += stats.skipped
       } else {
         existingCategory.children.push(importedChild)
-        
+
         // 统计新子分类中的书签
         const childBookmarks = allBookmarks.filter(
-          b => b.categoryId === importedChild.id || isInSubCategory(b.categoryId, importedChild)
+          (b) => b.categoryId === importedChild.id || isInSubCategory(b.categoryId, importedChild)
         )
         merged += childBookmarks.length
       }
     })
   }
-  
+
   return { merged, skipped }
 }
 
@@ -360,10 +454,10 @@ function mergeCategory(existingCategory, importedCategory, allBookmarks, existin
  */
 function isInSubCategory(bookmarkCategoryId, category) {
   if (category.id === bookmarkCategoryId) return true
-  
+
   if (category.children) {
-    return category.children.some(child => isInSubCategory(bookmarkCategoryId, child))
+    return category.children.some((child) => isInSubCategory(bookmarkCategoryId, child))
   }
-  
+
   return false
 }

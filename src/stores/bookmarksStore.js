@@ -84,18 +84,29 @@ export const useBookmarksStore = defineStore('bookmarks', {
       const firstLevel = state.bookmarks.find((cat) => cat.id === first)
       if (!firstLevel) return []
 
-      // 如果只有一级分类
+      // 递归收集所有书签
+      const collectAllBookmarks = (category) => {
+        let bookmarks = [...(category.bookmarks || [])]
+        if (category.children) {
+          category.children.forEach((child) => {
+            bookmarks = bookmarks.concat(collectAllBookmarks(child))
+          })
+        }
+        return bookmarks
+      }
+
+      // 如果只有一级分类，返回该分类及其所有子分类的书签
       if (!second) {
-        return firstLevel.bookmarks || []
+        return collectAllBookmarks(firstLevel)
       }
 
       // 查找二级分类
       const secondLevel = firstLevel.children?.find((cat) => cat.id === second)
       if (!secondLevel) return []
 
-      // 如果只有二级分类
+      // 如果只有二级分类，返回该分类及其所有子分类的书签
       if (!third) {
-        return secondLevel.bookmarks || []
+        return collectAllBookmarks(secondLevel)
       }
 
       // 查找三级分类
@@ -137,6 +148,27 @@ export const useBookmarksStore = defineStore('bookmarks', {
     },
 
     /**
+     * 获取当前选中的一级分类ID
+     */
+    getCurrentFirstLevel: (state) => {
+      return state.currentFirstLevel
+    },
+
+    /**
+     * 获取当前选中的二级分类ID
+     */
+    getCurrentSecondLevel: (state) => {
+      return state.currentSecondLevel
+    },
+
+    /**
+     * 获取当前选中的三级分类ID
+     */
+    getCurrentThirdLevel: (state) => {
+      return state.currentThirdLevel
+    },
+
+    /**
      * 搜索书签
      */
     searchBookmarks: (state) => (keyword) => {
@@ -155,9 +187,7 @@ export const useBookmarksStore = defineStore('bookmarks', {
               const matchName = bookmark.name?.toLowerCase().includes(searchText)
               const matchUrl = bookmark.url?.toLowerCase().includes(searchText)
               const matchDesc = bookmark.description?.toLowerCase().includes(searchText)
-              const matchTags = bookmark.tags?.some((tag) =>
-                tag.toLowerCase().includes(searchText)
-              )
+              const matchTags = bookmark.tags?.some((tag) => tag.toLowerCase().includes(searchText))
 
               if (matchName || matchUrl || matchDesc || matchTags) {
                 results.push({
@@ -182,18 +212,50 @@ export const useBookmarksStore = defineStore('bookmarks', {
 
   actions: {
     /**
+     * 设置当前选中的一级分类
+     */
+    setCurrentFirstLevel(categoryId) {
+      this.currentFirstLevel = categoryId
+      // 切换一级分类时，清空二三级选择
+      this.currentSecondLevel = null
+      this.currentThirdLevel = null
+    },
+
+    /**
+     * 设置当前选中的二级分类
+     */
+    setCurrentSecondLevel(categoryId) {
+      this.currentSecondLevel = categoryId
+      // 切换二级分类时，清空三级选择
+      this.currentThirdLevel = null
+    },
+
+    /**
+     * 设置当前选中的三级分类
+     */
+    setCurrentThirdLevel(categoryId) {
+      this.currentThirdLevel = categoryId
+    },
+
+    /**
      * 从 chrome.storage 加载书签数据
      */
     async loadBookmarks() {
       this.isLoading = true
       try {
-        const data = await chromeStorageGet(STORAGE_KEY)
+        const result = await chromeStorageGet(STORAGE_KEY)
+        const data = result[STORAGE_KEY] // 正确获取嵌套的数据
 
         if (data && this.validateBookmarksData(data)) {
           this.bookmarks = data.bookmarks || []
           this.pinnedBookmarks = data.pinnedBookmarks || []
           this.favoriteBookmarks = data.favoriteBookmarks || []
           this.lastLoaded = Date.now()
+
+          // 如果有数据但没有选中分类，默认选中第一个一级分类
+          if (this.bookmarks.length > 0 && !this.currentFirstLevel) {
+            this.currentFirstLevel = this.bookmarks[0].id
+          }
         } else {
           // 首次运行，初始化默认数据
           await this.initializeWithDefaults()
@@ -269,6 +331,11 @@ export const useBookmarksStore = defineStore('bookmarks', {
       this.pinnedBookmarks = []
       this.favoriteBookmarks = []
       this.lastLoaded = Date.now()
+
+      // 设置默认选中第一个分类
+      if (this.bookmarks.length > 0) {
+        this.currentFirstLevel = this.bookmarks[0].id
+      }
 
       await this.saveBookmarks()
     },
@@ -739,7 +806,14 @@ export const useBookmarksStore = defineStore('bookmarks', {
     async importBookmarks(importedBookmarks) {
       try {
         await this.replaceAllBookmarks(importedBookmarks)
-        await this.loadBookmarks() // 重新加载以确保状态同步
+
+        // 重新加载以确保状态同步
+        await this.loadBookmarks()
+
+        // 导入后自动选中第一个分类
+        if (this.bookmarks.length > 0) {
+          this.currentFirstLevel = this.bookmarks[0].id
+        }
       } catch (error) {
         errorHandler.handleError(error, 'bookmarksStore.importBookmarks')
         throw error

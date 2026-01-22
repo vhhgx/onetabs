@@ -67,7 +67,7 @@ const selectCategory = (categoryId) => {
 
 // 获取分类下的书签数量
 const getCategoryBookmarkCount = (categoryId) => {
-  const bookmarks = bookmarksStore.getBookmarks({ firstLevel: categoryId })
+  const bookmarks = bookmarksStore.getBookmarks({ first: categoryId })
   return bookmarks.length
 }
 

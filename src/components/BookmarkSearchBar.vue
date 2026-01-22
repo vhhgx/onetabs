@@ -14,12 +14,7 @@
         @keydown.esc="handleEscape"
         @keydown.enter="handleEnter"
       />
-      <button
-        v-if="searchQuery"
-        class="clear-button"
-        @click="clearSearch"
-        title="清除搜索"
-      >
+      <button v-if="searchQuery" class="clear-button" @click="clearSearch" title="清除搜索">
         <i class="pi pi-times"></i>
       </button>
       <button
@@ -44,11 +39,7 @@
         <div v-else-if="results.length > 0" class="suggestions-results">
           <div class="results-header">
             <span class="results-count">找到 {{ results.length }} 个结果</span>
-            <button
-              v-if="results.length > maxSuggestions"
-              class="view-all-button"
-              @click="handleViewAll"
-            >
+            <button v-if="results.length > maxSuggestions" class="view-all-button" @click="handleViewAll">
               查看全部
             </button>
           </div>
@@ -60,11 +51,7 @@
               class="suggestion-item"
               @click="handleResultClick(bookmark)"
             >
-              <img
-                :src="bookmark.favIconUrl"
-                class="bookmark-favicon"
-                @error="handleImageError"
-              />
+              <img :src="bookmark.favIconUrl" class="bookmark-favicon" @error="handleImageError" />
               <div class="bookmark-info">
                 <div class="bookmark-name" v-html="highlightMatch(bookmark.name)"></div>
                 <div class="bookmark-url">{{ formatUrl(bookmark.url) }}</div>
@@ -76,11 +63,7 @@
                 </div>
               </div>
               <div class="bookmark-actions">
-                <button
-                  class="action-button"
-                  @click.stop="handleQuickOpen(bookmark)"
-                  title="在新标签页打开"
-                >
+                <button class="action-button" @click.stop="handleQuickOpen(bookmark)" title="在新标签页打开">
                   <i class="pi pi-external-link"></i>
                 </button>
               </div>
@@ -114,11 +97,7 @@
         <div class="filter-section">
           <label class="filter-label">收藏状态</label>
           <div class="filter-options">
-            <Checkbox
-              v-model="filters.favoriteOnly"
-              inputId="favoriteOnly"
-              binary
-            />
+            <Checkbox v-model="filters.favoriteOnly" inputId="favoriteOnly" binary />
             <label for="favoriteOnly">仅显示收藏</label>
           </div>
         </div>
@@ -126,27 +105,14 @@
         <div class="filter-section">
           <label class="filter-label">固定状态</label>
           <div class="filter-options">
-            <Checkbox
-              v-model="filters.pinnedOnly"
-              inputId="pinnedOnly"
-              binary
-            />
+            <Checkbox v-model="filters.pinnedOnly" inputId="pinnedOnly" binary />
             <label for="pinnedOnly">仅显示固定</label>
           </div>
         </div>
 
         <div class="filter-actions">
-          <Button
-            label="清除筛选"
-            text
-            size="small"
-            @click="clearFilters"
-          />
-          <Button
-            label="应用"
-            size="small"
-            @click="applyFilters"
-          />
+          <Button label="清除筛选" text size="small" @click="clearFilters" />
+          <Button label="应用" size="small" @click="applyFilters" />
         </div>
       </div>
     </transition>
@@ -197,11 +163,7 @@ const displayedResults = computed(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return (
-    filters.value.favoriteOnly ||
-    filters.value.pinnedOnly ||
-    selectedTags.value.length > 0
-  )
+  return filters.value.favoriteOnly || filters.value.pinnedOnly || selectedTags.value.length > 0
 })
 
 const availableTags = computed(() => {
@@ -287,9 +249,7 @@ function performSearch() {
       searchResults = searchResults.filter((b) => b.isPinned)
     }
     if (selectedTags.value.length > 0) {
-      searchResults = searchResults.filter((b) =>
-        b.tags?.some((tag) => selectedTags.value.includes(tag))
-      )
+      searchResults = searchResults.filter((b) => b.tags?.some((tag) => selectedTags.value.includes(tag)))
     }
 
     results.value = searchResults
@@ -492,10 +452,10 @@ defineExpose({
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: var(--surface-0);
-  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   max-height: 400px;
   overflow: hidden;
   z-index: 1000;

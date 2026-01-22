@@ -230,6 +230,23 @@ const thirdLevelCategories = computed(() => {
   )
 })
 
+// 重置表单
+const resetForm = () => {
+  formData.value = {
+    name: '',
+    url: '',
+    description: '',
+    favIconUrl: '',
+    firstLevel: bookmarksStore.getCurrentFirstLevel || null,
+    secondLevel: bookmarksStore.getCurrentSecondLevel || null,
+    thirdLevel: bookmarksStore.getCurrentThirdLevel || null,
+    tags: [],
+    isPinned: false,
+    isFavorite: false,
+  }
+  newTag.value = ''
+}
+
 // 监听 bookmark 变化，初始化表单
 watch(
   () => props.bookmark,
@@ -254,23 +271,6 @@ watch(
   },
   { immediate: true }
 )
-
-// 重置表单
-const resetForm = () => {
-  formData.value = {
-    name: '',
-    url: '',
-    description: '',
-    favIconUrl: '',
-    firstLevel: bookmarksStore.getCurrentFirstLevel || null,
-    secondLevel: bookmarksStore.getCurrentSecondLevel || null,
-    thirdLevel: bookmarksStore.getCurrentThirdLevel || null,
-    tags: [],
-    isPinned: false,
-    isFavorite: false,
-  }
-  newTag.value = ''
-}
 
 // 分类变化处理
 const handleFirstLevelChange = () => {

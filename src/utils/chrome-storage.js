@@ -35,10 +35,16 @@ export function chromeStorageGet(key) {
     if (!isExtensionEnvironment()) {
       // 如果不在扩展环境中，从localStorage获取
       try {
-        const item = localStorage.getItem(`onetabs_${key}`)
+        const storageKey = `onetabs_${key}`
+
+        const item = localStorage.getItem(storageKey)
+
         const data = item ? JSON.parse(item) : null
+
         // 返回格式保持与Chrome扩展一致：{ key: value }
-        resolve(data ? { [key]: data } : {})
+        const result = data ? { [key]: data } : {}
+
+        resolve(result)
       } catch (error) {
         console.error('localStorage读取失败:', error)
         reject(error)
@@ -71,8 +77,15 @@ export function chromeStorageSet(key, data) {
     if (!isExtensionEnvironment()) {
       // 如果不在扩展环境中，存储到localStorage
       try {
-        localStorage.setItem(`onetabs_${key}`, JSON.stringify(data))
-        console.log(`localStorage保存成功: onetabs_${key}`, data)
+        const storageKey = `onetabs_${key}`
+        const jsonString = JSON.stringify(data)
+
+        localStorage.setItem(storageKey, jsonString)
+
+        // 验证保存
+        const saved = localStorage.getItem(storageKey)
+        const parsed = JSON.parse(saved)
+
         resolve()
       } catch (error) {
         console.error('localStorage保存失败:', error)
