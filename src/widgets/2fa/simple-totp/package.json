@@ -1,0 +1,17 @@
+{
+  "name": "simple-totp",
+  "version": "1.0.0",
+  "description": "纯 TOTP 验证码计算工具（无需数据库）",
+  "type": "module",
+  "main": "totp.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "totp",
+    "2fa",
+    "otp"
+  ],
+  "author": "",
+  "license": "MIT"
+}
