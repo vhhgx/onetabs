@@ -2,7 +2,7 @@
   <div class="sessions-view">
     <div class="sessions-container">
       <!-- 顶部操作栏 -->
-      <div class="sessions-header">
+      <!-- <div class="sessions-header">
         <h2 class="header-title">会话收纳</h2>
         <div class="header-actions">
           <button class="btn btn-primary" @click="addMockData" :disabled="isLoading">
@@ -10,7 +10,7 @@
             <span>添加测试数据</span>
           </button>
         </div>
-      </div>
+      </div> -->
 
       <!-- 空状态 -->
       <EmptyState
@@ -20,7 +20,7 @@
         description="点击浏览器工具栏的扩展图标即可保存当前窗口的所有标签页"
       >
         <template #icon>
-          <div style="font-size: 64px;">📦</div>
+          <div style="font-size: 64px">📦</div>
         </template>
         <template #action>
           <button class="btn btn-primary" @click="addMockData">
@@ -70,14 +70,14 @@ const sessions = computed(() => sessionsStore.getSessions)
 const generateMockSession = (type = 'ungrouped') => {
   const now = Date.now()
   const randomOffset = Math.floor(Math.random() * 1000000) // 随机时间偏移
-  
+
   if (type === 'grouped') {
     // 生成分组会话
     const groupColors = ['blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange', 'grey']
     const groupNames = ['工作', '学习', '娱乐', '购物', '开发', '设计', '阅读']
     const randomColor = groupColors[Math.floor(Math.random() * groupColors.length)]
     const randomName = groupNames[Math.floor(Math.random() * groupNames.length)]
-    
+
     return {
       date: now - randomOffset,
       type: 'grouped',
@@ -87,34 +87,34 @@ const generateMockSession = (type = 'ungrouped') => {
         id: Math.floor(Math.random() * 10000),
         title: randomName,
         color: randomColor,
-        collapsed: false
+        collapsed: false,
       },
       tabs: [
         {
           url: 'https://github.com',
           title: 'GitHub - Where the world builds software',
           favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg',
-          groupId: 1
+          groupId: 1,
         },
         {
           url: 'https://stackoverflow.com',
           title: 'Stack Overflow - Where Developers Learn',
           favIconUrl: 'https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico',
-          groupId: 1
+          groupId: 1,
         },
         {
           url: 'https://developer.mozilla.org',
           title: 'MDN Web Docs',
           favIconUrl: 'https://developer.mozilla.org/favicon-48x48.png',
-          groupId: 1
+          groupId: 1,
         },
         {
           url: 'https://vuejs.org',
           title: 'Vue.js - The Progressive JavaScript Framework',
           favIconUrl: 'https://vuejs.org/logo.svg',
-          groupId: 1
-        }
-      ]
+          groupId: 1,
+        },
+      ],
     }
   } else {
     // 生成未分组会话
@@ -128,33 +128,33 @@ const generateMockSession = (type = 'ungrouped') => {
           url: 'https://www.google.com',
           title: 'Google',
           favIconUrl: 'https://www.google.com/favicon.ico',
-          groupId: -1
+          groupId: -1,
         },
         {
           url: 'https://www.youtube.com',
           title: 'YouTube',
           favIconUrl: 'https://www.youtube.com/favicon.ico',
-          groupId: -1
+          groupId: -1,
         },
         {
           url: 'https://twitter.com',
           title: 'Twitter',
           favIconUrl: 'https://abs.twimg.com/favicons/twitter.ico',
-          groupId: -1
+          groupId: -1,
         },
         {
           url: 'https://www.reddit.com',
           title: 'Reddit - Dive into anything',
           favIconUrl: 'https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png',
-          groupId: -1
+          groupId: -1,
         },
         {
           url: 'https://news.ycombinator.com',
           title: 'Hacker News',
           favIconUrl: 'https://news.ycombinator.com/favicon.ico',
-          groupId: -1
-        }
-      ]
+          groupId: -1,
+        },
+      ],
     }
   }
 }
@@ -166,28 +166,28 @@ const addMockData = async () => {
     // 随机生成1-2个会话
     const sessionCount = Math.floor(Math.random() * 2) + 1
     console.log(`准备生成 ${sessionCount} 个会话`)
-    
+
     for (let i = 0; i < sessionCount; i++) {
       // 随机决定是分组还是未分组（60%概率为分组）
       const type = Math.random() > 0.4 ? 'grouped' : 'ungrouped'
       const mockSession = generateMockSession(type)
       console.log(`生成第 ${i + 1} 个会话 (${type}):`, mockSession)
-      
+
       // 保存到store
       await sessionsStore.saveSession(mockSession)
       console.log(`第 ${i + 1} 个会话保存完成`)
     }
-    
+
     // 重新加载会话列表
     console.log('重新加载会话列表')
     await sessionsStore.loadSessions()
     console.log('会话列表已刷新，当前数量:', sessions.value.length)
-    
+
     toast.add({
       severity: 'success',
       summary: '添加成功',
       detail: `已添加 ${sessionCount} 个测试会话`,
-      life: 3000
+      life: 3000,
     })
   } catch (error) {
     console.error('添加Mock数据失败:', error)
@@ -195,7 +195,7 @@ const addMockData = async () => {
       severity: 'error',
       summary: '添加失败',
       detail: error.message || '添加测试数据时出错',
-      life: 3000
+      life: 3000,
     })
   }
 }
@@ -290,12 +290,12 @@ const handleTogglePin = async (sessionId) => {
 .sessions-view {
   height: 100%;
   overflow: hidden;
-  background: #f9fafb;
+  /* background: #f9fafb; */
 }
 
 .sessions-container {
   height: 100%;
-  padding: 24px;
+  /* padding: 16px; */
   overflow-y: auto;
 }
 
@@ -414,6 +414,7 @@ const handleTogglePin = async (sessionId) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-bottom: 24px;
+  padding-right: 8px;
+  /* padding-bottom: 24px; */
 }
 </style>

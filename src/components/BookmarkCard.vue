@@ -1,65 +1,66 @@
 <template>
   <div
-    :class="['bookmark-card', { 'is-pinned': bookmark.pinned, 'is-favorite': bookmark.favorite }]"
+    :class="['bookmark-card', { 'is-pinned': bookmark.isPinned, 'is-favorite': bookmark.isFavorite }]"
     @click="handleClick"
     @contextmenu.prevent="handleContextMenu"
   >
-    <!-- 网站图标 -->
-    <div class="bookmark-icon-wrapper">
-      <img
-        :src="bookmark.favIconUrl || defaultIcon"
-        :alt="bookmark.name"
-        class="bookmark-icon"
-        @error="handleIconError"
-      />
-      <!-- 固定和收藏标记 -->
-      <div v-if="bookmark.pinned || bookmark.favorite" class="badge-container">
-        <span v-if="bookmark.pinned" class="badge badge-pin" title="已固定">📌</span>
-        <span v-if="bookmark.favorite" class="badge badge-favorite" title="已收藏">⭐</span>
+    <!-- 上部分：图标+内容 -->
+    <div class="bookmark-header">
+      <!-- 网站图标 -->
+      <div class="bookmark-icon-wrapper">
+        <img
+          :src="bookmark.favIconUrl || defaultIcon"
+          :alt="bookmark.name"
+          class="bookmark-icon"
+          @error="handleIconError"
+        />
+        <!-- 固定和收藏标记 -->
+        <div v-if="bookmark.isPinned || bookmark.isFavorite" class="badge-container">
+          <span v-if="bookmark.isPinned" class="badge badge-pin" title="已固定">📌</span>
+          <span v-if="bookmark.isFavorite" class="badge badge-favorite" title="已收藏">⭐</span>
+        </div>
       </div>
-    </div>
 
-    <!-- 书签信息 -->
-    <div class="bookmark-content">
-      <h3 class="bookmark-name" :title="bookmark.name">{{ bookmark.name }}</h3>
-      <p v-if="showDescription && bookmark.description" class="bookmark-description">
-        {{ bookmark.description }}
-      </p>
-      <div class="bookmark-meta">
-        <span class="bookmark-url" :title="bookmark.url">{{ displayUrl }}</span>
-        <div v-if="bookmark.tags && bookmark.tags.length > 0" class="bookmark-tags">
-          <span v-for="tag in bookmark.tags.slice(0, 3)" :key="tag" class="tag">
-            {{ tag }}
-          </span>
-          <span v-if="bookmark.tags.length > 3" class="tag tag-more">
-            +{{ bookmark.tags.length - 3 }}
-          </span>
+      <!-- 书签信息 -->
+      <div class="bookmark-content">
+        <h3 class="bookmark-name" :title="bookmark.name">{{ bookmark.name }}</h3>
+        <p v-if="showDescription && bookmark.description" class="bookmark-description">
+          {{ bookmark.description }}
+        </p>
+        <div class="bookmark-meta">
+          <span class="bookmark-url" :title="bookmark.url">{{ displayUrl }}</span>
+          <div v-if="bookmark.tags && bookmark.tags.length > 0" class="bookmark-tags">
+            <span v-for="tag in bookmark.tags.slice(0, 3)" :key="tag" class="tag">
+              {{ tag }}
+            </span>
+            <span v-if="bookmark.tags.length > 3" class="tag tag-more"> +{{ bookmark.tags.length - 3 }} </span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 操作按钮 -->
-    <div class="bookmark-actions" @click.stop>
+    <div class="bookmark-actions">
       <button
         class="action-btn"
-        :class="{ active: bookmark.pinned }"
-        @click="togglePin"
-        :title="bookmark.pinned ? '取消固定' : '固定'"
+        :class="{ active: bookmark.isPinned }"
+        @click.stop="togglePin"
+        :title="bookmark.isPinned ? '取消固定' : '固定'"
       >
         <i class="pi pi-thumbtack"></i>
       </button>
       <button
         class="action-btn"
-        :class="{ active: bookmark.favorite }"
-        @click="toggleFavorite"
-        :title="bookmark.favorite ? '取消收藏' : '收藏'"
+        :class="{ active: bookmark.isFavorite }"
+        @click.stop="toggleFavorite"
+        :title="bookmark.isFavorite ? '取消收藏' : '收藏'"
       >
-        <i :class="bookmark.favorite ? 'pi pi-star-fill' : 'pi pi-star'"></i>
+        <i :class="bookmark.isFavorite ? 'pi pi-star-fill' : 'pi pi-star'"></i>
       </button>
-      <button class="action-btn" @click="handleEdit" title="编辑">
+      <button class="action-btn" @click.stop="handleEdit" title="编辑">
         <i class="pi pi-pencil"></i>
       </button>
-      <button class="action-btn action-delete" @click="handleDelete" title="删除">
+      <button class="action-btn action-delete" @click.stop="handleDelete" title="删除">
         <i class="pi pi-trash"></i>
       </button>
     </div>
@@ -131,15 +132,23 @@ const handleIconError = (event) => {
 .bookmark-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   background: var(--bg-primary);
   border: 1px solid var(--border-primary);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+}
+
+/* 上部分：图标+内容并排 */
+.bookmark-header {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: flex-start;
 }
 
 .bookmark-card:hover {
@@ -166,11 +175,12 @@ const handleIconError = (event) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .bookmark-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
   object-fit: cover;
   background: var(--bg-secondary);
@@ -194,13 +204,13 @@ const handleIconError = (event) => {
 .bookmark-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
   flex: 1;
   min-height: 0;
 }
 
 .bookmark-name {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -213,13 +223,13 @@ const handleIconError = (event) => {
 }
 
 .bookmark-description {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   line-height: 1.4;
 }
@@ -263,7 +273,8 @@ const handleIconError = (event) => {
 /* 操作按钮 */
 .bookmark-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: row;
+  gap: 0.375rem;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -277,14 +288,16 @@ const handleIconError = (event) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.4rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: 6px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  height: 32px;
+  min-width: 32px;
 }
 
 .action-btn:hover {
@@ -308,20 +321,28 @@ const handleIconError = (event) => {
 /* 响应式 */
 @media (max-width: 768px) {
   .bookmark-card {
-    padding: 0.875rem;
+    padding: 0.65rem;
+    gap: 0.5rem;
   }
 
   .bookmark-icon {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
   .bookmark-name {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 
   .bookmark-actions {
     opacity: 1;
+    flex-direction: row;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0.35rem;
   }
 }
 </style>

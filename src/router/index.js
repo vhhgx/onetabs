@@ -1,23 +1,25 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import MainView from '../views/MainView.vue'
+// import MainView from '../views/MainView.vue'
+import HomeView from '../views/HomeView.vue'
 import Settings from '../views/Settings.vue'
 
 const routes = [
+  // {
+  //   path: '/',
+  //   name: 'Main',
+  //   component: MainView,
+  //   meta: {
+  //     title: 'OneTabs',
+  //     keepAlive: true,
+  //   },
+  // },
   {
     path: '/',
-    name: 'Main',
-    component: MainView,
+    name: 'Home',
+    component: HomeView,
     meta: {
       title: 'OneTabs',
       keepAlive: true,
-    },
-  },
-  {
-    path: '/bookmarks',
-    name: 'Bookmarks',
-    component: () => import('../views/BookmarksView.vue'),
-    meta: {
-      title: 'OneTabs - 书签导航',
     },
   },
   {

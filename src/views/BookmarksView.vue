@@ -263,7 +263,7 @@ const togglePin = async (bookmark) => {
         life: 2000,
       })
     } else {
-      await bookmarksStore.pinBookmark(bookmark.id)
+      await bookmarksStore.pinBookmark(bookmark)
       toast.add({
         severity: 'success',
         summary: '固定成功',

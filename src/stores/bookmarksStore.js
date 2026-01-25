@@ -672,8 +672,8 @@ export const useBookmarksStore = defineStore('bookmarks', {
         // 添加到固定列表
         this.pinnedBookmarks.push({ ...bookmark })
 
-        // 更新书签的 pinned 字段
-        await this.updateBookmark(bookmark.id, { pinned: true })
+        // 更新书签的 isPinned 字段
+        await this.updateBookmark(bookmark.id, { isPinned: true })
 
         await this.saveBookmarks()
       } catch (error) {
@@ -690,8 +690,8 @@ export const useBookmarksStore = defineStore('bookmarks', {
         // 从固定列表移除
         this.pinnedBookmarks = this.pinnedBookmarks.filter((b) => b.id !== bookmarkId)
 
-        // 更新书签的 pinned 字段
-        await this.updateBookmark(bookmarkId, { pinned: false })
+        // 更新书签的 isPinned 字段
+        await this.updateBookmark(bookmarkId, { isPinned: false })
 
         await this.saveBookmarks()
       } catch (error) {

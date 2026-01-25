@@ -1,16 +1,12 @@
 <template>
   <div :class="['session-card card-hover', { pinned: session.isPinned }]">
     <!-- 卡片头部 -->
-    <div 
-      class="card-header" 
-      @click="toggleExpanded"
-      @contextmenu.prevent="handleContextMenu"
-    >
+    <div class="card-header" @click="toggleExpanded" @contextmenu.prevent="handleContextMenu">
       <div class="header-left">
         <!-- 折叠/展开图标 -->
-        <button class="expand-btn btn-press" :class="{ expanded: isExpanded }">
+        <!-- <button class="expand-btn btn-press" :class="{ expanded: isExpanded }">
           <i class="pi pi-chevron-right"></i>
-        </button>
+        </button> -->
 
         <!-- 置顶图标 -->
         <button
@@ -49,10 +45,10 @@
         >
           📌
         </button>
-        <button class="action-btn restore-btn btn-press" @click.stop="handleRestore" title="恢复"> 
+        <button class="action-btn restore-btn btn-press" @click.stop="handleRestore" title="恢复">
           <i class="pi pi-refresh"></i>
         </button>
-        <button class="action-btn delete-btn btn-press" @click.stop="handleDelete" title="删除"> 
+        <button class="action-btn delete-btn btn-press" @click.stop="handleDelete" title="删除">
           <i class="pi pi-trash"></i>
         </button>
       </div>
@@ -110,7 +106,7 @@ const emit = defineEmits(['restore', 'restore-group', 'delete', 'toggle-pin'])
 const confirm = useConfirm()
 const toast = useToast()
 
-const isExpanded = ref(false)
+const isExpanded = ref(true)
 const { showContextMenu, contextMenuPosition, showMenu } = useContextMenu()
 
 // 右键菜单配置
@@ -119,9 +115,9 @@ const contextMenuItems = computed(() => {
 })
 
 // 切换展开状态
-const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value
-}
+// const toggleExpanded = () => {
+//   isExpanded.value = !isExpanded.value
+// }
 
 // 格式化时间
 const formatTime = (timestamp) => {
@@ -175,7 +171,7 @@ const handleDelete = () => {
     acceptLabel: '删除',
     accept: () => {
       emit('delete', props.session.date)
-    }
+    },
   })
 }
 
@@ -197,7 +193,7 @@ const handleAddToCollection = (tab) => {
     severity: 'info',
     summary: '提示',
     detail: '请选择一个收藏集',
-    life: 3000
+    life: 3000,
   })
 }
 
@@ -208,7 +204,7 @@ const handleAddToTemplate = (tab) => {
     severity: 'info',
     summary: '提示',
     detail: '请选择一个模板',
-    life: 3000
+    life: 3000,
   })
 }
 
@@ -242,7 +238,7 @@ const handleMenuAction = (action) => {
 .session-card {
   background: white;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  /* border: 1px solid #e5e7eb; */
   overflow: hidden;
   transition: all 0.2s;
 }
@@ -352,14 +348,14 @@ const handleMenuAction = (action) => {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s;
+  /* gap: 4px; */
+  /* opacity: 0;
+  transition: opacity 0.2s; */
 }
 
-.card-header:hover .header-actions {
+/* .card-header:hover .header-actions {
   opacity: 1;
-}
+} */
 
 .action-btn {
   display: flex;

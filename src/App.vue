@@ -1,42 +1,42 @@
 <template>
   <div class="app-container">
-    <!-- 顶部导航 -->
-    <nav class="app-navbar">
-      <div class="nav-brand">
-        <i class="pi pi-bookmark"></i>
-        <span>OneTabs</span>
-      </div>
-      
-      <!-- 搜索框 -->
-      <SearchBar ref="searchBarRef" @result-click="handleSearchResult" />
-      
-      <!-- 右侧操作 -->
-      <div class="nav-actions">
-        <button class="nav-btn" @click="showShortcutsHelp = true" title="快捷键帮助">
-          <i class="pi pi-question-circle"></i>
-        </button>
-        <button class="nav-btn" @click="goToSettings" title="设置">
-          <i class="pi pi-cog"></i>
-        </button>
-      </div>
-    </nav>
+    <!--    &lt;!&ndash; 顶部导航 &ndash;&gt;-->
+    <!--    <nav class="app-navbar">-->
+    <!--      <div class="nav-brand">-->
+    <!--        <i class="pi pi-bookmark"></i>-->
+    <!--        <span>OneTabs</span>-->
+    <!--      </div>-->
 
-    <!-- 路由视图 -->
+    <!--      &lt;!&ndash; 搜索框 &ndash;&gt;-->
+    <!--      <SearchBar ref="searchBarRef" @result-click="handleSearchResult" />-->
+
+    <!--      &lt;!&ndash; 右侧操作 &ndash;&gt;-->
+    <!--      <div class="nav-actions">-->
+    <!--        <button class="nav-btn" @click="showShortcutsHelp = true" title="快捷键帮助">-->
+    <!--          <i class="pi pi-question-circle"></i>-->
+    <!--        </button>-->
+    <!--        <button class="nav-btn" @click="goToSettings" title="设置">-->
+    <!--          <i class="pi pi-cog"></i>-->
+    <!--        </button>-->
+    <!--      </div>-->
+    <!--    </nav>-->
+
+    <!--    &lt;!&ndash; 路由视图 &ndash;&gt;-->
     <router-view />
 
-    <!-- Toast 通知组件 -->
-    <Toast />
-    
-    <!-- 确认对话框组件 -->
-    <ConfirmDialog />
-    
-    <!-- 快捷键帮助对话框 -->
-    <ShortcutsHelp v-model:visible="showShortcutsHelp" />
+    <!--    &lt;!&ndash; Toast 通知组件 &ndash;&gt;-->
+    <!--    <Toast />-->
+
+    <!--    &lt;!&ndash; 确认对话框组件 &ndash;&gt;-->
+    <!--    <ConfirmDialog />-->
+
+    <!--    &lt;!&ndash; 快捷键帮助对话框 &ndash;&gt;-->
+    <!--    <ShortcutsHelp v-model:visible="showShortcutsHelp" />-->
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -51,7 +51,7 @@ export default defineComponent({
     Toast,
     ConfirmDialog,
     SearchBar,
-    ShortcutsHelp
+    ShortcutsHelp,
   },
   setup() {
     const router = useRouter()
@@ -81,7 +81,7 @@ export default defineComponent({
       },
       TAB_TEMPLATES: () => {
         router.push('/?tab=templates')
-      }
+      },
     })
 
     const handleSearchResult = ({ type, item }) => {
@@ -96,9 +96,9 @@ export default defineComponent({
       searchBarRef,
       showShortcutsHelp,
       handleSearchResult,
-      goToSettings
+      goToSettings,
     }
-  }
+  },
 })
 </script>
 
