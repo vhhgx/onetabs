@@ -52,13 +52,20 @@ const isOver = ref(false)
 const dragData = ref(null)
 
 const isValidDrop = computed(() => {
-  if (!dragData.value || props.disabled) return false
+  if (props.disabled) return false
+  // 如果还没有解析到数据，默认假设有效（让用户继续拖拽）
+  if (!dragData.value) return true
   return props.acceptFrom.includes(dragData.value.sourceType)
 })
 
 const dropMessage = computed(() => {
-  if (!isValidDrop.value) {
+  if (dragData.value && !props.acceptFrom.includes(dragData.value.sourceType)) {
     return '不支持此操作'
+  }
+  
+  // 根据拖拽内容显示不同消息
+  if (dragData.value?.type === 'session') {
+    return props.targetType === 'collection' ? '添加会话到收藏集' : '添加会话到模板'
   }
   
   if (props.targetType === 'collection') {

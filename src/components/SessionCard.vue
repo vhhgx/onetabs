@@ -1,5 +1,10 @@
 <template>
-  <div :class="['session-card card-hover', { pinned: session.isPinned }]">
+  <div 
+    :class="['session-card card-hover', { pinned: session.isPinned, dragging: isDragging }]"
+    draggable="true"
+    @dragstart="handleSessionDragStart"
+    @dragend="handleSessionDragEnd"
+  >
     <!-- 卡片头部 -->
     <div class="card-header" @click="toggleExpanded" @contextmenu.prevent="handleContextMenu">
       <div class="header-left">
@@ -107,7 +112,39 @@ const confirm = useConfirm()
 const toast = useToast()
 
 const isExpanded = ref(true)
+const isDragging = ref(false)
 const { showContextMenu, contextMenuPosition, showMenu } = useContextMenu()
+
+// 处理整个会话的拖拽开始
+const handleSessionDragStart = (event) => {
+  isDragging.value = true
+  
+  // 设置拖拽数据 - 包含整个会话
+  const dragData = {
+    type: 'session',
+    sourceType: 'session',
+    sourceId: String(props.session.date),
+    session: {
+      date: props.session.date,
+      title: props.session.title,
+      type: props.session.type,
+      tabs: props.session.tabs,
+      groupInfo: props.session.groupInfo
+    }
+  }
+  
+  event.dataTransfer.effectAllowed = 'copy'
+  event.dataTransfer.setData('application/json', JSON.stringify(dragData))
+  event.dataTransfer.setData('text/plain', `Session: ${props.session.title}`)
+  
+  console.log('开始拖拽会话:', dragData)
+}
+
+// 处理拖拽结束
+const handleSessionDragEnd = () => {
+  isDragging.value = false
+  console.log('会话拖拽结束')
+}
 
 // 右键菜单配置
 const contextMenuItems = computed(() => {
@@ -115,9 +152,9 @@ const contextMenuItems = computed(() => {
 })
 
 // 切换展开状态
-// const toggleExpanded = () => {
-//   isExpanded.value = !isExpanded.value
-// }
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+}
 
 // 格式化时间
 const formatTime = (timestamp) => {
@@ -246,6 +283,20 @@ const handleMenuAction = (action) => {
 .session-card.pinned {
   border-color: #3b82f6;
   background: #eff6ff;
+}
+
+.session-card.dragging {
+  opacity: 0.6;
+  transform: scale(0.98);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.session-card[draggable="true"] {
+  cursor: grab;
+}
+
+.session-card[draggable="true"]:active {
+  cursor: grabbing;
 }
 
 /* 卡片头部 */

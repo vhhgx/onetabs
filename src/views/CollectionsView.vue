@@ -1,5 +1,20 @@
 <template>
-  <div class="collections-view">
+  <div 
+    class="collections-view"
+    :class="{ 'drag-over-empty': isDragOverEmpty }"
+    @dragover="handleGlobalDragOver"
+    @dragenter="handleGlobalDragEnter"
+    @dragleave="handleGlobalDragLeave"
+    @drop="handleGlobalDrop"
+  >
+    <!-- 全局拖放提示层 -->
+    <div v-if="isDragOverEmpty" class="global-drop-overlay">
+      <div class="global-drop-indicator">
+        <i class="pi pi-plus-circle"></i>
+        <span>释放以创建新收藏集</span>
+      </div>
+    </div>
+
     <div class="collections-container">
       <!-- 顶部操作栏 -->
       <div class="collections-header">
@@ -21,7 +36,7 @@
         v-if="!isLoading && collections.length === 0"
         icon="pi pi-folder"
         title="还没有收藏集"
-        description="创建收藏集来组织你常用的网站，方便快速访问"
+        description="创建收藏集来组织你常用的网站，方便快速访问。也可以从左侧拖拽会话到这里创建。"
       >
         <template #icon>
           <div style="font-size: 64px;">📁</div>
@@ -136,6 +151,10 @@ const isLoading = computed(() => collectionsStore.isLoading)
 const collections = computed(() => collectionsStore.getCollections)
 const showEditor = ref(false)
 const editingCollection = ref(null)
+
+// 拖放相关状态
+const isDragOverEmpty = ref(false)
+const dragEnterCounter = ref(0) // 用于追踪进入/离开事件
 
 // 颜色映射
 const getColorValue = (color) => {
@@ -349,24 +368,51 @@ const addMockCollection = async () => {
 
 // 处理拖放到收藏集
 const handleDropToCollection = async ({ dragData, targetId }) => {
+  // 阻止全局拖放处理
+  isDragOverEmpty.value = false
+  dragEnterCounter.value = 0
+  
   try {
-    console.log('拖放标签页到收藏集:', dragData.tab.title, '→', targetId)
-    
-    // 添加标签页到收藏集
-    await collectionsStore.addTab(targetId, {
-      title: dragData.tab.title,
-      url: dragData.tab.url,
-      favIconUrl: dragData.tab.favIconUrl || ''
-    })
-    
-    await collectionsStore.loadCollections()
-    
-    toast.add({
-      severity: 'success',
-      summary: '添加成功',
-      detail: `"${dragData.tab.title}" 已添加到收藏集`,
-      life: 3000
-    })
+    // 检查是否是整个会话的拖放
+    if (dragData.type === 'session' && dragData.session) {
+      console.log('拖放整个会话到收藏集:', dragData.session.title, '→', targetId)
+      
+      // 将会话的所有标签页添加到收藏集
+      for (const tab of dragData.session.tabs) {
+        await collectionsStore.addTab(targetId, {
+          title: tab.title,
+          url: tab.url,
+          favIconUrl: tab.favIconUrl || ''
+        })
+      }
+      
+      await collectionsStore.loadCollections()
+      
+      toast.add({
+        severity: 'success',
+        summary: '添加成功',
+        detail: `"${dragData.session.title}" 的 ${dragData.session.tabs.length} 个标签页已添加到收藏集`,
+        life: 3000
+      })
+    } else if (dragData.tab) {
+      console.log('拖放标签页到收藏集:', dragData.tab.title, '→', targetId)
+      
+      // 添加单个标签页到收藏集
+      await collectionsStore.addTab(targetId, {
+        title: dragData.tab.title,
+        url: dragData.tab.url,
+        favIconUrl: dragData.tab.favIconUrl || ''
+      })
+      
+      await collectionsStore.loadCollections()
+      
+      toast.add({
+        severity: 'success',
+        summary: '添加成功',
+        detail: `"${dragData.tab.title}" 已添加到收藏集`,
+        life: 3000
+      })
+    }
   } catch (error) {
     console.error('拖放到收藏集失败:', error)
     toast.add({
@@ -377,6 +423,135 @@ const handleDropToCollection = async ({ dragData, targetId }) => {
     })
   }
 }
+
+// 全局拖放处理 - 用于在空白区域创建新收藏集
+const handleGlobalDragOver = (event) => {
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'copy'
+}
+
+const handleGlobalDragEnter = (event) => {
+  event.preventDefault()
+  dragEnterCounter.value++
+  
+  // 检查是否是有效的拖放源
+  try {
+    // 注意：dragenter 时无法获取 getData，只能通过 types 判断
+    if (event.dataTransfer.types.includes('application/json')) {
+      isDragOverEmpty.value = true
+    }
+  } catch (error) {
+    console.warn('解析拖放数据失败:', error)
+  }
+}
+
+const handleGlobalDragLeave = (event) => {
+  dragEnterCounter.value--
+  
+  // 只有完全离开才重置状态
+  if (dragEnterCounter.value <= 0) {
+    isDragOverEmpty.value = false
+    dragEnterCounter.value = 0
+  }
+}
+
+const handleGlobalDrop = async (event) => {
+  event.preventDefault()
+  
+  // 重置状态
+  isDragOverEmpty.value = false
+  dragEnterCounter.value = 0
+  
+  // 检查是否落在某个 DropZone 内部（如果是，让 DropZone 处理）
+  const dropZone = event.target.closest('.drop-zone')
+  if (dropZone) {
+    console.log('拖放到 DropZone 内，由 DropZone 处理')
+    return
+  }
+  
+  try {
+    const jsonData = event.dataTransfer.getData('application/json')
+    if (!jsonData) {
+      console.warn('没有有效的拖放数据')
+      return
+    }
+    
+    const dragData = JSON.parse(jsonData)
+    console.log('全局拖放数据:', dragData)
+    
+    // 检查是否是整个会话的拖放
+    if (dragData.type === 'session' && dragData.session) {
+      await createCollectionFromSession(dragData.session)
+    } else if (dragData.tab) {
+      // 单个标签页 - 也创建新收藏集
+      await createCollectionFromTab(dragData.tab)
+    }
+  } catch (error) {
+    console.error('处理全局拖放失败:', error)
+    toast.add({
+      severity: 'error',
+      summary: '操作失败',
+      detail: error.message || '无法创建收藏集',
+      life: 3000
+    })
+  }
+}
+
+// 从会话创建新收藏集
+const createCollectionFromSession = async (session) => {
+  try {
+    const newCollection = {
+      title: session.title || `来自会话 ${new Date(session.date).toLocaleString('zh-CN')}`,
+      color: session.groupInfo?.color || 'blue',
+      tabs: session.tabs.map(tab => ({
+        title: tab.title,
+        url: tab.url,
+        favIconUrl: tab.favIconUrl || ''
+      }))
+    }
+    
+    await collectionsStore.createCollection(newCollection)
+    await collectionsStore.loadCollections()
+    
+    toast.add({
+      severity: 'success',
+      summary: '创建成功',
+      detail: `已从会话创建收藏集 "${newCollection.title}"，包含 ${session.tabs.length} 个标签页`,
+      life: 3000
+    })
+  } catch (error) {
+    console.error('从会话创建收藏集失败:', error)
+    throw error
+  }
+}
+
+// 从单个标签页创建新收藏集
+const createCollectionFromTab = async (tab) => {
+  try {
+    const newCollection = {
+      title: tab.title || '新收藏集',
+      color: 'blue',
+      tabs: [{
+        title: tab.title,
+        url: tab.url,
+        favIconUrl: tab.favIconUrl || ''
+      }]
+    }
+    
+    await collectionsStore.createCollection(newCollection)
+    await collectionsStore.loadCollections()
+    
+    toast.add({
+      severity: 'success',
+      summary: '创建成功',
+      detail: `已创建收藏集 "${newCollection.title}"`,
+      life: 3000
+    })
+  } catch (error) {
+    console.error('从标签页创建收藏集失败:', error)
+    throw error
+  }
+}
 </script>
 
 <style scoped>
@@ -384,6 +559,57 @@ const handleDropToCollection = async ({ dragData, targetId }) => {
   height: 100%;
   overflow: hidden;
   background: #f9fafb;
+  position: relative;
+}
+
+/* 全局拖放时的样式 */
+.collections-view.drag-over-empty {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.collections-view.drag-over-empty::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed #3b82f6;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* 全局拖放提示层 */
+.global-drop-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.global-drop-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 48px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.global-drop-indicator i {
+  font-size: 48px;
+  color: #3b82f6;
+}
+
+.global-drop-indicator span {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
 }
 
 .collections-container {
