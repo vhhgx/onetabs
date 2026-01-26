@@ -16,12 +16,12 @@
           <span class="required">*</span>
         </label>
         <InputText
-          v-model="formData.name"
+          v-model="formData.title"
           placeholder="请输入书签名称"
-          :class="{ 'p-invalid': errors.name }"
-          @input="clearError('name')"
+          :class="{ 'p-invalid': errors.title }"
+          @input="clearError('title')"
         />
-        <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+        <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
       </div>
 
       <!-- URL -->
@@ -89,7 +89,7 @@
           <Dropdown
             v-model="formData.firstLevel"
             :options="firstLevelCategories"
-            optionLabel="name"
+            optionLabel="title"
             optionValue="id"
             placeholder="选择一级分类"
             :class="{ 'p-invalid': errors.firstLevel }"
@@ -98,7 +98,7 @@
           <Dropdown
             v-model="formData.secondLevel"
             :options="secondLevelCategories"
-            optionLabel="name"
+            optionLabel="title"
             optionValue="id"
             placeholder="选择二级分类（可选）"
             :disabled="!formData.firstLevel"
@@ -107,7 +107,7 @@
           <Dropdown
             v-model="formData.thirdLevel"
             :options="thirdLevelCategories"
-            optionLabel="name"
+            optionLabel="title"
             optionValue="id"
             placeholder="选择三级分类（可选）"
             :disabled="!formData.secondLevel"
@@ -201,7 +201,7 @@ const errors = ref({})
 
 // 表单数据
 const formData = ref({
-  name: '',
+  title: '',
   url: '',
   description: '',
   favIconUrl: '',
@@ -233,7 +233,7 @@ const thirdLevelCategories = computed(() => {
 // 重置表单
 const resetForm = () => {
   formData.value = {
-    name: '',
+    title: '',
     url: '',
     description: '',
     favIconUrl: '',
@@ -253,7 +253,7 @@ watch(
   (newBookmark) => {
     if (newBookmark) {
       formData.value = {
-        name: newBookmark.name || '',
+        title: newBookmark.title || newBookmark.name || '',
         url: newBookmark.url || '',
         description: newBookmark.description || '',
         favIconUrl: newBookmark.favIconUrl || '',
@@ -350,8 +350,8 @@ const clearError = (field) => {
 const validateForm = () => {
   errors.value = {}
 
-  if (!formData.value.name.trim()) {
-    errors.value.name = '请输入书签名称'
+  if (!formData.value.title.trim()) {
+    errors.value.title = '请输入书签名称'
   }
 
   if (!formData.value.url.trim()) {
@@ -376,7 +376,7 @@ const handleSubmit = async () => {
   isSaving.value = true
   try {
     const bookmarkData = {
-      name: formData.value.name.trim(),
+      title: formData.value.title.trim(),
       url: formData.value.url.trim(),
       description: formData.value.description.trim(),
       favIconUrl: formData.value.favIconUrl || getFavIconUrl(formData.value.url),

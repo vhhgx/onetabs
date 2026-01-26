@@ -10,7 +10,7 @@
       <div class="bookmark-icon-wrapper">
         <img
           :src="bookmark.favIconUrl || defaultIcon"
-          :alt="bookmark.name"
+          :alt="bookmark.title"
           class="bookmark-icon"
           @error="handleIconError"
         />
@@ -23,7 +23,7 @@
 
       <!-- 书签信息 -->
       <div class="bookmark-content">
-        <h3 class="bookmark-name" :title="bookmark.name">{{ bookmark.name }}</h3>
+        <h3 class="bookmark-name" :title="bookmark.title">{{ bookmark.title }}</h3>
         <p v-if="showDescription && bookmark.description" class="bookmark-description">
           {{ bookmark.description }}
         </p>

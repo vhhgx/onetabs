@@ -33,7 +33,7 @@ export function parseGoogleBookmarks(htmlContent) {
     // 创建一级分类
     const firstLevelCategory = {
       id: generateId(),
-      name: rootFolderName,
+      title: rootFolderName,
       icon: 'folder',
       color: '#3b82f6',
       children: [],
@@ -71,7 +71,7 @@ function parseFolder(dl, parentCategory, bookmarks, level) {
         // 创建子分类 (二级或三级)
         const childCategory = {
           id: generateId(),
-          name: folderName,
+          title: folderName,
           icon: 'folder',
           color: level === 1 ? '#3b82f6' : '#6366f1',
           children: level === 2 ? [] : undefined,
@@ -104,7 +104,7 @@ function parseFolder(dl, parentCategory, bookmarks, level) {
 
       const bookmark = {
         id: generateId(),
-        name: name || url,
+        title: name || url,
         url: url,
         description: '',
         favIconUrl: getFavIconUrl(url), // 始终使用高质量图标服务
@@ -146,7 +146,7 @@ export async function importFromChromeApi() {
     if (rootNode.children) {
       const firstLevelCategory = {
         id: generateId(),
-        name: rootNode.title || 'Bookmarks',
+        title: rootNode.title || 'Bookmarks',
         icon: 'folder',
         color: '#3b82f6',
         children: [],
@@ -174,7 +174,7 @@ function parseChromeNode(nodes, parentCategory, bookmarks, level) {
       // 这是一个书签
       const bookmark = {
         id: generateId(),
-        name: node.title || node.url,
+        title: node.title || node.url,
         url: node.url,
         description: '',
         favIconUrl: getFavIconUrl(node.url),
@@ -192,7 +192,7 @@ function parseChromeNode(nodes, parentCategory, bookmarks, level) {
       if (level < 3) {
         const childCategory = {
           id: generateId(),
-          name: node.title || 'Unnamed',
+          title: node.title || 'Unnamed',
           icon: 'folder',
           color: level === 1 ? '#3b82f6' : '#6366f1',
           children: level === 2 ? [] : undefined,
@@ -243,7 +243,7 @@ export function mergeBookmarks(currentData, importedData, mode = 'merge') {
 
   // 收集现有的URL和分类名称
   currentData.bookmarks.forEach((category) => {
-    existingCategoryNames.add(category.name.toLowerCase())
+    existingCategoryNames.add(category.title.toLowerCase())
     collectBookmarkUrls(category, existingUrls)
   })
 
@@ -257,10 +257,10 @@ export function mergeBookmarks(currentData, importedData, mode = 'merge') {
   const categoriesWithBookmarks = assignBookmarksToCategories(importedData.categories, importedData.bookmarks)
 
   categoriesWithBookmarks.forEach((importedCategory) => {
-    const categoryNameLower = importedCategory.name.toLowerCase()
+    const categoryNameLower = importedCategory.title.toLowerCase()
 
     // 查找是否有同名分类
-    const existingCategory = mergedBookmarks.find((cat) => cat.name.toLowerCase() === categoryNameLower)
+    const existingCategory = mergedBookmarks.find((cat) => cat.title.toLowerCase() === categoryNameLower)
 
     if (existingCategory) {
       // 合并到现有分类
@@ -299,9 +299,9 @@ function assignBookmarksToCategories(categories, bookmarks) {
     // 找到属于当前分类的书签
     const categoryBookmarks = bookmarks.filter((b) => b.categoryId === category.id)
     if (categoryBookmarks.length > 0) {
-      category.bookmarks = categoryBookmarks
+      category.tabs = categoryBookmarks
     } else {
-      category.bookmarks = []
+      category.tabs = []
     }
 
     // 递归处理子分类
@@ -318,8 +318,8 @@ function assignBookmarksToCategories(categories, bookmarks) {
  * 收集分类及其子分类中的所有书签URL
  */
 function collectBookmarkUrls(category, urlSet) {
-  if (category.bookmarks) {
-    category.bookmarks.forEach((b) => urlSet.add(b.url.toLowerCase()))
+  if (category.tabs) {
+    category.tabs.forEach((b) => urlSet.add(b.url.toLowerCase()))
   }
   if (category.children) {
     category.children.forEach((child) => collectBookmarkUrls(child, urlSet))
@@ -330,7 +330,7 @@ function collectBookmarkUrls(category, urlSet) {
  * 递归统计分类中的书签数量
  */
 function countBookmarksInCategory(category) {
-  let count = category.bookmarks ? category.bookmarks.length : 0
+  let count = category.tabs ? category.tabs.length : 0
   if (category.children) {
     category.children.forEach((child) => {
       count += countBookmarksInCategory(child)
@@ -347,17 +347,17 @@ function mergeCategoryWithBookmarks(existingCategory, importedCategory, existing
   let skipped = 0
 
   // 添加不重复的书签
-  if (!existingCategory.bookmarks) {
-    existingCategory.bookmarks = []
+  if (!existingCategory.tabs) {
+    existingCategory.tabs = []
   }
 
-  if (importedCategory.bookmarks) {
-    importedCategory.bookmarks.forEach((bookmark) => {
+  if (importedCategory.tabs) {
+    importedCategory.tabs.forEach((bookmark) => {
       const urlLower = bookmark.url.toLowerCase()
       if (!existingUrls.has(urlLower)) {
         // 更新 categoryId 为现有分类的 id
         bookmark.categoryId = existingCategory.id
-        existingCategory.bookmarks.push(bookmark)
+        existingCategory.tabs.push(bookmark)
         existingUrls.add(urlLower)
         merged++
       } else {
@@ -373,8 +373,8 @@ function mergeCategoryWithBookmarks(existingCategory, importedCategory, existing
     }
 
     importedCategory.children.forEach((importedChild) => {
-      const childNameLower = importedChild.name.toLowerCase()
-      const existingChild = existingCategory.children.find((c) => c.name.toLowerCase() === childNameLower)
+      const childNameLower = importedChild.title.toLowerCase()
+      const existingChild = existingCategory.children.find((c) => c.title.toLowerCase() === childNameLower)
 
       if (existingChild) {
         const stats = mergeCategoryWithBookmarks(existingChild, importedChild, existingUrls)
@@ -403,8 +403,8 @@ function mergeCategory(existingCategory, importedCategory, allBookmarks, existin
   const importedBookmarks = allBookmarks.filter((b) => b.categoryId === importedCategory.id)
 
   // 添加不重复的书签
-  if (!existingCategory.bookmarks) {
-    existingCategory.bookmarks = []
+  if (!existingCategory.tabs) {
+    existingCategory.tabs = []
   }
 
   importedBookmarks.forEach((bookmark) => {
@@ -412,7 +412,7 @@ function mergeCategory(existingCategory, importedCategory, allBookmarks, existin
     if (!existingUrls.has(urlLower)) {
       // 更新 categoryId 为现有分类的 id
       bookmark.categoryId = existingCategory.id
-      existingCategory.bookmarks.push(bookmark)
+      existingCategory.tabs.push(bookmark)
       existingUrls.add(urlLower)
       merged++
     } else {
@@ -427,8 +427,8 @@ function mergeCategory(existingCategory, importedCategory, allBookmarks, existin
     }
 
     importedCategory.children.forEach((importedChild) => {
-      const childNameLower = importedChild.name.toLowerCase()
-      const existingChild = existingCategory.children.find((c) => c.name.toLowerCase() === childNameLower)
+      const childNameLower = importedChild.title.toLowerCase()
+      const existingChild = existingCategory.children.find((c) => c.title.toLowerCase() === childNameLower)
 
       if (existingChild) {
         const stats = mergeCategory(existingChild, importedChild, allBookmarks, existingUrls)

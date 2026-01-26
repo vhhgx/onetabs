@@ -84,7 +84,7 @@
             <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
             <div class="collection-info">
               <div class="collection-name">
-                {{ collection.name }}
+                {{ collection.title }}
                 <span v-if="collection.isReference" class="badge badge-ref" title="引用模式：使用收藏集最新数据">
                   <i class="pi pi-link"></i> 引用
                 </span>
@@ -226,7 +226,7 @@
           />
           <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
           <div class="collection-info">
-            <div class="collection-name">{{ collection.name }}</div>
+            <div class="collection-name">{{ collection.title }}</div>
             <div class="collection-meta">{{ collection.tabs.length }} 个标签页</div>
           </div>
         </div>
@@ -377,7 +377,7 @@ const addSelectedCollections = () => {
     if (!exists) {
       formData.collections.push({
         collectionId: collection.id,
-        name: collection.name,
+        title: collection.title,
         color: collection.color,
         createGroup: true,
         isReference: true, // 默认引用模式

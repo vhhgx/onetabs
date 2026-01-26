@@ -22,7 +22,7 @@
         @contextmenu.prevent="(e) => handleContextMenu(e, category)"
       >
         <i v-if="category.icon" :class="`${category.icon} tab-icon`"></i>
-        <span class="tab-name">{{ category.name }}</span>
+        <span class="tab-name">{{ category.title }}</span>
         <span class="tab-count">{{ getCategoryBookmarkCount(category.id) }}</span>
       </div>
 
@@ -126,8 +126,8 @@ const deleteCategory = (category) => {
   const bookmarkCount = getCategoryBookmarkCount(category.id)
   const message =
     bookmarkCount > 0
-      ? `该分类下有 ${bookmarkCount} 个书签，删除后书签也会被删除。确定要删除 "${category.name}" 吗？`
-      : `确定要删除分类 "${category.name}" 吗？`
+      ? `该分类下有 ${bookmarkCount} 个书签，删除后书签也会被删除。确定要删除 "${category.title}" 吗？`
+      : `确定要删除分类 "${category.title}" 吗？`
 
   confirm.require({
     message,

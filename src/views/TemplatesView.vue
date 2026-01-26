@@ -110,7 +110,7 @@
                         class="collection-color-mini"
                         :style="{ backgroundColor: getColorValue(collection.color) }"
                       ></div>
-                      <span class="collection-name-mini">{{ collection.name }}</span>
+                      <span class="collection-name-mini">{{ collection.title }}</span>
                       <span class="collection-count-mini">({{ collection.tabs?.length || 0 }})</span>
                       <span v-if="collection.isReference" class="badge-tiny badge-ref">引用</span>
                       <span v-else class="badge-tiny badge-snapshot">快照</span>

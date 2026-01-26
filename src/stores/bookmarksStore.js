@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage.js'
 import errorHandler from '../utils/errorHandler.js'
+import { migrateBookmarksData } from '../utils/dataMigration.js'
 
 const STORAGE_KEY = 'onetabs_bookmarks'
 
@@ -84,15 +85,15 @@ export const useBookmarksStore = defineStore('bookmarks', {
       const firstLevel = state.bookmarks.find((cat) => cat.id === first)
       if (!firstLevel) return []
 
-      // 递归收集所有书签
+      // 递归收集所有书签 (tabs 数组)
       const collectAllBookmarks = (category) => {
-        let bookmarks = [...(category.bookmarks || [])]
+        let items = [...(category.tabs || [])]
         if (category.children) {
           category.children.forEach((child) => {
-            bookmarks = bookmarks.concat(collectAllBookmarks(child))
+            items = items.concat(collectAllBookmarks(child))
           })
         }
-        return bookmarks
+        return items
       }
 
       // 如果只有一级分类，返回该分类及其所有子分类的书签
@@ -111,7 +112,7 @@ export const useBookmarksStore = defineStore('bookmarks', {
 
       // 查找三级分类
       const thirdLevel = secondLevel.children?.find((cat) => cat.id === third)
-      return thirdLevel?.bookmarks || []
+      return thirdLevel?.tabs || []
     },
 
     /**
@@ -135,8 +136,8 @@ export const useBookmarksStore = defineStore('bookmarks', {
       const countBookmarks = (categories) => {
         let count = 0
         for (const cat of categories) {
-          if (cat.bookmarks) {
-            count += cat.bookmarks.length
+          if (cat.tabs) {
+            count += cat.tabs.length
           }
           if (cat.children) {
             count += countBookmarks(cat.children)
@@ -181,18 +182,18 @@ export const useBookmarksStore = defineStore('bookmarks', {
         for (const cat of categories) {
           const currentPath = [...path, cat]
 
-          // 搜索当前分类的书签
-          if (cat.bookmarks) {
-            for (const bookmark of cat.bookmarks) {
-              const matchName = bookmark.name?.toLowerCase().includes(searchText)
+          // 搜索当前分类的书签 (tabs 数组)
+          if (cat.tabs) {
+            for (const bookmark of cat.tabs) {
+              const matchTitle = bookmark.title?.toLowerCase().includes(searchText)
               const matchUrl = bookmark.url?.toLowerCase().includes(searchText)
               const matchDesc = bookmark.description?.toLowerCase().includes(searchText)
               const matchTags = bookmark.tags?.some((tag) => tag.toLowerCase().includes(searchText))
 
-              if (matchName || matchUrl || matchDesc || matchTags) {
+              if (matchTitle || matchUrl || matchDesc || matchTags) {
                 results.push({
                   ...bookmark,
-                  categoryPath: currentPath.map((c) => ({ id: c.id, name: c.name })),
+                  categoryPath: currentPath.map((c) => ({ id: c.id, title: c.title })),
                 })
               }
             }
@@ -244,7 +245,12 @@ export const useBookmarksStore = defineStore('bookmarks', {
       this.isLoading = true
       try {
         const result = await chromeStorageGet(STORAGE_KEY)
-        const data = result[STORAGE_KEY] // 正确获取嵌套的数据
+        let data = result[STORAGE_KEY] // 正确获取嵌套的数据
+
+        // 迁移旧数据到新结构
+        if (data) {
+          data = migrateBookmarksData(data)
+        }
 
         if (data && this.validateBookmarksData(data)) {
           this.bookmarks = data.bookmarks || []
@@ -256,6 +262,9 @@ export const useBookmarksStore = defineStore('bookmarks', {
           if (this.bookmarks.length > 0 && !this.currentFirstLevel) {
             this.currentFirstLevel = this.bookmarks[0].id
           }
+
+          // 保存迁移后的数据
+          await this.saveBookmarks()
         } else {
           // 首次运行，初始化默认数据
           await this.initializeWithDefaults()
@@ -300,19 +309,19 @@ export const useBookmarksStore = defineStore('bookmarks', {
       this.bookmarks = [
         {
           id: `cat-${Date.now()}-1`,
-          name: '常用网站',
+          title: '常用网站',
           icon: 'pi-star',
           color: '#3b82f6',
           children: [
             {
               id: `cat-${Date.now()}-1-1`,
-              name: '搜索引擎',
+              title: '搜索引擎',
               icon: 'pi-search',
               children: [],
-              bookmarks: [
+              tabs: [
                 {
                   id: `bookmark-${Date.now()}-1`,
-                  name: 'Google',
+                  title: 'Google',
                   url: 'https://www.google.com',
                   description: '全球最大的搜索引擎',
                   favIconUrl: 'https://www.google.com/favicon.ico',
@@ -324,7 +333,7 @@ export const useBookmarksStore = defineStore('bookmarks', {
               ],
             },
           ],
-          bookmarks: [],
+          tabs: [],
         },
       ]
 
@@ -367,11 +376,11 @@ export const useBookmarksStore = defineStore('bookmarks', {
       try {
         const newCategory = {
           id: this.generateId('cat'),
-          name: category.name,
+          title: category.title || category.name,
           icon: category.icon || 'pi-folder',
           color: category.color || '#3b82f6',
           children: [],
-          bookmarks: [],
+          tabs: [],
         }
 
         this.bookmarks.push(newCategory)
@@ -395,10 +404,10 @@ export const useBookmarksStore = defineStore('bookmarks', {
 
         const newCategory = {
           id: this.generateId('cat'),
-          name: category.name,
+          title: category.title || category.name,
           icon: category.icon || 'pi-folder-open',
           children: [],
-          bookmarks: [],
+          tabs: [],
         }
 
         if (!firstLevel.children) {
@@ -431,9 +440,9 @@ export const useBookmarksStore = defineStore('bookmarks', {
 
         const newCategory = {
           id: this.generateId('cat'),
-          name: category.name,
+          title: category.title || category.name,
           icon: category.icon || 'pi-folder-open',
-          bookmarks: [],
+          tabs: [],
         }
 
         if (!secondLevel.children) {
@@ -538,7 +547,7 @@ export const useBookmarksStore = defineStore('bookmarks', {
         // 创建新书签
         const newBookmark = {
           id: this.generateId('bookmark'),
-          name: bookmark.name,
+          title: bookmark.title || bookmark.name,
           url: bookmark.url,
           description: bookmark.description || '',
           favIconUrl: bookmark.favIconUrl || this.generateFavIconUrl(bookmark.url),
@@ -546,14 +555,14 @@ export const useBookmarksStore = defineStore('bookmarks', {
           sourceGroup: bookmark.sourceGroup || '手动添加',
           createdAt: Date.now(),
           visitCount: 0,
-          pinned: false,
-          favorite: false,
+          isPinned: false,
+          isFavorite: false,
         }
 
-        if (!targetCategory.bookmarks) {
-          targetCategory.bookmarks = []
+        if (!targetCategory.tabs) {
+          targetCategory.tabs = []
         }
-        targetCategory.bookmarks.push(newBookmark)
+        targetCategory.tabs.push(newBookmark)
 
         await this.saveBookmarks()
         return newBookmark
@@ -571,8 +580,8 @@ export const useBookmarksStore = defineStore('bookmarks', {
         // 递归查找书签
         const findBookmark = (categories) => {
           for (const cat of categories) {
-            if (cat.bookmarks) {
-              const bookmark = cat.bookmarks.find((b) => b.id === bookmarkId)
+            if (cat.tabs) {
+              const bookmark = cat.tabs.find((b) => b.id === bookmarkId)
               if (bookmark) return bookmark
             }
             if (cat.children) {
@@ -592,7 +601,7 @@ export const useBookmarksStore = defineStore('bookmarks', {
         await this.saveBookmarks()
         return bookmark
       } catch (error) {
-        errorHandler.handleError(error, 'bookmarksStore.addBookmark')
+        errorHandler.handleError(error, 'bookmarksStore.updateBookmark')
         throw error
       }
     },
@@ -605,10 +614,10 @@ export const useBookmarksStore = defineStore('bookmarks', {
         // 递归删除函数
         const removeBookmark = (categories) => {
           for (const cat of categories) {
-            if (cat.bookmarks) {
-              const index = cat.bookmarks.findIndex((b) => b.id === bookmarkId)
+            if (cat.tabs) {
+              const index = cat.tabs.findIndex((b) => b.id === bookmarkId)
               if (index !== -1) {
-                cat.bookmarks.splice(index, 1)
+                cat.tabs.splice(index, 1)
                 return true
               }
             }
@@ -644,8 +653,8 @@ export const useBookmarksStore = defineStore('bookmarks', {
     findBookmarkById(bookmarkId) {
       const findInCategories = (categories) => {
         for (const cat of categories) {
-          if (cat.bookmarks) {
-            const bookmark = cat.bookmarks.find((b) => b.id === bookmarkId)
+          if (cat.tabs) {
+            const bookmark = cat.tabs.find((b) => b.id === bookmarkId)
             if (bookmark) return bookmark
           }
           if (cat.children) {
@@ -775,8 +784,8 @@ export const useBookmarksStore = defineStore('bookmarks', {
         this.favoriteBookmarks = []
 
         const collectBookmarks = (category) => {
-          if (category.bookmarks) {
-            category.bookmarks.forEach((bookmark) => {
+          if (category.tabs) {
+            category.tabs.forEach((bookmark) => {
               if (bookmark.isPinned) {
                 this.pinnedBookmarks.push(bookmark)
               }

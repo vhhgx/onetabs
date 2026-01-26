@@ -23,11 +23,11 @@
         >
           <img
             :src="bookmark.favIconUrl || defaultIcon"
-            :alt="bookmark.name"
+            :alt="bookmark.title"
             class="pinned-icon"
             @error="handleIconError"
           />
-          <span class="pinned-name" :title="bookmark.name">{{ bookmark.name }}</span>
+          <span class="pinned-name" :title="bookmark.title">{{ bookmark.title }}</span>
           <button class="unpin-btn" @click.stop="unpinBookmark(bookmark)" title="取消固定">
             <i class="pi pi-times"></i>
           </button>
@@ -82,7 +82,7 @@ const openBookmark = (bookmark) => {
     toast.add({
       severity: 'success',
       summary: '已打开',
-      detail: bookmark.name,
+      detail: bookmark.title,
       life: 2000,
     })
   }
@@ -91,7 +91,7 @@ const openBookmark = (bookmark) => {
 // 取消固定书签
 const unpinBookmark = (bookmark) => {
   confirm.require({
-    message: `确定要取消固定 "${bookmark.name}" 吗？`,
+    message: `确定要取消固定 "${bookmark.title}" 吗？`,
     header: '取消固定',
     icon: 'pi pi-question-circle',
     accept: async () => {

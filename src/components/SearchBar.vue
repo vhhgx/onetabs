@@ -201,7 +201,7 @@ const performSearch = () => {
   // 搜索收藏集
   const collections = collectionsStore.collections
     .filter(collection => {
-      const matchName = collection.name?.toLowerCase().includes(query)
+      const matchName = collection.title?.toLowerCase().includes(query)
       const matchTabs = collection.tabs?.some(tab =>
         tab.title?.toLowerCase().includes(query) ||
         tab.url?.toLowerCase().includes(query)

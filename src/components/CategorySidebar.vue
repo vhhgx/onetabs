@@ -29,7 +29,7 @@
               <i :class="expandedNodes.has(secondLevel.id) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
             </button>
             <i v-if="secondLevel.icon" :class="`${secondLevel.icon} category-icon`"></i>
-            <span class="category-name">{{ secondLevel.name }}</span>
+            <span class="category-name">{{ secondLevel.title }}</span>
             <span class="bookmark-count">{{ getSecondLevelCount(secondLevel.id) }}</span>
           </div>
 
@@ -46,7 +46,7 @@
               @contextmenu.prevent="(e) => handleContextMenu(e, thirdLevel, 3)"
             >
               <i v-if="thirdLevel.icon" :class="`${thirdLevel.icon} category-icon`"></i>
-              <span class="category-name">{{ thirdLevel.name }}</span>
+              <span class="category-name">{{ thirdLevel.title }}</span>
               <span class="bookmark-count">{{ getThirdLevelCount(thirdLevel.id) }}</span>
             </div>
           </div>
@@ -79,10 +79,10 @@
         :key="secondLevel.id"
         :class="['collapsed-item', { active: currentSecondLevel === secondLevel.id }]"
         @click="selectSecondLevel(secondLevel.id)"
-        :title="secondLevel.name"
+        :title="secondLevel.title"
       >
         <i v-if="secondLevel.icon" :class="`${secondLevel.icon}`"></i>
-        <span v-else>{{ secondLevel.name.charAt(0) }}</span>
+        <span v-else>{{ secondLevel.title.charAt(0) }}</span>
       </div>
       <div v-if="secondLevelCategories.length > 5" class="collapsed-item more">
         <span>+{{ secondLevelCategories.length - 5 }}</span>
@@ -221,8 +221,8 @@ const deleteCategory = (category, level) => {
   const bookmarkCount = countGetter(category.id)
   const message =
     bookmarkCount > 0
-      ? `该分类下有 ${bookmarkCount} 个书签，删除后书签也会被删除。确定要删除 "${category.name}" 吗？`
-      : `确定要删除分类 "${category.name}" 吗？`
+      ? `该分类下有 ${bookmarkCount} 个书签，删除后书签也会被删除。确定要删除 "${category.title}" 吗？`
+      : `确定要删除分类 "${category.title}" 吗？`
 
   confirm.require({
     message,

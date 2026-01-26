@@ -14,12 +14,12 @@
       <div class="form-group">
         <label class="form-label">收藏集名称</label>
         <InputText 
-          v-model="formData.name" 
+          v-model="formData.title" 
           placeholder="输入收藏集名称"
           class="form-input"
-          :class="{ 'input-error': errors.name }"
+          :class="{ 'input-error': errors.title }"
         />
-        <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
+        <span v-if="errors.title" class="error-message">{{ errors.title }}</span>
       </div>
 
       <!-- 颜色选择 -->
@@ -214,21 +214,21 @@ const draggedIndex = ref(null)
 
 // 表单数据
 const formData = reactive({
-  name: '',
+  title: '',
   color: 'blue',
   tabs: []
 })
 
 // 错误信息
 const errors = reactive({
-  name: ''
+  title: ''
 })
 
 // 计算属性
 const isEditMode = computed(() => !!props.collection)
 
 const isValid = computed(() => {
-  return formData.name.trim().length > 0
+  return formData.title.trim().length > 0
 })
 
 // 监听 visible 变化
@@ -247,16 +247,16 @@ watch(isVisible, (newVal) => {
 const initForm = () => {
   if (props.collection) {
     // 编辑模式
-    formData.name = props.collection.name
+    formData.title = props.collection.title
     formData.color = props.collection.color
     formData.tabs = [...props.collection.tabs]
   } else {
     // 创建模式
-    formData.name = ''
+    formData.title = ''
     formData.color = 'blue'
     formData.tabs = []
   }
-  errors.name = ''
+  errors.title = ''
   showManualInput.value = false
   showTabSelector.value = false
   manualUrl.value = ''
@@ -374,10 +374,10 @@ const handleDrop = (targetIndex) => {
 
 // 验证表单
 const validateForm = () => {
-  errors.name = ''
+  errors.title = ''
 
-  if (!formData.name.trim()) {
-    errors.name = '请输入收藏集名称'
+  if (!formData.title.trim()) {
+    errors.title = '请输入收藏集名称'
     return false
   }
 
@@ -402,7 +402,7 @@ const handleSave = async () => {
   isSaving.value = true
   try {
     const data = {
-      name: formData.name.trim(),
+      title: formData.title.trim(),
       color: formData.color,
       tabs: formData.tabs.map((tab, index) => ({
         ...tab,

@@ -16,12 +16,12 @@
           <span class="required">*</span>
         </label>
         <InputText
-          v-model="formData.name"
+          v-model="formData.title"
           placeholder="请输入分类名称"
-          :class="{ 'p-invalid': errors.name }"
-          @input="clearError('name')"
+          :class="{ 'p-invalid': errors.title }"
+          @input="clearError('title')"
         />
-        <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+        <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
       </div>
 
       <!-- 父级分类（仅二级和三级） -->
@@ -33,7 +33,7 @@
         <Dropdown
           v-model="formData.parentId"
           :options="parentCategories"
-          optionLabel="name"
+          optionLabel="title"
           optionValue="id"
           :placeholder="`选择${categoryLevel === 2 ? '一级' : '二级'}分类`"
           :class="{ 'p-invalid': errors.parentId }"
@@ -223,7 +223,7 @@ const colorOptions = [
 
 // 表单数据
 const formData = ref({
-  name: '',
+  title: '',
   parentId: null,
   icon: '',
   color: '#3b82f6',
@@ -258,7 +258,7 @@ watch(
     if (isVisible) {
       if (newCategory) {
         formData.value = {
-          name: newCategory.name || '',
+          title: newCategory.title || '',
           parentId: newCategory.parentId || presetParentId.value || null,
           icon: newCategory.icon || '',
           color: newCategory.color || '#3b82f6',
@@ -281,7 +281,7 @@ const resetForm = () => {
     (categoryLevel.value === 3 ? bookmarksStore.getCurrentSecondLevel : null)
 
   formData.value = {
-    name: '',
+    title: '',
     parentId: defaultParentId,
     icon: '',
     color: '#3b82f6',
@@ -310,8 +310,8 @@ const clearError = (field) => {
 const validateForm = () => {
   errors.value = {}
 
-  if (!formData.value.name.trim()) {
-    errors.value.name = '请输入分类名称'
+  if (!formData.value.title.trim()) {
+    errors.value.title = '请输入分类名称'
   }
 
   if (categoryLevel.value > 1 && !formData.value.parentId) {
@@ -330,7 +330,7 @@ const handleSubmit = async () => {
   isSaving.value = true
   try {
     const categoryData = {
-      name: formData.value.name.trim(),
+      title: formData.value.title.trim(),
       icon: formData.value.icon,
       color: formData.value.color,
       description: formData.value.description.trim(),

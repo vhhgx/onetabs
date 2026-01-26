@@ -150,7 +150,7 @@
             class="category-item"
           >
             <i :class="category.icon || 'pi pi-folder'"></i>
-            <span>{{ category.name }}</span>
+            <span>{{ category.title }}</span>
             <span class="bookmark-count">
               ({{ getCategoryBookmarkCount(category) }})
             </span>
@@ -383,8 +383,8 @@ function calculateDuplicates(importedData) {
   // 收集现有书签的URL
   function collectUrls(categories) {
     categories.forEach((cat) => {
-      if (cat.bookmarks) {
-        cat.bookmarks.forEach((b) => existingUrls.add(b.url.toLowerCase()))
+      if (cat.tabs) {
+        cat.tabs.forEach((b) => existingUrls.add(b.url.toLowerCase()))
       }
       if (cat.children) {
         collectUrls(cat.children)

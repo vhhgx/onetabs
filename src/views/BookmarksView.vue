@@ -193,8 +193,8 @@ const displayedBookmarks = computed(() => {
     const allBookmarks = []
     bookmarksStore.bookmarks.forEach((category) => {
       const collectAllBookmarks = (cat) => {
-        if (cat.bookmarks) {
-          allBookmarks.push(...cat.bookmarks)
+        if (cat.tabs) {
+          allBookmarks.push(...cat.tabs)
         }
         if (cat.children) {
           cat.children.forEach((child) => collectAllBookmarks(child))
@@ -214,15 +214,15 @@ const getCurrentCategoryName = (categoryId, level = 1) => {
 
   if (level === 1) {
     const category = firstLevelCategories.value.find((c) => c.id === categoryId)
-    return category ? category.name : ''
+    return category ? category.title : ''
   } else if (level === 2) {
     const secondLevels = bookmarksStore.getSecondLevelCategories(currentFirstLevel.value)
     const category = secondLevels.find((c) => c.id === categoryId)
-    return category ? category.name : ''
+    return category ? category.title : ''
   } else if (level === 3) {
     const thirdLevels = bookmarksStore.getThirdLevelCategories(currentFirstLevel.value, currentSecondLevel.value)
     const category = thirdLevels.find((c) => c.id === categoryId)
-    return category ? category.name : ''
+    return category ? category.title : ''
   }
   return ''
 }
@@ -245,7 +245,7 @@ const openBookmark = (bookmark) => {
     toast.add({
       severity: 'success',
       summary: '已打开',
-      detail: bookmark.name,
+      detail: bookmark.title,
       life: 2000,
     })
   }
@@ -326,7 +326,7 @@ const handleEditBookmark = (bookmark) => {
 // 处理删除书签
 const handleDeleteBookmark = (bookmark) => {
   confirm.require({
-    message: `确定要删除书签 "${bookmark.name}" 吗？`,
+    message: `确定要删除书签 "${bookmark.title}" 吗？`,
     header: '删除确认',
     icon: 'pi pi-exclamation-triangle',
     acceptClass: 'p-button-danger',

@@ -13,7 +13,7 @@
         <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
         
         <div class="collection-info">
-          <h3 class="collection-name">{{ collection.name }}</h3>
+          <h3 class="collection-name">{{ collection.title }}</h3>
           <span class="collection-meta">{{ collection.tabs.length }} 个标签页</span>
         </div>
       </div>
@@ -22,9 +22,9 @@
         <button 
           class="action-btn btn-press" 
           @click="handlePin" 
-          :title="collection.pinned ? '取消置顶' : '置顶'"
+          :title="collection.isPinned ? '取消置顶' : '置顶'"
         >
-          <i :class="collection.pinned ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"></i>
+          <i :class="collection.isPinned ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"></i>
         </button>
         <button class="action-btn btn-press" @click="handleOpen" title="在新窗口打开">
           <i class="pi pi-external-link"></i>
@@ -154,7 +154,7 @@ const handleEdit = () => {
 
 const handleDelete = () => {
   confirm.require({
-    message: `确定要删除收藏集 "${props.collection.name}" 吗？此操作无法撤销。`,
+    message: `确定要删除收藏集 "${props.collection.title}" 吗？此操作无法撤销。`,
     header: '删除确认',
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: '取消',

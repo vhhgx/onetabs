@@ -71,7 +71,7 @@
               :style="{ borderColor: getColorValue(collection.color) }"
             >
               <span class="tag-color" :style="{ backgroundColor: getColorValue(collection.color) }"></span>
-              {{ collection.name }}
+              {{ collection.title }}
               <span class="tag-badge">{{ collection.tabs?.length || 0 }}</span>
             </span>
           </TransitionGroup>

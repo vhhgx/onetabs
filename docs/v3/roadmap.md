@@ -2,8 +2,8 @@
 
 **项目**: OneTabs Chrome扩展 - 书签管理系统  
 **开发模式**: 分阶段迭代开发  
-**文档版本**: 1.0.0  
-**最后更新**: 2026年1月21日
+**文档版本**: 1.0.1  
+**最后更新**: 2026年1月26日
 
 ---
 
@@ -11,9 +11,9 @@
 
 | 阶段 | 优先级 | 目标 | 预计周期 | 状态 |
 |------|--------|------|----------|------|
-| **P0** | 最高 | 核心数据层和基础框架 | 1周 | ⏳ 待开始 |
-| **P1** | 高 | 核心UI组件和交互 | 1-2周 | ⏳ 待开始 |
-| **P2** | 中 | 高级功能和增强 | 2-3周 | ⏳ 待开始 |
+| **P0** | 最高 | 核心数据层和基础框架 | 1周 | ✅ 已完成 |
+| **P1** | 高 | 核心UI组件和交互 | 1-2周 | ✅ 已完成 |
+| **P2** | 中 | 高级功能和增强 | 2-3周 | 🚧 进行中 |
 | **P3** | 低 | 扩展功能和优化 | 按需迭代 | ⏳ 待规划 |
 
 ---
@@ -21,160 +21,163 @@
 ## 🎯 P0 - 核心基础功能（最高优先级）
 
 **开发周期**: 1周  
-**前置依赖**: 无
+**前置依赖**: 无  
+**状态**: ✅ 已完成
 
 ### 关键里程碑
-- [ ] bookmarksStore 完整实现
-- [ ] 数据持久化机制建立
-- [ ] 三级分类CRUD功能完成
-- [ ] 书签CRUD功能完成
-- [ ] 固定书签功能完成
+- [x] bookmarksStore 完整实现
+- [x] 数据持久化机制建立
+- [x] 三级分类CRUD功能完成
+- [x] 书签CRUD功能完成
+- [x] 固定书签功能完成
 
 ### 详细任务
 
 #### 1. 数据层实现
-- [ ] **bookmarksStore 状态管理**
-  - [ ] 创建 `src/stores/bookmarksStore.js`
-  - [ ] 定义核心 state（bookmarks、pinnedBookmarks、favoriteBookmarks等）
-  - [ ] 实现基础 getters（分类、书签查询）
-  - [ ] 数据持久化（loadBookmarks、saveBookmarks）
+- [x] **bookmarksStore 状态管理**
+  - [x] 创建 `src/stores/bookmarksStore.js`
+  - [x] 定义核心 state（bookmarks、pinnedBookmarks、favoriteBookmarks等）
+  - [x] 实现基础 getters（分类、书签查询）
+  - [x] 数据持久化（loadBookmarks、saveBookmarks）
 
-- [ ] **核心CRUD Actions**
-  - [ ] 分类操作（添加、更新、删除三个层级）
-  - [ ] 书签操作（添加、更新、删除）
-  - [ ] 固定书签操作（固定、取消固定）
+- [x] **核心CRUD Actions**
+  - [x] 分类操作（添加、更新、删除三个层级）
+  - [x] 书签操作（添加、更新、删除）
+  - [x] 固定书签操作（固定、取消固定）
 
 #### 2. 工具函数
-- [ ] **URL工具** (`src/utils/urlValidator.js`)
-  - [ ] URL验证和格式化
-  - [ ] 域名提取
-  - [ ] Favicon URL生成
+- [x] **URL工具** (`src/utils/urlValidator.js`)
+  - [x] URL验证和格式化
+  - [x] 域名提取
+  - [x] Favicon URL生成
 
 #### 3. 路由配置
-- [ ] 添加 `/bookmarks` 路由
-- [ ] 配置路由元信息
+- [x] 添加 `/bookmarks` 路由（通过HomeView的tab切换实现）
+- [x] 配置路由元信息
 
 #### 4. 数据验证和错误处理
-- [ ] 数据格式验证函数
-- [ ] 错误日志集成
+- [x] 数据格式验证函数
+- [x] 错误日志集成
 
 ---
 
 ## 🎨 P1 - 核心UI组件（高优先级）
 
 **开发周期**: 1-2周  
-**前置依赖**: P0完成
+**前置依赖**: P0完成  
+**状态**: ✅ 已完成
 
 ### 关键里程碑
-- [ ] BookmarksView 主页面完成
-- [ ] 固定书签栏实现
-- [ ] 书签卡片组件完成
-- [ ] 分类管理UI完成
-- [ ] 编辑对话框实现
+- [x] BookmarksView 主页面完成
+- [x] 固定书签栏实现
+- [x] 书签卡片组件完成
+- [x] 分类管理UI完成
+- [x] 编辑对话框实现
 
 ### 详细任务
 
 #### 1. 主视图页面
-- [ ] **BookmarksView** (`src/views/BookmarksView.vue`)
-  - [ ] 整体布局实现（固定栏、分类导航、书签展示区）
-  - [ ] 导航状态管理（一级/二级/三级切换）
-  - [ ] 响应式设计
+- [x] **BookmarksView** (`src/views/BookmarksView.vue`)
+  - [x] 整体布局实现（固定栏、分类导航、书签展示区）
+  - [x] 导航状态管理（一级/二级/三级切换）
+  - [x] 响应式设计
 
 #### 2. 固定书签栏
-- [ ] **PinnedBookmarksBar** (`src/components/PinnedBookmarksBar.vue`)
-  - [ ] 横向滚动书签栏
-  - [ ] 拖拽排序功能
-  - [ ] 右键菜单集成
+- [x] **PinnedBookmarksBar** (`src/components/PinnedBookmarksBar.vue`)
+  - [x] 横向滚动书签栏
+  - [x] 拖拽排序功能（通过右键菜单）
+  - [x] 右键菜单集成
 
 #### 3. 书签卡片
-- [ ] **BookmarkCard** (`src/components/BookmarkCard.vue`)
-  - [ ] 卡片UI设计（图标、名称、描述、标签）
-  - [ ] 状态显示（固定、收藏）
-  - [ ] 交互功能（点击打开、右键菜单）
-  - [ ] 动画效果
+- [x] **BookmarkCard** (`src/components/BookmarkCard.vue`)
+  - [x] 卡片UI设计（图标、名称、描述、标签）
+  - [x] 状态显示（固定、收藏）
+  - [x] 交互功能（点击打开、右键菜单）
+  - [x] 动画效果
 
 #### 4. 分类管理
-- [ ] **CategoryTabs** (`src/components/CategoryTabs.vue`) - 一级分类标签栏
-- [ ] **CategorySidebar** (`src/components/CategorySidebar.vue`) - 二级/三级分类侧边栏
-- [ ] **CategoryDialog** (`src/components/CategoryDialog.vue`) - 分类编辑对话框
+- [x] **CategoryTabs** (`src/components/CategoryTabs.vue`) - 一级分类标签栏
+- [x] **CategorySidebar** (`src/components/CategorySidebar.vue`) - 二级/三级分类侧边栏
+- [x] **CategoryDialog** (`src/components/CategoryDialog.vue`) - 分类编辑对话框
 
 #### 5. 书签编辑
-- [ ] **BookmarkDialog** (`src/components/BookmarkDialog.vue`)
-  - [ ] 表单实现（名称、URL、描述、标签）
-  - [ ] URL验证
-  - [ ] 图标预览
+- [x] **BookmarkDialog** (`src/components/BookmarkDialog.vue`)
+  - [x] 表单实现（名称、URL、描述、标签）
+  - [x] URL验证
+  - [x] 图标预览
 
 #### 6. 通用组件
-- [ ] 空状态组件
-- [ ] Toast通知集成
-- [ ] 确认对话框集成
-- [ ] 加载状态处理
+- [x] 空状态组件
+- [x] Toast通知集成
+- [x] 确认对话框集成
+- [x] 加载状态处理
 
 #### 7. 右键菜单
-- [ ] 扩展 `src/utils/contextMenus.js`
-- [ ] 书签右键菜单
-- [ ] 分类右键菜单
+- [x] 扩展 `src/utils/contextMenus.js`
+- [x] 书签右键菜单
+- [x] 分类右键菜单
 
 #### 8. 主题和样式
-- [ ] CSS变量适配
-- [ ] 亮色/暗色主题支持
-- [ ] 响应式布局
+- [x] CSS变量适配
+- [x] 亮色/暗色主题支持
+- [x] 响应式布局
 
 ---
 
 ## 🚀 P2 - 高级功能（中优先级）
 
 **开发周期**: 2-3周  
-**前置依赖**: P0 + P1完成
+**前置依赖**: P0 + P1完成  
+**状态**: 🚧 进行中
 
 ### 关键里程碑
-- [ ] Chrome书签导入完成
-- [ ] 全局搜索实现
-- [ ] 书签收藏功能完成
+- [x] Chrome书签导入完成
+- [x] 全局搜索实现
+- [x] 书签收藏功能完成
 - [ ] 批量操作实现
 - [ ] 浏览器书签同步完成
 
 ### 详细任务
 
 #### 1. Chrome书签导入
-- [ ] **bookmarkImporter工具** (`src/utils/bookmarkImporter.js`)
-  - [ ] HTML文件解析（parseGoogleBookmarks）
-  - [ ] chrome.bookmarks API集成
-  - [ ] 数据格式转换
+- [x] **bookmarkImporter工具** (`src/utils/bookmarkImporter.js`)
+  - [x] HTML文件解析（parseGoogleBookmarks）
+  - [x] chrome.bookmarks API集成
+  - [x] 数据格式转换
 
-- [ ] **ImportBookmarks组件** (`src/components/ImportBookmarks.vue`)
-  - [ ] 导入对话框UI
-  - [ ] 文件选择和上传
-  - [ ] 导入模式选择（合并/替换）
-  - [ ] 进度显示和结果报告
+- [x] **ImportBookmarks组件** (`src/components/ImportBookmarks.vue`)
+  - [x] 导入对话框UI
+  - [x] 文件选择和上传
+  - [x] 导入模式选择（合并/替换）
+  - [x] 进度显示和结果报告
 
-- [ ] **bookmarksStore导入actions**
-  - [ ] importFromChromeHtml
-  - [ ] importFromChromeApi
-  - [ ] mergeBookmarks
+- [x] **bookmarksStore导入actions**
+  - [x] importFromChromeHtml（通过importBookmarks实现）
+  - [x] importFromChromeApi（通过replaceAllBookmarks实现）
+  - [x] mergeBookmarks
 
-- [ ] **manifest.json权限**
-  - [ ] 添加 bookmarks 权限
+- [x] **manifest.json权限**
+  - [x] 添加 bookmarks 权限
 
 #### 2. 书签搜索
-- [ ] **SearchBar组件** (`src/components/SearchBar.vue`)
-  - [ ] 搜索框UI
-  - [ ] 实时搜索（防抖）
-  - [ ] 快捷键支持（Ctrl+F）
+- [x] **SearchBar组件** (`src/components/BookmarkSearchBar.vue`)
+  - [x] 搜索框UI
+  - [x] 实时搜索（防抖）
+  - [x] 快捷键支持
 
-- [ ] **searchBookmarks getter**
-  - [ ] 全文搜索逻辑
-  - [ ] 多字段搜索（名称、URL、描述、标签）
+- [x] **searchBookmarks getter**
+  - [x] 全文搜索逻辑
+  - [x] 多字段搜索（名称、URL、描述、标签）
 
-- [ ] **搜索结果展示**
-  - [ ] 搜索结果视图
-  - [ ] 关键词高亮
-  - [ ] 无结果提示
+- [x] **搜索结果展示**
+  - [x] 搜索结果视图
+  - [x] 关键词高亮
+  - [x] 无结果提示
 
 #### 3. 书签收藏
-- [ ] **收藏状态管理**
-  - [ ] favoriteBookmark action
-  - [ ] unfavoriteBookmark action
+- [x] **收藏状态管理**
+  - [x] favoriteBookmark action
+  - [x] unfavoriteBookmark action
   - [ ] reorderFavoriteBookmarks action
 
 - [ ] **FavoriteBookmarksSection组件** (`src/components/FavoriteBookmarksSection.vue`)
@@ -182,9 +185,9 @@
   - [ ] 折叠/展开功能
   - [ ] 拖拽排序
 
-- [ ] **BookmarkCard收藏功能**
-  - [ ] 收藏按钮（⭐图标）
-  - [ ] 右键菜单收藏选项
+- [x] **BookmarkCard收藏功能**
+  - [x] 收藏按钮（⭐图标）
+  - [x] 右键菜单收藏选项
 
 - [ ] **设置项**
   - [ ] 收藏相关设置（显示、展开、数量限制等）
@@ -228,8 +231,9 @@
   - [ ] 双向同步支持
 
 #### 6. 高级过滤
-- [ ] **FilterPanel组件** (`src/components/FilterPanel.vue`)
-  - [ ] 按标签过滤
+- [x] **FilterPanel组件**（在BookmarkSearchBar中集成）
+  - [x] 按标签过滤
+  - [x] 按收藏状态过滤
   - [ ] 按来源过滤
   - [ ] 按日期范围过滤
   - [ ] 按访问次数排序
@@ -352,24 +356,24 @@
 
 ### P0进度（基础数据层）
 - 总任务数: 约30个
-- 已完成: 0
+- 已完成: 30
 - 进行中: 0
-- 待开始: 30
-- 完成度: 0%
+- 待开始: 0
+- 完成度: 100% ✅
 
 ### P1进度（核心UI）
 - 总任务数: 约40个
-- 已完成: 0
+- 已完成: 40
 - 进行中: 0
-- 待开始: 40
-- 完成度: 0%
+- 待开始: 0
+- 完成度: 100% ✅
 
 ### P2进度（高级功能）
 - 总任务数: 约60个
-- 已完成: 0
-- 进行中: 0
-- 待开始: 60
-- 完成度: 0%
+- 已完成: 约25
+- 进行中: 5
+- 待开始: 约30
+- 完成度: 约42%
 
 ### P3进度（增强功能）
 - 总任务数: 约80个
@@ -382,9 +386,9 @@
 
 ## 🎯 当前开发阶段
 
-**当前阶段**: 准备开始P0  
-**下一里程碑**: bookmarksStore完整实现  
-**预计完成时间**: 1周后
+**当前阶段**: P2 高级功能  
+**下一里程碑**: 批量操作和浏览器书签同步  
+**已完成功能**: Chrome书签导入、全局搜索、书签收藏基础功能
 
 ---
 

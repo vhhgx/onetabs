@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
 import { errorHandler } from '../utils/errorHandler'
+import { migrateCollectionsData } from '../utils/dataMigration.js'
 
 /**
  * Collections Store - 管理标签页组（收藏集）
@@ -27,12 +28,12 @@ export const useCollectionsStore = defineStore('collections', {
     /**
      * 获取置顶的标签页组
      */
-    getPinnedCollections: (state) => state.collections.filter((c) => c.pinned),
+    getPinnedCollections: (state) => state.collections.filter((c) => c.isPinned),
 
     /**
      * 获取非置顶的标签页组
      */
-    getUnpinnedCollections: (state) => state.collections.filter((c) => !c.pinned),
+    getUnpinnedCollections: (state) => state.collections.filter((c) => !c.isPinned),
 
     /**
      * 根据ID获取标签页组
@@ -119,9 +120,13 @@ export const useCollectionsStore = defineStore('collections', {
           }
         }
         
-        this.collections = collectionsList
+        // 迁移旧数据到新结构
+        this.collections = migrateCollectionsData(collectionsList)
         console.log('加载的标签页组数量:', this.collections.length)
         this.lastLoaded = new Date().toISOString()
+        
+        // 保存迁移后的数据
+        await this.saveCollections()
       } catch (error) {
         errorHandler.handleStorageError(error, '加载收藏集失败')
         this.collections = []
@@ -152,12 +157,12 @@ export const useCollectionsStore = defineStore('collections', {
       try {
         const newCollection = {
           id: `collection_${Date.now()}`,
-          name: data.name || '未命名标签页组',
+          title: data.title || data.name || '未命名标签页组',
           color: data.color || 'blue',
           icon: data.icon || '',
           createdAt: Date.now(),
           updatedAt: Date.now(),
-          pinned: data.pinned || false,
+          isPinned: data.isPinned || data.pinned || false,
           tabs: data.tabs || [],
         }
         
@@ -184,11 +189,13 @@ export const useCollectionsStore = defineStore('collections', {
           throw new Error('标签页组不存在')
         }
         
-        // 更新数据
-        if (data.name !== undefined) collection.name = data.name
+        // 更新数据 (title 兼容 name)
+        if (data.title !== undefined) collection.title = data.title
+        else if (data.name !== undefined) collection.title = data.name
         if (data.color !== undefined) collection.color = data.color
         if (data.icon !== undefined) collection.icon = data.icon
-        if (data.pinned !== undefined) collection.pinned = data.pinned
+        if (data.isPinned !== undefined) collection.isPinned = data.isPinned
+        else if (data.pinned !== undefined) collection.isPinned = data.pinned
         if (data.tabs !== undefined) collection.tabs = data.tabs
         
         collection.updatedAt = Date.now()
@@ -354,7 +361,7 @@ export const useCollectionsStore = defineStore('collections', {
           inBackground = false,
         } = options
         
-        console.log('打开标签页组:', collection.name, options)
+        console.log('打开标签页组:', collection.title, options)
         
         if (inNewWindow) {
           // 在新窗口打开
@@ -383,7 +390,7 @@ export const useCollectionsStore = defineStore('collections', {
             const tabIds = createdTabs.map((t) => t.id)
             const groupId = await chrome.tabs.group({ tabIds })
             await chrome.tabGroups.update(groupId, {
-              title: collection.name,
+              title: collection.title,
               color: collection.color,
             })
           }
@@ -408,7 +415,7 @@ export const useCollectionsStore = defineStore('collections', {
             const tabIds = createdTabs.map((t) => t.id)
             const groupId = await chrome.tabs.group({ tabIds })
             await chrome.tabGroups.update(groupId, {
-              title: collection.name,
+              title: collection.title,
               color: collection.color,
             })
           }
@@ -438,20 +445,20 @@ export const useCollectionsStore = defineStore('collections', {
           throw new Error('标签页组不存在')
         }
         
-        collection.pinned = !collection.pinned
+        collection.isPinned = !collection.isPinned
         collection.updatedAt = Date.now()
         
         // 重新排序：置顶的在前
         this.collections.sort((a, b) => {
-          if (a.pinned && !b.pinned) return -1
-          if (!a.pinned && b.pinned) return 1
+          if (a.isPinned && !b.isPinned) return -1
+          if (!a.isPinned && b.isPinned) return 1
           return b.createdAt - a.createdAt
         })
         
         await this.saveCollections()
         console.log('标签页组置顶状态切换成功')
         
-        return collection.pinned
+        return collection.isPinned
       } catch (error) {
         console.error('切换置顶失败:', error)
         throw error

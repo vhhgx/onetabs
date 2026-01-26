@@ -68,10 +68,10 @@
             :style="{ backgroundColor: getColorValue(collection.color) }"
           ></div>
           <div class="collection-info">
-            <div class="collection-name">{{ collection.name }}</div>
+            <div class="collection-name">{{ collection.title }}</div>
             <div class="collection-meta">
               <span>{{ collection.tabs.length }} 个标签页</span>
-              <span v-if="collection.pinned" class="pinned-badge">
+              <span v-if="collection.isPinned" class="pinned-badge">
                 <i class="pi pi-bookmark-fill"></i>
                 置顶
               </span>
@@ -170,7 +170,7 @@ const filteredCollections = computed(() => {
   
   const query = searchQuery.value.toLowerCase()
   return allCollections.value.filter(collection => 
-    collection.name?.toLowerCase().includes(query)
+    collection.title?.toLowerCase().includes(query)
   )
 })
 

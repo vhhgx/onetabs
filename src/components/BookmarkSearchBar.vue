@@ -53,12 +53,12 @@
             >
               <img :src="bookmark.favIconUrl" class="bookmark-favicon" @error="handleImageError" />
               <div class="bookmark-info">
-                <div class="bookmark-name" v-html="highlightMatch(bookmark.name)"></div>
+                <div class="bookmark-name" v-html="highlightMatch(bookmark.title)"></div>
                 <div class="bookmark-url">{{ formatUrl(bookmark.url) }}</div>
                 <div v-if="bookmark.categoryPath" class="bookmark-path">
                   <i class="pi pi-folder"></i>
                   <span v-for="(cat, idx) in bookmark.categoryPath" :key="cat.id">
-                    {{ cat.name }}<span v-if="idx < bookmark.categoryPath.length - 1"> / </span>
+                    {{ cat.title }}<span v-if="idx < bookmark.categoryPath.length - 1"> / </span>
                   </span>
                 </div>
               </div>
@@ -261,9 +261,9 @@ function getAllBookmarks() {
   const allBookmarks = []
   const collectBookmarks = (categories, path = []) => {
     categories.forEach((cat) => {
-      const currentPath = [...path, { id: cat.id, name: cat.name }]
-      if (cat.bookmarks) {
-        cat.bookmarks.forEach((b) => {
+      const currentPath = [...path, { id: cat.id, title: cat.title }]
+      if (cat.tabs) {
+        cat.tabs.forEach((b) => {
           allBookmarks.push({
             ...b,
             categoryPath: currentPath,

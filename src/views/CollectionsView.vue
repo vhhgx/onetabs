@@ -64,13 +64,13 @@
                 </div>
                 <div class="collection-color" :style="{ backgroundColor: getColorValue(collection.color) }"></div>
                 <div class="collection-info">
-                  <h3 class="collection-name">{{ collection.name }}</h3>
+                  <h3 class="collection-name">{{ collection.title }}</h3>
                   <span class="collection-meta">{{ collection.tabs.length }} 个标签页</span>
                 </div>
               </div>
               <div class="header-actions">
-                <button class="action-btn" @click="togglePin(collection.id)" :title="collection.pinned ? '取消置顶' : '置顶'">
-                  <i :class="collection.pinned ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"></i>
+                <button class="action-btn" @click="togglePin(collection.id)" :title="collection.isPinned ? '取消置顶' : '置顶'">
+                  <i :class="collection.isPinned ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"></i>
                 </button>
                 <button class="action-btn" @click="openCollection(collection.id)" title="打开">
                   <i class="pi pi-external-link"></i>
@@ -306,7 +306,7 @@ const togglePin = async (id) => {
 const addMockCollection = async () => {
   try {
     const mockData = {
-      name: '工作常用网站',
+      title: '工作常用网站',
       color: ['blue', 'green', 'purple', 'orange'][Math.floor(Math.random() * 4)],
       tabs: [
         {
