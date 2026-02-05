@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage.js'
 import errorHandler from '../utils/errorHandler.js'
 import { migrateBookmarksData } from '../utils/dataMigration.js'
+import { extractDomain } from '../utils/faviconCache'
 
 const STORAGE_KEY = 'onetabs_bookmarks'
 
@@ -550,7 +551,7 @@ export const useBookmarksStore = defineStore('bookmarks', {
           title: bookmark.title || bookmark.name,
           url: bookmark.url,
           description: bookmark.description || '',
-          favIconUrl: bookmark.favIconUrl || this.generateFavIconUrl(bookmark.url),
+          domain: bookmark.domain || extractDomain(bookmark.url),
           tags: bookmark.tags || [],
           sourceGroup: bookmark.sourceGroup || '手动添加',
           createdAt: Date.now(),

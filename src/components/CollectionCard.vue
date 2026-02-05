@@ -42,15 +42,14 @@
     <Transition name="expand">
       <div v-show="isExpanded" class="card-body">
         <TransitionGroup name="list" tag="div" class="tabs-list">
-          <div 
-            v-for="(tab, index) in collection.tabs" 
+          <div
+            v-for="(tab, index) in collection.tabs"
             :key="tab.id || index"
             class="tab-item card-hover"
             @click="openTab(tab.url)"
           >
-            <img 
-              v-if="tab.favIconUrl" 
-              :src="tab.favIconUrl" 
+            <img
+              :src="getTabIcon(tab)"
               class="tab-favicon"
               @error="(e) => e.target.style.display = 'none'"
             />
@@ -88,6 +87,7 @@ import { useToast } from 'primevue/usetoast'
 import ContextMenu from './ContextMenu.vue'
 import { getCollectionContextMenu } from '../utils/contextMenus'
 import { useContextMenu } from '../composables/useContextMenu'
+import { getTabFaviconSync } from '../composables/useFavicon'
 
 const props = defineProps({
   collection: {
@@ -97,6 +97,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['pin', 'open', 'open-current', 'edit', 'delete', 'duplicate', 'add-to-template', 'remove-tab'])
+
+// 获取标签页图标
+const getTabIcon = (tab) => {
+  return getTabFaviconSync(tab)
+}
 
 const confirm = useConfirm()
 const toast = useToast()

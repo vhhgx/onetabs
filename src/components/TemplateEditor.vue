@@ -148,14 +148,13 @@
         </div>
 
         <div v-if="formData.standaloneTabs.length > 0" class="tabs-list">
-          <div 
-            v-for="(tab, index) in formData.standaloneTabs" 
+          <div
+            v-for="(tab, index) in formData.standaloneTabs"
             :key="index"
             class="tab-item"
           >
-            <img 
-              v-if="tab.favIconUrl" 
-              :src="tab.favIconUrl" 
+            <img
+              :src="getTabIcon(tab)"
               class="tab-favicon"
               @error="(e) => e.target.style.display = 'none'"
             />
@@ -255,6 +254,12 @@ import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
 import { useCollectionsStore } from '@/stores/collectionsStore'
+import { getTabFaviconSync, extractDomain } from '@/composables/useFavicon'
+
+// 获取标签页图标
+const getTabIcon = (tab) => {
+  return getTabFaviconSync(tab)
+}
 
 const props = defineProps({
   visible: {
@@ -450,7 +455,7 @@ const addStandaloneTab = () => {
   formData.standaloneTabs.push({
     title: url,
     url: url,
-    favIconUrl: `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`,
+    domain: extractDomain(url),
     pinned: false
   })
 

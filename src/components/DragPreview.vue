@@ -12,9 +12,9 @@
         </div>
 
         <!-- 图标 -->
-        <img 
-          v-if="tabData.favIconUrl" 
-          :src="tabData.favIconUrl" 
+        <img
+          v-if="faviconUrl"
+          :src="faviconUrl"
           class="preview-icon"
           @error="(e) => e.target.style.display = 'none'"
         />
@@ -34,6 +34,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { getTabFaviconSync } from '../composables/useFavicon'
 
 const props = defineProps({
   visible: {
@@ -59,6 +60,11 @@ const props = defineProps({
 })
 
 const isVisible = computed(() => props.visible)
+
+// 获取 favicon URL
+const faviconUrl = computed(() => {
+  return getTabFaviconSync(props.tabData)
+})
 
 // 预览样式（跟随鼠标）
 const previewStyle = computed(() => ({

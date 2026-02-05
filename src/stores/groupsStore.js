@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
+import { extractDomain } from '../utils/faviconCache'
 
 /**
  * Groups Store - 管理永久工作空间
@@ -149,7 +150,7 @@ export const useGroupsStore = defineStore('groups', {
         id: `tab-${Date.now()}`,
         url: tab.url,
         title: tab.title,
-        favIconUrl: tab.favIconUrl,
+        domain: tab.domain || extractDomain(tab.url),
         addedAt: new Date().toISOString()
       })
 

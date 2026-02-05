@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '@/utils/chrome-storage'
 import { useCollectionsStore } from './collectionsStore'
 import { errorHandler } from '../utils/errorHandler'
+import { extractDomain } from '@/utils/faviconCache'
 const STORAGE_KEY = 'onetabs_templates'
 
 export const useTemplatesStore = defineStore('templates', {
@@ -167,7 +168,7 @@ export const useTemplatesStore = defineStore('templates', {
               tabs: groupTabs.map(tab => ({
                 title: tab.title,
                 url: tab.url,
-                favIconUrl: tab.favIconUrl,
+                domain: extractDomain(tab.url),
                 pinned: tab.pinned,
                 order: tab.index
               }))
@@ -184,7 +185,7 @@ export const useTemplatesStore = defineStore('templates', {
           standaloneTabs.push({
             title: tab.title,
             url: tab.url,
-            favIconUrl: tab.favIconUrl,
+            domain: extractDomain(tab.url),
             pinned: tab.pinned
           })
         }

@@ -22,7 +22,7 @@
           @contextmenu.prevent="(e) => handleContextMenu(e, bookmark)"
         >
           <img
-            :src="bookmark.favIconUrl || defaultIcon"
+            :src="getBookmarkIcon(bookmark)"
             :alt="bookmark.title"
             class="pinned-icon"
             @error="handleIconError"
@@ -43,6 +43,7 @@ import { useBookmarksStore } from '../stores/bookmarksStore'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useContextMenu } from '../composables/useContextMenu'
+import { getTabFaviconSync } from '../composables/useFavicon'
 
 const bookmarksStore = useBookmarksStore()
 const toast = useToast()
@@ -57,7 +58,12 @@ const props = defineProps({
 })
 
 const isExpanded = ref(false)
-const defaultIcon = 'https://www.google.com/favicon.ico'
+const defaultIcon = '/icons/icon16.png'
+
+// 获取书签图标
+const getBookmarkIcon = (bookmark) => {
+  return getTabFaviconSync(bookmark)
+}
 
 // 固定的书签列表
 const pinnedBookmarks = computed(() => bookmarksStore.getPinnedBookmarks)

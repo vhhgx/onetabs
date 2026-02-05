@@ -86,9 +86,8 @@
               :key="tab.id || index"
               class="tab-preview-item card-hover"
             >
-              <img 
-                v-if="tab.favIconUrl" 
-                :src="tab.favIconUrl" 
+              <img
+                :src="getTabIcon(tab)"
                 class="tab-favicon"
                 @error="(e) => e.target.style.display = 'none'"
               />
@@ -117,6 +116,7 @@ import { useToast } from 'primevue/usetoast'
 import ContextMenu from './ContextMenu.vue'
 import { getTemplateContextMenu } from '../utils/contextMenus'
 import { useContextMenu } from '../composables/useContextMenu'
+import { getTabFaviconSync } from '../composables/useFavicon'
 
 const props = defineProps({
   template: {
@@ -126,6 +126,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['open', 'edit', 'duplicate', 'delete', 'export'])
+
+// 获取标签页图标
+const getTabIcon = (tab) => {
+  return getTabFaviconSync(tab)
+}
 
 const confirm = useConfirm()
 const toast = useToast()

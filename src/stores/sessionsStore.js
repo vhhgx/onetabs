@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
 import { errorHandler } from '../utils/errorHandler'
+import { migrateSessionsData, needsMigration } from '../utils/dataMigration'
 
 /**
  * Sessions Store - 管理会话收纳数据
@@ -78,7 +79,16 @@ export const useSessionsStore = defineStore('sessions', {
             sessionsList = data
           }
         }
-        
+
+        // 应用数据迁移（favIconUrl -> domain）
+        if (needsMigration(sessionsList, 'sessions')) {
+          console.log('[Sessions] 检测到旧数据格式，开始迁移...')
+          sessionsList = migrateSessionsData(sessionsList)
+          // 保存迁移后的数据
+          await chromeStorageSet('tabGroups', sessionsList)
+          console.log('[Sessions] 数据迁移完成并已保存')
+        }
+
         this.sessions = sessionsList
         console.log('加载的会话数量:', this.sessions.length)
         this.lastLoaded = new Date().toISOString()

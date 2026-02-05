@@ -9,7 +9,7 @@
       <!-- 网站图标 -->
       <div class="bookmark-icon-wrapper">
         <img
-          :src="bookmark.favIconUrl || defaultIcon"
+          :src="faviconUrl"
           :alt="bookmark.title"
           class="bookmark-icon"
           @error="handleIconError"
@@ -68,8 +68,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { extractDomain } from '../utils/urlValidator'
+import { getTabFaviconSync } from '../composables/useFavicon'
 
 const props = defineProps({
   bookmark: {
@@ -84,7 +85,16 @@ const props = defineProps({
 
 const emit = defineEmits(['click', 'pin', 'favorite', 'edit', 'delete', 'contextmenu'])
 
-const defaultIcon = 'https://www.google.com/favicon.ico'
+const defaultIcon = '/icons/icon16.png'
+const iconError = ref(false)
+
+// 获取 favicon URL（兼容新旧数据结构）
+const faviconUrl = computed(() => {
+  if (iconError.value) {
+    return defaultIcon
+  }
+  return getTabFaviconSync(props.bookmark)
+})
 
 // 显示的URL（只显示域名）
 const displayUrl = computed(() => {
@@ -123,8 +133,8 @@ const handleDelete = () => {
 }
 
 // 图标加载失败
-const handleIconError = (event) => {
-  event.target.src = defaultIcon
+const handleIconError = () => {
+  iconError.value = true
 }
 </script>
 

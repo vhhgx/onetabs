@@ -1,3 +1,67 @@
+// ============= Favicon 缓存工具函数 =============
+
+const FAVICON_CACHE_KEY = 'favicon_cache'
+const GOOGLE_FAVICON_URL = 'https://www.google.com/s2/favicons'
+const DEFAULT_ICON_SIZE = 64
+
+/**
+ * 从 URL 提取域名
+ */
+function extractDomain(url) {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.hostname
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * 生成 Google Favicon 服务 URL
+ */
+function generateGoogleFaviconUrl(domain, size = DEFAULT_ICON_SIZE) {
+  if (!domain) return ''
+  return `${GOOGLE_FAVICON_URL}?domain=${domain}&sz=${size}`
+}
+
+/**
+ * 批量缓存标签页的 favicon
+ * @param {Array} tabs - Chrome 标签页数组
+ * @returns {Promise<void>}
+ */
+async function cacheFavicons(tabs) {
+  try {
+    // 获取现有缓存
+    const result = await chrome.storage.local.get([FAVICON_CACHE_KEY])
+    const cache = result[FAVICON_CACHE_KEY] || {}
+
+    let hasChanges = false
+
+    for (const tab of tabs) {
+      if (!tab || !tab.url) continue
+
+      const domain = extractDomain(tab.url)
+      if (!domain) continue
+
+      // 如果 Chrome 提供了 favIconUrl 且缓存中没有，则缓存
+      if (tab.favIconUrl && !cache[domain]) {
+        cache[domain] = tab.favIconUrl
+        hasChanges = true
+      }
+    }
+
+    // 保存缓存
+    if (hasChanges) {
+      await chrome.storage.local.set({ [FAVICON_CACHE_KEY]: cache })
+      console.log('Favicon 缓存已更新:', Object.keys(cache).length, '个域名')
+    }
+  } catch (error) {
+    console.error('缓存 favicon 失败:', error)
+  }
+}
+
+// ============= 主逻辑 =============
+
 // 当用户点击插件图标时
 chrome.action.onClicked.addListener(async () => {
   await saveTabs()
@@ -32,13 +96,16 @@ async function saveTabs() {
 
   // 获取当前窗口中的所有标签页
   const allTabs = await chrome.tabs.query({ windowId: currentWindow.id })
-  
+
   // 根据 keepPinned 设置过滤标签页
   let tabs = allTabs
   if (settings.keepPinned) {
     tabs = allTabs.filter(tab => !tab.pinned)
     console.log(`保留 ${allTabs.length - tabs.length} 个固定标签页`)
   }
+
+  // 缓存所有标签页的 favicon
+  await cacheFavicons(tabs)
 
   // 先检查每个标签所属的分组ID
   let groupedTabsExist = false
@@ -126,7 +193,7 @@ async function saveTabs() {
       const tabInfo = {
         url: tab.url,
         title: tab.title,
-        favIconUrl: tab.favIconUrl || '',
+        domain: extractDomain(tab.url),
         groupId: tab.groupId,
       }
 
@@ -156,7 +223,7 @@ async function saveTabs() {
           groupTabs.push({
             url: tab.url,
             title: tab.title,
-            favIconUrl: tab.favIconUrl || '',
+            domain: extractDomain(tab.url),
             groupId: tab.groupId,
           })
         }

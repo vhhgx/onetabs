@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
 import { errorHandler } from '../utils/errorHandler'
 import { migrateCollectionsData } from '../utils/dataMigration.js'
+import { extractDomain } from '../utils/faviconCache'
 
 /**
  * Collections Store - 管理标签页组（收藏集）
@@ -247,7 +248,7 @@ export const useCollectionsStore = defineStore('collections', {
         const newTab = {
           title: tabData.title || '未命名标签页',
           url: tabData.url,
-          favIconUrl: tabData.favIconUrl || '',
+          domain: tabData.domain || extractDomain(tabData.url),
           order: collection.tabs.length,
         }
         

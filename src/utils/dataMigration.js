@@ -1,26 +1,46 @@
 /**
  * Data Migration Utility
  * Unify Sessions, Bookmarks, Collections data structures
+ * v2.1.0: favIconUrl -> domain migration
  */
 
-const DATA_VERSION = '2.0.0'
+const DATA_VERSION = '2.1.0'
 
 function generateId(prefix = 'item') {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
+ * Extract domain from URL
+ */
+function extractDomainFromUrl(url) {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.hostname
+  } catch {
+    return ''
+  }
+}
+
+/**
  * Migrate single tab/bookmark item
  * name -> title, pinned -> isPinned, favorite -> isFavorite
+ * favIconUrl -> domain (v2.1.0)
  */
 export function migrateTabItem(tab) {
   if (!tab) return tab
+
+  // Extract domain from URL or favIconUrl
+  let domain = tab.domain
+  if (!domain && tab.url) {
+    domain = extractDomainFromUrl(tab.url)
+  }
 
   return {
     id: tab.id || generateId('tab'),
     title: tab.title || tab.name || '',
     url: tab.url || '',
-    favIconUrl: tab.favIconUrl || '',
+    domain: domain || '',
     description: tab.description || '',
     tags: tab.tags || [],
     sourceGroup: tab.sourceGroup || '',
@@ -160,7 +180,71 @@ export function needsMigration(data, type = 'bookmarks') {
     }
   }
 
+  if (type === 'sessions') {
+    if (Array.isArray(data) && data.length > 0) {
+      // Check if any tab has favIconUrl instead of domain
+      return data.some((session) => {
+        if (session.tabs && session.tabs.length > 0) {
+          return session.tabs.some((tab) => tab.favIconUrl !== undefined && tab.domain === undefined)
+        }
+        return false
+      })
+    }
+  }
+
   return false
+}
+
+/**
+ * Migrate session tab item (simpler structure)
+ * favIconUrl -> domain
+ */
+export function migrateSessionTab(tab) {
+  if (!tab) return tab
+
+  let domain = tab.domain
+  if (!domain && tab.url) {
+    domain = extractDomainFromUrl(tab.url)
+  }
+
+  return {
+    url: tab.url || '',
+    title: tab.title || '',
+    domain: domain || '',
+    groupId: tab.groupId,
+  }
+}
+
+/**
+ * Migrate sessions data (tabGroups from background.js)
+ * favIconUrl -> domain for all tabs
+ */
+export function migrateSessionsData(sessions) {
+  if (!sessions || !Array.isArray(sessions)) {
+    return []
+  }
+
+  // Check if migration is needed
+  const needsMigrationCheck = sessions.some((session) => {
+    if (session.tabs && session.tabs.length > 0) {
+      return session.tabs.some((tab) => tab.favIconUrl !== undefined && tab.domain === undefined)
+    }
+    return false
+  })
+
+  if (!needsMigrationCheck) {
+    return sessions
+  }
+
+  console.log('[Migration] Starting sessions data migration (favIconUrl -> domain)...')
+
+  const migrated = sessions.map((session) => ({
+    ...session,
+    tabs: (session.tabs || []).map((tab) => migrateSessionTab(tab)),
+  }))
+
+  console.log('[Migration] Sessions data migration completed')
+  return migrated
 }
 
 export { DATA_VERSION }

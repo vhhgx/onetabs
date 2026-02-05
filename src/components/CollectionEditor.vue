@@ -79,9 +79,8 @@
             <div class="tab-drag-handle">
               <i class="pi pi-bars"></i>
             </div>
-            <img 
-              v-if="tab.favIconUrl" 
-              :src="tab.favIconUrl" 
+            <img
+              :src="getTabIcon(tab)"
               class="tab-favicon"
               @error="(e) => e.target.style.display = 'none'"
             />
@@ -173,6 +172,12 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import { useToast } from 'primevue/usetoast'
+import { getTabFaviconSync, extractDomain } from '../composables/useFavicon'
+
+// 获取标签页图标
+const getTabIcon = (tab) => {
+  return getTabFaviconSync(tab)
+}
 
 const props = defineProps({
   visible: {
@@ -296,7 +301,7 @@ const addSelectedTabs = () => {
       formData.tabs.push({
         title: tab.title,
         url: tab.url,
-        favIconUrl: tab.favIconUrl
+        domain: extractDomain(tab.url)
       })
     }
   })
@@ -340,7 +345,7 @@ const addManualUrl = () => {
   formData.tabs.push({
     title: url,
     url: url,
-    favIconUrl: `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`
+    domain: extractDomain(url)
   })
 
   manualUrl.value = ''

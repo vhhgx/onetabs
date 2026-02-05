@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { chromeStorageGet, chromeStorageSet } from '../utils/chrome-storage'
+import { extractDomain } from '../utils/faviconCache'
 
 export const useTabsStore = defineStore('tabs', {
   state: () => ({
@@ -52,7 +53,7 @@ export const useTabsStore = defineStore('tabs', {
             id: tab.id,
             url: tab.url,
             title: tab.title,
-            favIconUrl: tab.favIconUrl,
+            domain: extractDomain(tab.url),
           }))
 
           this.tabs = [...this.tabs, ...simplifiedTabs]

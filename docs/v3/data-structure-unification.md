@@ -1,8 +1,47 @@
 # 数据结构统一方案
 
-**目标**: 统一 Sessions（会话）和 Bookmarks（书签）模块的数据结构  
-**创建日期**: 2026年1月26日  
-**状态**: 📋 待执行
+**目标**: 统一 Sessions（会话）和 Bookmarks（书签）模块的数据结构
+**创建日期**: 2026年1月26日
+**最后更新**: 2026年1月27日
+**状态**: ✅ 已完成
+
+---
+
+## 📊 v2.1.0 更新：Favicon 缓存优化
+
+### 问题
+原有 `favIconUrl` 字段存储完整的 Google Favicon 服务 URL，每次刷新页面都会请求 Google 服务，导致大量网络请求。
+
+### 解决方案
+1. **Tab 数据只存 `domain`**（域名），不再存储 `favIconUrl`
+2. **新增 `favicon_cache` 存储**：`{ domain: faviconUrl }` 映射
+3. **显示时从缓存获取**，同一域名只存储一次图标 URL
+
+### 新的数据结构
+
+```javascript
+// Tab/Bookmark 数据 - 用 domain 替代 favIconUrl
+{
+  id: string,
+  title: string,
+  url: string,
+  domain: string,  // 新增：只存 hostname，如 "github.com"
+  // favIconUrl: 已废弃
+}
+
+// 新增：独立的图标缓存存储
+// Storage key: "favicon_cache"
+{
+  "github.com": "https://github.githubassets.com/favicons/favicon.svg",
+  "google.com": "https://www.google.com/favicon.ico",
+  // ...
+}
+```
+
+### 相关文件
+- `src/utils/faviconCache.js` - 缓存管理工具
+- `src/composables/useFavicon.js` - 组件使用的 composable
+- `src/utils/dataMigration.js` - 数据迁移（v2.1.0）
 
 ---
 
@@ -17,7 +56,7 @@
 {
   url: string,           // 标签页URL
   title: string,         // 标签页标题
-  favIconUrl: string,    // 网站图标
+  domain: string,        // 网站域名（用于获取图标）
   groupId: number        // Chrome标签组ID (可选)
 }
 ```
@@ -28,10 +67,10 @@
 // bookmarksStore 保存的 bookmark 结构
 {
   id: string,            // 书签唯一ID
-  name: string,          // ⚠️ 使用 name 而非 title
+  title: string,         // 标题
   url: string,           // 网址
+  domain: string,        // 网站域名（用于获取图标）
   description: string,   // 描述 (额外字段)
-  favIconUrl: string,    // 网站图标
   tags: string[],        // 标签 (额外字段)
   sourceGroup: string,   // 来源分组 (额外字段)
   createdAt: number,     // 创建时间
@@ -45,8 +84,9 @@
 
 | 字段     | Sessions (Tab)     | Bookmarks     | 建议统一           |
 | -------- | ------------------ | ------------- | ------------------ |
-| 标题字段 | `title`            | `name`        | **统一为 `title`** |
-| ID       | 无 (使用 url 标识) | `id`          | **全部添加 `id`**  |
+| 标题字段 | `title`            | `title`       | ✅ 已统一          |
+| ID       | 无 (使用 url 标识) | `id`          | ✅ 全部添加 `id`   |
+| 图标     | `domain`           | `domain`      | ✅ 已统一          |
 | 描述     | 无                 | `description` | 保留为可选         |
 | 标签     | 无                 | `tags`        | 保留为可选         |
 | 固定状态 | 无                 | `isPinned`    | 保留为可选         |

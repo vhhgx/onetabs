@@ -51,7 +51,7 @@
               class="suggestion-item"
               @click="handleResultClick(bookmark)"
             >
-              <img :src="bookmark.favIconUrl" class="bookmark-favicon" @error="handleImageError" />
+              <img :src="getBookmarkIcon(bookmark)" class="bookmark-favicon" @error="handleImageError" />
               <div class="bookmark-info">
                 <div class="bookmark-name" v-html="highlightMatch(bookmark.title)"></div>
                 <div class="bookmark-url">{{ formatUrl(bookmark.url) }}</div>
@@ -122,6 +122,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useBookmarksStore } from '@/stores/bookmarksStore'
+import { getTabFaviconSync } from '@/composables/useFavicon'
 import Chip from 'primevue/chip'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
@@ -342,8 +343,13 @@ function formatUrl(url) {
   }
 }
 
+// 获取书签图标
+function getBookmarkIcon(bookmark) {
+  return getTabFaviconSync(bookmark)
+}
+
 function handleImageError(event) {
-  event.target.src = 'https://www.google.com/favicon.ico'
+  event.target.src = '/icons/icon16.png'
 }
 
 // 快捷键支持

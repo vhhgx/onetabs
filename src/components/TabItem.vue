@@ -67,12 +67,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, toRef } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import DraggableTab from './DraggableTab.vue'
 import ContextMenu from './ContextMenu.vue'
 import { getSessionTabContextMenu } from '../utils/contextMenus'
 import { useContextMenu } from '../composables/useContextMenu'
+import { getTabFaviconSync } from '../composables/useFavicon'
 
 const props = defineProps({
   tab: {
@@ -99,12 +100,12 @@ const toast = useToast()
 const iconError = ref(false)
 const { showContextMenu, contextMenuPosition, showMenu } = useContextMenu()
 
-// 标签页图标
+// 标签页图标 - 使用 favicon 缓存
 const tabIcon = computed(() => {
-  if (iconError.value || !props.tab.favIconUrl) {
+  if (iconError.value) {
     return '/icons/icon16.png'
   }
-  return props.tab.favIconUrl
+  return getTabFaviconSync(props.tab)
 })
 
 // 右键菜单配置
